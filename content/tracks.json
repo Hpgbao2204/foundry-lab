@@ -55,7 +55,8 @@
         "title": "Basics",
         "lessons": [
           "rust.basics.ownership",
-          "rust.basics.structs-traits"
+          "rust.basics.structs-traits",
+          "rust.basics.error-handling"
         ]
       }
     ]

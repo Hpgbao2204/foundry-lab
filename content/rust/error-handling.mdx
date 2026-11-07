@@ -1,0 +1,141 @@
+---
+id: rust.basics.error-handling
+track: rust
+chapter: basics
+title: "Option, Result & ? — errors you cannot forget to handle"
+minutes: 10
+prerequisites: [rust.basics.structs-traits]
+researchBridge: "Rất nhiều lỗ hổng thật bắt nguồn từ một giá trị lỗi bị bỏ qua: hàm C trả về -1 hay NULL mà không ai kiểm tra. Trong Rust, lỗi nằm ngay trong kiểu trả về, nên compiler bắt bạn xử lý. Các thư viện crypto Rust trả về Option/Result cho mọi phép có thể thất bại: nghịch đảo của 0, giải mã một điểm không nằm trên curve, chữ ký sai định dạng."
+flashcards:
+  - front: "Option<T> — what are its two variants?"
+    back: "Some(value) and None. Use it when a value may be absent."
+  - front: "Result<T, E> — what are its two variants?"
+    back: "Ok(value) and Err(error). Use it when an operation can fail and you want to say why."
+  - front: "What does the ? operator do?"
+    back: "On Ok(v)/Some(v) it unwraps to v; on Err(e)/None it returns early from the current function (converting e with From)."
+  - front: "When may you use ? in a function?"
+    back: "Only if the function itself returns Result (or Option, for ? on Option)."
+  - front: "unwrap() vs expect(\"msg\")?"
+    back: "Both panic on None/Err; expect adds your message. Use them only when failure is truly impossible or in tests."
+  - front: "Why return Option<Fp> from inv() instead of Fp(0) for zero?"
+    back: "The caller is forced to handle the 'no inverse' case; a fake 0 would silently corrupt later math."
+---
+
+<Why>
+
+**Puzzle.** Nghịch đảo của $0$ trong $\mathbb{F}_7$ là gì? Không có — $0 \cdot x = 0 \neq 1$ với mọi $x$. Vậy hàm `inv` của bạn nên trả về gì khi nhận $0$?
+
+- Trả về `0`? Chương trình chạy tiếp, nhưng mọi phép tính sau đó âm thầm sai.
+- Trả về `-1` như C? Kiểu `u64` không có số âm, và ai nhớ kiểm tra `-1`?
+- Crash? Một server không nên chết chỉ vì một input xấu.
+
+Rust có câu trả lời thứ tư: **đưa khả năng thất bại vào kiểu trả về**. Khi đó, quên xử lý lỗi không còn là bug lúc chạy — nó là lỗi compile.
+
+</Why>
+
+<Intuition>
+
+Hãy nghĩ về một hộp quà có thể rỗng.
+
+- <Term en="Option">`Option<T>`</Term> là hộp **có thể không có gì**: `Some(5)` hoặc `None`. Dùng khi "không có kết quả" là chuyện bình thường: nghịch đảo của 0, phần tử đầu của một list rỗng.
+- <Term en="Result">`Result<T, E>`</Term> là hộp **có thể chứa lý do thất bại**: `Ok(5)` hoặc `Err("not a number")`. Dùng khi muốn nói *vì sao* hỏng: parse chuỗi, đọc file, gói tin sai định dạng.
+
+Bạn không thể dùng thẳng hộp như một số: `Some(5) + 1` không compile. Muốn lấy số ra, bạn phải **mở hộp** — và khi mở, compiler buộc bạn nói rõ làm gì nếu hộp rỗng. Đó là toàn bộ bí quyết.
+
+</Intuition>
+
+<Definition title="Option, Result, and ?">
+
+```rust
+enum Option<T>    { Some(T), None }
+enum Result<T, E> { Ok(T),   Err(E) }
+```
+
+`match` opens the box and must cover every variant.
+Inside a function that returns `Result<_, E>`, the expression `x?` evaluates to `v` if `x` is `Ok(v)`, and otherwise **returns** `Err(e)` from the function immediately (converting `e` into `E` with `From`). The same works for `Option` inside a function returning `Option`.
+
+</Definition>
+
+<Example title="a safe inverse and a parser for Fp">
+
+Tiếp tục với `Fp` và `P = 7` từ lesson trước.
+
+**Step 1 — `inv` returns `Option`.** Dùng Fermat: $a^{-1} = a^{p-2}$ khi $a \neq 0$.
+
+```rust
+impl Fp {
+    fn pow(self, mut e: u64) -> Fp {
+        let (mut base, mut acc) = (self, Fp::new(1));
+        while e > 0 {
+            if e & 1 == 1 { acc = acc * base; }
+            base = base * base;
+            e >>= 1;
+        }
+        acc
+    }
+    fn inv(self) -> Option<Fp> {
+        if self.value == 0 { None } else { Some(self.pow(P - 2)) }
+    }
+}
+```
+
+**Step 2 — the caller must open the box.**
+
+```rust
+match Fp::new(3).inv() {
+    Some(x) => println!("3^-1 = {:?}", x),   // Fp { value: 5 }, since 3·5 = 15 ≡ 1
+    None    => println!("no inverse"),
+}
+```
+
+Viết `Fp::new(3).inv() * Fp::new(2)` sẽ **không compile**: `Option<Fp>` không có phép `*`.
+
+**Step 3 — `Result` and `?` for a parser that can fail in two ways.**
+
+```rust
+#[derive(Debug)]
+enum FpError { NotANumber, TooBig, DivByZero }
+
+fn parse_fp(s: &str) -> Result<Fp, FpError> {
+    let v: u64 = s.trim().parse().map_err(|_| FpError::NotANumber)?;
+    if v >= P { return Err(FpError::TooBig); }
+    Ok(Fp::new(v))
+}
+
+fn divide(a: &str, b: &str) -> Result<Fp, FpError> {
+    let a = parse_fp(a)?;                       // early return on error
+    let b = parse_fp(b)?;
+    let b_inv = b.inv().ok_or(FpError::DivByZero)?;
+    Ok(a * b_inv)
+}
+```
+
+`divide("6", "3")` cho `Ok(Fp { value: 2 })` vì $3^{-1} = 5$ và $6 \cdot 5 = 30 \equiv 2$. `divide("6", "x")` dừng ngay ở dòng thứ hai, trả `Err(NotANumber)`; `divide("6", "0")` trả `Err(DivByZero)`. (`map_err(|_| ...)` dùng một closure — lesson sau sẽ giải thích.) Mỗi `?` là một "nếu lỗi thì thoát" — không cần if lồng nhau.
+
+</Example>
+
+**Aha:** `?` chính là `match` viết tắt. `let a = parse_fp(s)?;` tương đương
+
+```rust
+let a = match parse_fp(s) { Ok(v) => v, Err(e) => return Err(From::from(e)) };
+```
+
+<Pitfalls>
+
+- **Rải `unwrap()` khắp nơi.** `unwrap` biến lỗi thành <Term en="panic">panic</Term> — đúng cái crash ta muốn tránh. Chỉ dùng trong test, hoặc khi chắc chắn không thể lỗi; khi đó dùng `expect("lý do")` để log có nghĩa.
+- **Dùng `?` trong hàm trả về `()`.** `?` cần chỗ để "trả lỗi về". Đổi chữ ký thành `-> Result<(), E>` (kể cả `fn main() -> Result<(), Box<dyn std::error::Error>>`).
+- **Trộn `Option` và `Result` với `?`.** Trong hàm trả `Result`, không `?` thẳng một `Option` được; chuyển bằng `.ok_or(err)` trước.
+- **Giá trị "lính canh" kiểu C.** Trả `0` hay `u64::MAX` để báo lỗi là mở cửa cho bug; kiểu `Option` nói điều đó trung thực.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- `Option<T>`: có hoặc không (`Some`/`None`). `Result<T, E>`: thành công hoặc lỗi kèm lý do (`Ok`/`Err`).
+- Phải mở hộp bằng `match` (hoặc `?`, `ok_or`, `map_err`) — compiler không cho quên trường hợp lỗi.
+- `?` = "lấy giá trị, hoặc trả lỗi về ngay"; chỉ dùng trong hàm trả `Result`/`Option`.
+- `unwrap`/`expect` chỉ khi lỗi là bất khả hoặc trong test.
+
+</Summary>

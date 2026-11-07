@@ -1,0 +1,168 @@
+[
+  {
+    "id": "rust.basics.error-handling.inv-type",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "`inv` computes the inverse of an `Fp`, but `0` has no inverse. Which return type fits best?",
+    "options": ["`Option<Fp>`", "`Fp` (return `Fp::new(0)` for zero)", "`u64` (return `u64::MAX` for zero)", "`Result<Fp, String>` where the error is always the empty string"],
+    "answer": 0,
+    "hints": [
+      "\"Không có kết quả\" có phải chuyện bình thường ở đây không?",
+      "Lý do thất bại chỉ có một và hiển nhiên — có cần mô tả nó không?",
+      "Giá trị lính canh như `0` hay `u64::MAX` có ép người gọi kiểm tra không?"
+    ],
+    "solution": "`Option<Fp>`: `None` nói thẳng \"không có nghịch đảo\", và người gọi buộc phải xử lý. Giá trị giả như 0 sẽ làm sai âm thầm mọi phép tính sau."
+  },
+  {
+    "id": "rust.basics.error-handling.parse-type",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "What is the type of `\"42\".parse::<u64>()`?",
+    "options": ["`Result<u64, ParseIntError>`", "`Option<u64>`", "`u64`", "`Result<String, u64>`"],
+    "answer": 0,
+    "hints": [
+      "Parse có thể thất bại không? Ví dụ `\"abc\"`.",
+      "Khi thất bại, có ích nếu biết *vì sao* (rỗng, ký tự lạ, quá lớn).",
+      "Kiểu nào mang theo lý do lỗi?"
+    ],
+    "solution": "`Result<u64, ParseIntError>` — `Ok(42)` ở đây; với `\"abc\"` sẽ là `Err(...)` kèm lý do."
+  },
+  {
+    "id": "rust.basics.error-handling.match-none",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `r`?\n```rust\nfn safe_div(a: u32, b: u32) -> Option<u32> {\n    if b == 0 { None } else { Some(a / b) }\n}\nlet r = match safe_div(7, 0) { Some(q) => q, None => 99 };\n```",
+    "answer": "99",
+    "hints": [
+      "`safe_div(7, 0)` đi vào nhánh nào của `if`?",
+      "Nó trả về `None`.",
+      "`match` chọn arm `None => ...`."
+    ],
+    "solution": "`b == 0` nên trả `None`; `match` chọn `None => 99`, vậy `r = 99`."
+  },
+  {
+    "id": "rust.basics.error-handling.question-ok",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "`f(\"21\")` returns `Ok(n)`. What is `n`?\n```rust\nfn f(s: &str) -> Result<u64, std::num::ParseIntError> {\n    let x: u64 = s.parse()?;\n    Ok(x * 2 + 1)\n}\n```",
+    "answer": "43",
+    "hints": [
+      "`\"21\".parse()` thành công hay thất bại?",
+      "Thành công thì `?` mở hộp và cho `x = 21`.",
+      "$21 \\cdot 2 + 1 = ?$"
+    ],
+    "solution": "`parse` cho `Ok(21)`, `?` lấy ra `x = 21`, hàm trả `Ok(43)`."
+  },
+  {
+    "id": "rust.basics.error-handling.question-err",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "With `f` from the previous exercise, what happens on `f(\"hi\")`?",
+    "options": [
+      "`f` returns `Err(...)` immediately at the `?` line",
+      "The program panics",
+      "`x` becomes `0` and `f` returns `Ok(1)`",
+      "It does not compile"
+    ],
+    "answer": 0,
+    "hints": [
+      "`\"hi\".parse::<u64>()` trả gì?",
+      "`?` làm gì khi gặp `Err(e)`?",
+      "Nó không panic — nó *trả lỗi về* cho người gọi."
+    ],
+    "solution": "`parse` trả `Err(e)`; `?` trả `Err(e)` khỏi `f` ngay lập tức. Dòng `Ok(x * 2 + 1)` không bao giờ chạy."
+  },
+  {
+    "id": "rust.basics.error-handling.inv-fill",
+    "level": "A",
+    "type": "step-fill",
+    "prompt": "Complete `inv` for `Fp` (use Fermat: $a^{-1} = a^{p-2}$).",
+    "template": [
+      "fn inv(self) -> {{Option<Fp>}} {",
+      "    if self.value == 0 { {{None}} } else { {{Some}}(self.pow(P - {{2}})) }",
+      "}"
+    ],
+    "hints": [
+      "Kiểu trả về phải nói được \"có thể không có\".",
+      "Hai variant của `Option` tên là gì?",
+      "Fermat: $a^{p-1} = 1$ nên $a \\cdot a^{p-2} = 1$."
+    ],
+    "solution": "`fn inv(self) -> Option<Fp> { if self.value == 0 { None } else { Some(self.pow(P - 2)) } }`"
+  },
+  {
+    "id": "rust.basics.error-handling.question-in-main",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: you can write `let x: u64 = s.parse()?;` inside `fn main() { ... }` (which returns `()`).",
+    "answer": false,
+    "reasons": [
+      "`?` needs to return the error from the function, so the function must return `Result` (or `Option`).",
+      "`?` only works on `Option`, never on `Result`.",
+      "It is true: `?` panics when used in `main`.",
+      "It is false because `parse` cannot be called in `main`."
+    ],
+    "reason": 0,
+    "hints": [
+      "Khi gặp `Err`, `?` làm gì với lỗi?",
+      "Nó `return Err(...)` — kiểu trả về của `main` ở đây là gì?",
+      "Cách sửa: `fn main() -> Result<(), Box<dyn std::error::Error>>`."
+    ],
+    "solution": "**False.** `?` cần trả lỗi về, mà `main` trả `()`. Đổi chữ ký thành `fn main() -> Result<(), Box<dyn std::error::Error>>` và kết thúc bằng `Ok(())`."
+  },
+  {
+    "id": "rust.basics.error-handling.option-in-result",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Inside `fn divide(...) -> Result<Fp, FpError>`, which line correctly gets the inverse of `b` (an `Fp`)?",
+    "options": [
+      "`let b_inv = b.inv().ok_or(FpError::DivByZero)?;`",
+      "`let b_inv = b.inv()?;`",
+      "`let b_inv = b.inv();`  then use `a * b_inv`",
+      "`let b_inv = b.inv().unwrap_or(Fp::new(0));`"
+    ],
+    "answer": 0,
+    "hints": [
+      "`b.inv()` có kiểu `Option<Fp>`, còn hàm trả `Result`.",
+      "`?` trên `Option` trong hàm trả `Result` không compile. Cần chuyển `None` thành một lỗi.",
+      "`.ok_or(e)` biến `Some(v)` thành `Ok(v)` và `None` thành `Err(e)`."
+    ],
+    "solution": "`.ok_or(FpError::DivByZero)?` — chuyển `Option` thành `Result` rồi mới `?`. Phương án 2 không compile, 3 không compile vì `Option<Fp>` không nhân được, 4 compile nhưng âm thầm cho kết quả sai."
+  },
+  {
+    "id": "rust.basics.error-handling.unwrap-when",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "In which situations is `unwrap()` / `expect()` reasonable?",
+    "options": [
+      "In a unit test, where a panic just fails the test",
+      "When an earlier check guarantees the value is `Some`/`Ok`, with `expect` explaining why",
+      "When parsing user input in a web server",
+      "When decoding a point received from the network"
+    ],
+    "answer": [0, 1],
+    "hints": [
+      "`unwrap` panic khi gặp `None`/`Err`. Ở đâu panic là chấp nhận được?",
+      "Input từ người dùng/mạng có bao giờ đảm bảo đúng không?",
+      "Kẻ tấn công điều khiển input mạng — panic ở đó là DoS."
+    ],
+    "solution": "Trong test, và khi một bất biến đã đảm bảo (ghi lý do bằng `expect`). Input người dùng và dữ liệu mạng phải xử lý bằng `match`/`?`; panic ở đó cho phép kẻ tấn công đánh sập server."
+  },
+  {
+    "id": "rust.basics.error-handling.why-option",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Explain why `fn inv(self) -> Option<Fp>` is safer than `fn inv(self) -> Fp` that returns `Fp::new(0)` for zero. Give a concrete bug the second version allows.",
+    "rubric": [
+      "States that `Option` forces the caller to handle the `None` case at compile time.",
+      "Notes that `Fp::new(0)` is a valid-looking field element, so the error is silent.",
+      "Gives a concrete bug, e.g. `a / b` computed as `a * b.inv()` returns 0 for `b = 0` instead of failing, and later checks pass on wrong data.",
+      "Mentions that the failure is moved from runtime (wrong output) to compile time (type error)."
+    ],
+    "hints": [
+      "Với phiên bản trả `Fp`, người gọi có cách nào biết đã có lỗi không?",
+      "Thử tính $a / 0$ bằng `a * Fp::new(0).inv()`. Kết quả là gì? Có báo động gì không?",
+      "Còn với `Option`, dòng `a * b.inv()` có compile không?"
+    ],
+    "solution": "Với `-> Fp`, `inv(0)` trả về `0` — trông như một phần tử hợp lệ. `a * b.inv()` với `b = 0` cho `0` thay vì báo lỗi, và các phép tính sau (ví dụ kiểm tra chữ ký) chạy tiếp trên dữ liệu sai mà không ai hay. Với `-> Option<Fp>`, `a * b.inv()` không compile; người viết buộc phải chọn xử lý `None` (`match`, `ok_or(...)?`). Lỗi chuyển từ \"sai âm thầm lúc chạy\" sang \"lỗi kiểu lúc compile\"."
+  }
+]

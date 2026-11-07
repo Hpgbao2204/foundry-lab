@@ -27,5 +27,8 @@
   ],
   "math.algebra.finite-fields": [
     "math.algebra.rings-fields"
+  ],
+  "rust.basics.error-handling": [
+    "rust.basics.structs-traits"
   ]
 }

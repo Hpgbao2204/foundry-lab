@@ -6,12 +6,20 @@ function renderMath(tex: string, display: boolean): string {
   return katex.renderToString(tex, { displayMode: display, throwOnError: false, strict: 'ignore' });
 }
 
-const TOKEN = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$|`[^`]+`|\*\*[^*]+\*\*)/g;
+const TOKEN = /(```[a-z]*\n[\s\S]*?```|\$\$[\s\S]+?\$\$|\$[^$\n]+?\$|`[^`]+`|\*\*[^*]+\*\*)/g;
 
 export const MathText = memo(function MathText({ text, className, block = false }: { text: string; className?: string; block?: boolean }) {
   const parts = text.split(TOKEN);
   const nodes: ReactNode[] = parts.map((p, i) => {
     if (!p) return null;
+    if (p.startsWith('```')) {
+      const code = p.slice(p.indexOf('\n') + 1, -3).replace(/\n$/, '');
+      return (
+        <span key={i} className="my-2 block overflow-x-auto whitespace-pre rounded bg-neutral-100 px-3 py-2 font-mono text-[0.85em] leading-snug dark:bg-neutral-800">
+          {code}
+        </span>
+      );
+    }
     if (p.startsWith('$$')) return <span key={i} className="block" dangerouslySetInnerHTML={{ __html: renderMath(p.slice(2, -2), true) }} />;
     if (p.startsWith('$') && p.length > 1) return <span key={i} dangerouslySetInnerHTML={{ __html: renderMath(p.slice(1, -1), false) }} />;
     if (p.startsWith('`')) return <code key={i} className="rounded bg-neutral-100 px-1 font-mono text-[0.88em] dark:bg-neutral-800">{p.slice(1, -1)}</code>;

@@ -198,5 +198,20 @@
     "en": "irreducible polynomial",
     "vi": "đa thức bất khả quy",
     "explain": "Đa thức không phân tích được thành tích hai đa thức bậc thấp hơn — 'số nguyên tố' của thế giới đa thức."
+  },
+  {
+    "en": "Option",
+    "vi": "Option",
+    "explain": "Kiểu Rust cho giá trị có thể vắng mặt: Some(v) hoặc None. Thay cho NULL hay giá trị lính canh."
+  },
+  {
+    "en": "Result",
+    "vi": "Result",
+    "explain": "Kiểu Rust cho phép toán có thể thất bại: Ok(v) hoặc Err(e), với e mô tả lỗi."
+  },
+  {
+    "en": "panic",
+    "vi": "panic",
+    "explain": "Rust dừng thread hiện tại vì một lỗi không thể phục hồi (unwrap trên None, chỉ số ngoài mảng, tràn số ở debug build)."
   }
 ]

@@ -1,0 +1,137 @@
+[
+  {
+    "id": "rust.basics.iterators-closures.sum-squares",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `(1..=5).map(|x| x * x).sum::<u32>()`?",
+    "answer": "55",
+    "hints": [
+      "`1..=5` gồm cả 5: $1, 2, 3, 4, 5$.",
+      "`map` bình phương từng số, `sum` cộng lại.",
+      "$1 + 4 + 9 + 16 + 25$."
+    ],
+    "solution": "$1 + 4 + 9 + 16 + 25 = 55$."
+  },
+  {
+    "id": "rust.basics.iterators-closures.count-filter",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `(1..10).filter(|x| x % 3 == 0).count()`?",
+    "answer": "3",
+    "hints": [
+      "`1..10` có gồm 10 không?",
+      "`1..10` là $1, \\dots, 9$ (không gồm 10). Giữ lại số nào?",
+      "Bội của 3 trong $1..9$: 3, 6, 9."
+    ],
+    "solution": "`1..10` dừng ở 9; các bội của 3 là $3, 6, 9$, nên `count()` là 3."
+  },
+  {
+    "id": "rust.basics.iterators-closures.fold-digits",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `vec![3, 1, 4, 1, 5].iter().fold(0, |acc, x| acc * 10 + x)`?",
+    "answer": "31415",
+    "hints": [
+      "`fold` bắt đầu với `acc = 0` và cập nhật `acc` cho từng phần tử.",
+      "Sau phần tử đầu: $0 \\cdot 10 + 3 = 3$. Sau phần tử thứ hai?",
+      "$3 \\to 31 \\to 314 \\to \\dots$"
+    ],
+    "solution": "$0 \\to 3 \\to 31 \\to 314 \\to 3141 \\to 31415$. `fold` nối các chữ số thành một số."
+  },
+  {
+    "id": "rust.basics.iterators-closures.capture",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What does this print?\n```rust\nlet k = 3;\nlet add_k = |x: i32| x + k;\nprintln!(\"{}\", add_k(4) * 2);\n```",
+    "answer": "14",
+    "hints": [
+      "Closure `add_k` dùng biến `k` ở bên ngoài — nó *capture* `k`.",
+      "`add_k(4) = 4 + 3`.",
+      "Rồi nhân 2."
+    ],
+    "solution": "`add_k(4) = 4 + k = 7`, nhân 2 được `14`."
+  },
+  {
+    "id": "rust.basics.iterators-closures.qr-13",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `(1..13u64).map(|x| x * x % 13).collect::<BTreeSet<_>>().len()`?",
+    "answer": "6",
+    "verify": { "fn": "qrCount", "args": [13] },
+    "hints": [
+      "Đây là số bình phương khác nhau mod 13 của $x = 1, \\dots, 12$.",
+      "Theo phần Aha: với $p$ nguyên tố lẻ, đúng một nửa của $1..p-1$ là bình phương.",
+      "Hoặc tính: $1, 4, 9, 3, 12, 10$ rồi lặp lại theo thứ tự ngược."
+    ],
+    "solution": "Bình phương mod 13: $1, 4, 9, 3, 12, 10, 10, 12, 3, 9, 4, 1$. Tập có $6 = (13 - 1)/2$ phần tử."
+  },
+  {
+    "id": "rust.basics.iterators-closures.lazy",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "What does this program print?\n```rust\nlet v = vec![1, 2, 3];\nlet it = v.iter().map(|x| { println!(\"saw {}\", x); x * 10 });\nprintln!(\"done\");\n```",
+    "options": [
+      "Only `done`",
+      "`saw 1`, `saw 2`, `saw 3`, then `done`",
+      "`done`, then `saw 1`, `saw 2`, `saw 3`",
+      "It does not compile"
+    ],
+    "answer": 0,
+    "hints": [
+      "`map` là adapter hay consumer?",
+      "Iterator là lazy: closure chỉ chạy khi có ai gọi `next()`.",
+      "Ở đây có consumer nào kéo `it` không?"
+    ],
+    "solution": "Chỉ in `done`. `it` chưa bao giờ được tiêu thụ (không `for`, `sum`, `collect`…), nên closure không chạy lần nào. Compiler còn cảnh báo `unused variable` / `iterators are lazy`."
+  },
+  {
+    "id": "rust.basics.iterators-closures.moved-vec",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Which version compiles **and** prints `3` at the end?",
+    "options": [
+      "`let v = vec![1, 2, 3]; for x in &v { println!(\"{}\", x); } println!(\"{}\", v.len());`",
+      "`let v = vec![1, 2, 3]; for x in v { println!(\"{}\", x); } println!(\"{}\", v.len());`",
+      "`let v = vec![1, 2, 3]; let w: Vec<i32> = v.into_iter().collect(); println!(\"{}\", v.len());`",
+      "`let v = vec![1, 2, 3]; drop(v); println!(\"{}\", v.len());`"
+    ],
+    "answer": 0,
+    "hints": [
+      "`for x in v` gọi `v.into_iter()`. Điều đó làm gì với `v`?",
+      "`into_iter()` lấy ownership; sau đó `v` không dùng được nữa.",
+      "Chỉ mượn (`&v`) thì `v` còn nguyên."
+    ],
+    "solution": "Chỉ phương án 1: `for x in &v` mượn `v`. Các phương án còn lại đều *move* `v` (vào vòng lặp, vào `into_iter`, vào `drop`) rồi dùng lại — lỗi `borrow of moved value`."
+  },
+  {
+    "id": "rust.basics.iterators-closures.position",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "`(1..7u64).position(|a| a * a % 7 == 2)` returns `Some(i)`. What is `i`?",
+    "answer": "2",
+    "hints": [
+      "`position` trả về **chỉ số** (đếm từ 0) của phần tử đầu tiên thỏa điều kiện, không phải chính phần tử.",
+      "Tìm $a$ nhỏ nhất trong $1..6$ với $a^2 \\equiv 2 \\pmod 7$.",
+      "$3^2 = 9 \\equiv 2$. Số 3 đứng ở vị trí nào trong dãy $1, 2, 3, \\dots$?"
+    ],
+    "solution": "$1^2 = 1$, $2^2 = 4$, $3^2 = 9 \\equiv 2$. Phần tử là $a = 3$, nhưng nó ở chỉ số $2$ (dãy bắt đầu từ 1, chỉ số bắt đầu từ 0). Vậy `Some(2)`. Muốn lấy chính phần tử thì dùng `find`."
+  },
+  {
+    "id": "rust.basics.iterators-closures.half-squares",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Let $p$ be an odd prime. Prove that exactly $(p-1)/2$ of the numbers $1, \\dots, p-1$ are squares mod $p$ (this is what the `BTreeSet` length counts).",
+    "rubric": [
+      "Notes $x$ and $p - x$ (that is, $-x$) have the same square, and $x \\neq -x$ because $p$ is odd.",
+      "Shows $x^2 \\equiv y^2$ implies $(x-y)(x+y) \\equiv 0$.",
+      "Uses no zero divisors in $\\mathbb{F}_p$ to get $y \\equiv x$ or $y \\equiv -x$.",
+      "Concludes squaring is exactly 2-to-1 on $p - 1$ elements, giving $(p-1)/2$ squares."
+    ],
+    "hints": [
+      "Ghép $x$ với $-x$. Chúng có cùng bình phương không? Có thể trùng nhau không?",
+      "Giả sử $x^2 \\equiv y^2$. Phân tích $x^2 - y^2$.",
+      "Lesson rings & fields: field không có zero divisor."
+    ],
+    "solution": "Với $x \\neq 0$, $(-x)^2 = x^2$, và $x \\not\\equiv -x$ vì $2x \\equiv 0$ buộc $x \\equiv 0$ (do $p$ lẻ, 2 khả nghịch). Ngược lại, nếu $x^2 \\equiv y^2$ thì $(x - y)(x + y) \\equiv 0$; $\\mathbb{F}_p$ không có zero divisor nên $y \\equiv \\pm x$. Vậy mỗi bình phương khác 0 có **đúng 2** căn, và $p - 1$ phần tử khác 0 cho $(p-1)/2$ bình phương. ∎"
+  }
+]

@@ -1,0 +1,117 @@
+---
+id: rust.basics.iterators-closures
+track: rust
+chapter: basics
+title: "Iterators & closures — loops that read like math"
+minutes: 10
+prerequisites: [rust.basics.error-handling]
+researchBridge: "Code Rust thật — từ thư viện crypto tới parser gói tin — dùng iterator thay cho vòng lặp chỉ số: không có lỗi off-by-one, không đọc ngoài mảng, và compiler tối ưu chúng nhanh như vòng for viết tay ('zero-cost abstraction'). Ví dụ: tính tổng các điểm trên curve là points.iter().fold(identity, |acc, p| acc + p)."
+flashcards:
+  - front: "What is a closure in Rust?"
+    back: "An anonymous function that can capture variables from its surroundings, e.g. |x| x + k."
+  - front: "iter() vs iter_mut() vs into_iter() on a Vec?"
+    back: "iter() yields &T (borrow), iter_mut() yields &mut T, into_iter() yields T and consumes the Vec."
+  - front: "What does 'iterators are lazy' mean?"
+    back: "Adapters like map and filter do nothing until a consumer (sum, count, collect, for, …) pulls values."
+  - front: "Name three iterator consumers."
+    back: "sum, count, collect, fold, all, any, position, max, min…"
+  - front: "Why are exactly half of 1..p−1 squares mod an odd prime p?"
+    back: "x and −x have the same square, and x² = y² forces y = ±x (no zero divisors), so squaring is 2-to-1."
+---
+
+<Why>
+
+**Puzzle.** Trong $\mathbb{Z}_{11}$, những số nào là bình phương của một số khác 0? Bạn có thể tính tay mười phép nhân. Hoặc viết một dòng Rust:
+
+```rust
+let squares: BTreeSet<u64> = (1..11).map(|x| x * x % 11).collect();
+```
+
+Dòng đó đọc gần như công thức toán: *tập các $x^2 \bmod 11$ với $x$ chạy từ 1 tới 10*. Không có biến đếm `i`, không có `i < n` hay `i <= n` để nhầm, không có chỉ số mảng để vượt ra ngoài. Lesson này dạy hai mảnh ghép làm điều đó: **iterator** và **closure**.
+
+</Why>
+
+<Intuition>
+
+Hãy nghĩ về một **dây chuyền nhà máy**:
+
+- Một <Term en="iterator">iterator</Term> là băng chuyền đưa từng món ra: `1..11` đưa ra $1, 2, \dots, 10$.
+- Các trạm **adapter** biến đổi từng món đi qua: `map` (biến $x$ thành $x^2 \bmod 11$), `filter` (chỉ giữ món thỏa điều kiện).
+- Trạm cuối là **consumer** gom kết quả: `sum`, `count`, `collect` vào một tập, `all` để kiểm tra mọi món.
+
+Mỗi trạm cần biết "làm gì với một món" — đó là một hàm nhỏ không tên, gọi là <Term en="closure">closure</Term>: `|x| x * x % 11`. Closure còn **nhìn thấy biến xung quanh**: nếu có `let p = 11;` thì `|x| x * x % p` dùng được `p` mà không cần truyền vào.
+
+Và điều bất ngờ: băng chuyền **không chạy cho tới khi có trạm cuối kéo**. Chỉ `map` mà không `sum`/`collect` thì không có gì xảy ra cả — iterator là *lazy*.
+
+</Intuition>
+
+<Definition title="Closure, iterator, adapter, consumer">
+
+A **closure** `|args| body` is an anonymous function that may capture variables from its environment (by reference, by mutable reference, or by value with `move`).
+An **iterator** is any type implementing `Iterator`, i.e. a `next()` method returning `Option<Item>` — `None` means "done".
+**Adapters** (`map`, `filter`, `enumerate`, `zip`, `take`, …) build a new lazy iterator; **consumers** (`sum`, `count`, `collect`, `fold`, `all`, `any`, `position`, …) call `next()` until `None`.
+
+</Definition>
+
+Lưu ý `next()` trả về `Option` — đúng thứ ở lesson trước. Một iterator chỉ là "hộp có thể rỗng" được mở lặp đi lặp lại.
+
+<Example title="quadratic residues mod 11">
+
+**Step 1 — collect the squares.** (`BTreeSet` giữ thứ tự tăng dần, dễ đọc.)
+
+```rust
+use std::collections::BTreeSet;
+
+let p: u64 = 11;
+let squares: BTreeSet<u64> = (1..p).map(|x| x * x % p).collect();
+println!("{:?}", squares);            // {1, 3, 4, 5, 9}
+```
+
+Tính tay để kiểm: $1, 4, 9, 16 \equiv 5, 25 \equiv 3, 36 \equiv 3, 49 \equiv 5, 64 \equiv 9, 81 \equiv 4, 100 \equiv 1$. Đúng 5 giá trị khác nhau.
+
+**Step 2 — ask questions with consumers.**
+
+```rust
+let n_squares = squares.len();                                 // 5 = (11 - 1) / 2
+let two_is_square = squares.contains(&2);                      // false
+let first_root_of_5 = (1..p).find(|&x| x * x % p == 5);         // Some(4), since 16 ≡ 5
+let fermat_ok = (1..p).all(|a| (1..p).fold(1, |acc, _| acc * a % p) == 1);  // true
+```
+
+Dòng cuối kiểm Fermat cho **mọi** $a$: `fold` nhân $a$ vào `acc` đúng $p - 1 = 10$ lần, bắt đầu từ 1, nên được $a^{10} \bmod 11$. `all` trả `true` khi mọi kết quả bằng 1.
+
+**Step 3 — borrow vs consume.**
+
+```rust
+let v = vec![3, 1, 4, 1, 5];
+let total: i32 = v.iter().sum();       // borrows: v still usable
+let doubled: Vec<i32> = v.iter().map(|x| x * 2).collect();
+for x in v { /* takes ownership */ }   // into_iter(): v is moved here
+// println!("{:?}", v);                // error: borrow of moved value
+```
+
+Đây chính là ownership ở lesson đầu, giờ áp dụng cho vòng lặp.
+
+</Example>
+
+**Aha:** vì sao đúng **một nửa** là bình phương? Vì $x$ và $-x$ có cùng bình phương ($4^2 = 16 \equiv 5$ và $7^2 = 49 \equiv 5$, với $7 = -4$). Và trong field, $x^2 = y^2$ kéo theo $(x - y)(x + y) = 0$, nên $y = \pm x$ — không có zero divisor để tạo nghiệm thứ ba. Phép bình phương là "2 đổi 1". Các bình phương tạo một subgroup có index 2 của $\mathbb{Z}_{11}^*$ — Lagrange lại xuất hiện.
+
+<Pitfalls>
+
+- **Quên consumer.** `v.iter().map(|x| println!("{x}"));` không in gì cả (compiler cảnh báo `unused ... must be used`). Thêm `.for_each(...)` hoặc dùng `for`.
+- **Tham chiếu chồng tham chiếu.** `v.iter()` cho `&i32`; `filter` lại nhận tham chiếu tới item, nên closure thấy `&&i32`. Viết `.filter(|&&x| x > 2)` hoặc `.filter(|x| **x > 2)`.
+- **`collect` không biết gom vào đâu.** Phải ghi kiểu: `let s: Vec<_> = ...collect();` hoặc `.collect::<Vec<_>>()`.
+- **Tràn số khi `sum` hay `fold`.** Với `u64` và $p$ lớn, `acc * a` tràn — rút gọn `% p` ở **mỗi** bước, hoặc dùng `u128`.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Iterator = băng chuyền (`next()` trả `Option`); adapter biến đổi (`map`, `filter`); consumer kéo kết quả (`sum`, `count`, `collect`, `fold`, `all`, `find`).
+- Closure `|x| ...` là hàm không tên, bắt được biến xung quanh.
+- Iterator lazy: không có consumer thì không chạy.
+- `iter()` mượn, `iter_mut()` mượn để sửa, `into_iter()` / `for x in v` lấy luôn.
+
+</Summary>

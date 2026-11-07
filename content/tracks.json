@@ -56,7 +56,8 @@
         "lessons": [
           "rust.basics.ownership",
           "rust.basics.structs-traits",
-          "rust.basics.error-handling"
+          "rust.basics.error-handling",
+          "rust.basics.iterators-closures"
         ]
       }
     ]

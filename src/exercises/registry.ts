@@ -116,6 +116,13 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
   },
   /** a XOR b (addition in F_2[x]), as a bit string read in decimal */
   xorBits: (a, b) => Number((a ^ b).toString(2)),
+  /** number of distinct nonzero squares x² mod n, x = 1..n−1 */
+  qrCount: (n) => {
+    const s = new Set<number>();
+    for (let x = 1; x < n; x++) s.add((x * x) % n);
+    s.delete(0);
+    return s.size;
+  },
   /** p^k */
   pow: (p, k) => p ** k,
   /** nonzero zero divisors of Z_n: nonzero a with gcd(a, n) > 1 */

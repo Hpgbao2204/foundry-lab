@@ -213,5 +213,15 @@
     "en": "panic",
     "vi": "panic",
     "explain": "Rust dừng thread hiện tại vì một lỗi không thể phục hồi (unwrap trên None, chỉ số ngoài mảng, tràn số ở debug build)."
+  },
+  {
+    "en": "iterator",
+    "vi": "iterator",
+    "explain": "Đối tượng đưa ra từng phần tử một qua next() → Option<Item>. Adapter (map, filter) lười; consumer (sum, collect) mới chạy."
+  },
+  {
+    "en": "closure",
+    "vi": "closure",
+    "explain": "Hàm không tên |x| ..., có thể 'bắt' biến ở xung quanh nơi nó được viết."
   }
 ]

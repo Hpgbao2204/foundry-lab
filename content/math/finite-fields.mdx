@@ -1,0 +1,105 @@
+---
+id: math.algebra.finite-fields
+track: math
+chapter: abstract-algebra
+title: "Finite fields — a field with 8 elements, and why AES needs one"
+minutes: 10
+prerequisites: [math.algebra.rings-fields]
+researchBridge: "AES xem mỗi byte là một phần tử của 𝔽₂₅₆ = 𝔽₂[x]/(x⁸+x⁴+x³+x+1): cộng hai byte là XOR, nhân là nhân đa thức rồi rút gọn. Mã sửa lỗi Reed–Solomon trong QR code, CD, ổ cứng, và nhiều hệ thống ZK (dùng các field cỡ 2^k) cũng chạy trên finite field kiểu này."
+flashcards:
+  - front: "Which sizes can a finite field have?"
+    back: "Exactly the prime powers p^k. For each one there is essentially one field, written 𝔽_q with q = p^k."
+  - front: "Is ℤ₄ the field with 4 elements?"
+    back: "No — in ℤ₄, 2·2 = 0. 𝔽₄ is built as 𝔽₂[x]/(x² + x + 1)."
+  - front: "How do you build a field with p^k elements?"
+    back: "For q = p^k: take polynomials over 𝔽_p of degree < k, add/multiply them, and reduce modulo an irreducible polynomial of degree k."
+  - front: "What is an irreducible polynomial?"
+    back: "A polynomial that cannot be factored into two polynomials of lower degree — the polynomial version of a prime."
+  - front: "How do you add two elements of a field of size 2^k stored as bit strings?"
+    back: "XOR them (coefficients are added mod 2)."
+  - front: "Structure of the nonzero elements of 𝔽_q?"
+    back: "They form a cyclic group of order q − 1."
+---
+
+<Why>
+
+Lesson trước: $\mathbb{Z}_n$ là field chỉ khi $n$ nguyên tố. Vậy **không có field nào có 4 hoặc 8 phần tử**?
+
+Đáng tiếc cho máy tính, vì máy tính thích lũy thừa của 2: một byte có đúng $2^8 = 256$ giá trị. Nếu có một field 256 phần tử, ta có thể cộng, nhân, **chia** các byte mà không bao giờ bị tràn hay gặp zero divisor. AES cần chính điều đó.
+
+Tin tốt: field như vậy tồn tại. Chỉ là nó **không phải** $\mathbb{Z}_{256}$. Ta sẽ xây nó bằng cùng mẹo mà bạn đã dùng để xây $\mathbb{Z}_p$ — nhưng thay số nguyên bằng đa thức.
+
+</Why>
+
+<Intuition>
+
+Nhớ lại cách xây $\mathbb{Z}_7$: lấy số nguyên, **chia lấy dư cho một số nguyên tố**. Số nguyên tố quan trọng vì nó không phân tích được — nhờ đó không có zero divisor.
+
+Giờ làm y hệt với **đa thức hệ số trong $\mathbb{F}_2$** (hệ số chỉ là 0 hoặc 1, và $1 + 1 = 0$):
+
+- Lấy các đa thức, **chia lấy dư cho một đa thức "nguyên tố"** — gọi là <Term en="irreducible polynomial">irreducible polynomial</Term>, tức không phân tích thành tích hai đa thức bậc thấp hơn.
+- Nếu đa thức đó có bậc $k$, số dư có bậc $< k$, tức có dạng $a_{k-1}x^{k-1} + \dots + a_1 x + a_0$ — **$k$ bit**. Có $2^k$ số dư như vậy.
+
+Một byte $b_7 b_6 \dots b_0$ chính là một đa thức bậc $< 8$. Cộng hai đa thức = cộng từng hệ số mod 2 = **XOR**.
+
+</Intuition>
+
+<Definition title="Finite field of size p^k">
+
+Let $m(x)$ be an irreducible polynomial of degree $k$ over $\mathbb{F}_p$. Then
+$\mathbb{F}_{p^k} = \mathbb{F}_p[x] / (m(x))$ is the set of polynomials over $\mathbb{F}_p$ of degree $< k$, with addition coefficient-wise mod $p$, and multiplication **mod $m(x)$**. It is a field with $p^k$ elements.
+
+</Definition>
+
+<Theorem title="Classification of finite fields">
+
+Every finite field has $p^k$ elements for some prime $p$ and $k \ge 1$, and for each prime power there is exactly one such field up to renaming. Its nonzero elements form a **cyclic** group of order $p^k - 1$.
+
+</Theorem>
+
+Vì sao chỉ lũy thừa nguyên tố? Field hữu hạn có <Term en="characteristic">characteristic</Term> là một số nguyên tố $p$, và chứa $\mathbb{F}_p$ bên trong; field lớn hơn giống một "không gian vector" $k$ chiều trên $\mathbb{F}_p$, nên có $p^k$ phần tử. Không có field 6, 10 hay 12 phần tử.
+
+<Example title="𝔽₈ = 𝔽₂[x] / (x³ + x + 1)">
+
+**Step 1 — is $m(x) = x^3 + x + 1$ irreducible?** Một đa thức bậc 3 phân tích được thì phải có thừa số bậc 1, tức có nghiệm. Thử: $m(0) = 1$, $m(1) = 1 + 1 + 1 = 1$ (mod 2). Không có nghiệm, nên irreducible.
+
+**Step 2 — the reduction rule.** Trong field này $m(x) = 0$, tức $x^3 = -x - 1 = x + 1$ (vì $-1 = 1$ trong $\mathbb{F}_2$). Mọi khi gặp $x^3$, thay bằng $x + 1$.
+
+**Step 3 — powers of $x$**, viết dạng bit $a_2 a_1 a_0$:
+
+| power | polynomial | bits |
+|---|---|---|
+| $x^1$ | $x$ | 010 |
+| $x^2$ | $x^2$ | 100 |
+| $x^3$ | $x + 1$ | 011 |
+| $x^4$ | $x^2 + x$ | 110 |
+| $x^5$ | $x^3 + x^2 = x^2 + x + 1$ | 111 |
+| $x^6$ | $x^3 + x^2 + x = x^2 + 1$ | 101 |
+| $x^7$ | $x^3 + x = 1$ | 001 |
+
+Bảy lũy thừa đi qua **đủ 7** phần tử khác 0 rồi quay về 1: $x$ là generator, đúng như định lý (group cyclic order $8 - 1 = 7$).
+
+**Step 4 — multiply two elements.** $(x^2 + 1)(x + 1) = x^3 + x^2 + x + 1$. Thay $x^3 = x + 1$: $(x + 1) + x^2 + x + 1 = x^2$ (vì $x + x = 0$, $1 + 1 = 0$). Kiểm bằng bảng: $x^2 + 1 = x^6$, $x + 1 = x^3$, tích là $x^9 = x^7 \cdot x^2 = x^2$. Khớp!
+
+</Example>
+
+**Aha:** bảng lũy thừa biến phép nhân thành phép **cộng số mũ mod 7** — giống logarit. Các bản cài AES nhanh làm đúng như vậy: hai bảng log/antilog 256 ô thay cho phép nhân đa thức.
+
+<Pitfalls>
+
+- **Nhầm $\mathbb{F}_4$ với $\mathbb{Z}_4$.** Trong $\mathbb{Z}_4$, $2 \cdot 2 = 0$ nên không phải field. $\mathbb{F}_4$ là $\{0, 1, x, x + 1\}$ với $x^2 = x + 1$.
+- **Dùng đa thức không irreducible.** Với $x^2 + 1 = (x + 1)^2$ trên $\mathbb{F}_2$, phần tử $x + 1$ nhân chính nó ra 0 — zero divisor xuất hiện lại.
+- **Cộng có nhớ.** Trong $\mathbb{F}_{2^k}$ không có "carry": $011 + 011 = 000$, không phải $110$. Cộng là XOR.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Finite field có đúng $p^k$ phần tử; mỗi cỡ có đúng một field (sai khác tên gọi).
+- Xây $\mathbb{F}_{p^k}$: đa thức trên $\mathbb{F}_p$ bậc $< k$, nhân rồi rút gọn mod một irreducible polynomial bậc $k$.
+- Trong $\mathbb{F}_{2^k}$: phần tử = chuỗi $k$ bit, cộng = XOR.
+- Các phần tử khác 0 tạo cyclic group order $p^k - 1$ — nhân thành cộng số mũ.
+
+</Summary>

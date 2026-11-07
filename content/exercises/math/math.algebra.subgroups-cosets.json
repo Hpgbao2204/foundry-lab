@@ -1,0 +1,178 @@
+[
+  {
+    "id": "math.algebra.subgroups-cosets.size-4-in-12",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many elements does the subgroup $\\langle 4 \\rangle$ of $(\\mathbb{Z}_{12}, +)$ have?",
+    "answer": "3",
+    "verify": { "fn": "addOrder", "args": [4, 12] },
+    "generator": "addSubgroup",
+    "hints": [
+      "$\\langle 4 \\rangle$ gồm $0, 4, 4+4, \\dots$ (mod 12) cho tới khi quay về 0.",
+      "Số bước để quay về 0 là $12 / \\gcd(4, 12)$.",
+      "$0, 4, 8, 12 \\equiv 0$."
+    ],
+    "solution": "$\\langle 4 \\rangle = \\{0, 4, 8\\}$ có $12 / \\gcd(4, 12) = 12 / 4 = 3$ phần tử."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.size-9-in-15",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many elements does $\\langle 9 \\rangle$ have in $(\\mathbb{Z}_{15}, +)$?",
+    "answer": "5",
+    "verify": { "fn": "addOrder", "args": [9, 15] },
+    "hints": [
+      "Dùng công thức $|\\langle a \\rangle| = n / \\gcd(a, n)$.",
+      "Tính $\\gcd(9, 15)$.",
+      "$\\gcd(9, 15) = 3$."
+    ],
+    "solution": "$15 / 3 = 5$. Thật vậy: $0, 9, 18 \\equiv 3, 12, 21 \\equiv 6, 15 \\equiv 0$, nên $\\langle 9 \\rangle = \\{0, 3, 6, 9, 12\\}$."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.coset-3",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "In $(\\mathbb{Z}_{12}, +)$ with $H = \\{0, 4, 8\\}$, what is the coset $3 + H$?",
+    "options": ["$\\{3, 7, 11\\}$", "$\\{0, 12, 24\\}$", "$\\{3, 4, 8\\}$", "$\\{0, 3, 6, 9\\}$"],
+    "answer": 0,
+    "hints": [
+      "Coset $g + H$ = cộng $g$ vào **từng** phần tử của $H$.",
+      "Tính $3 + 0$, $3 + 4$, $3 + 8$ mod 12.",
+      "Không có gì vượt quá 12 ở đây."
+    ],
+    "solution": "$3 + H = \\{3, 7, 11\\}$ — $H$ dịch đi 3 giờ."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.which-subgroup",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Which subset is a subgroup of $(\\mathbb{Z}_{12}, +)$?",
+    "options": ["$\\{0, 6\\}$", "$\\{0, 5\\}$", "$\\{1, 5, 9\\}$", "$\\{0, 3, 6\\}$"],
+    "answer": 0,
+    "hints": [
+      "Kiểm tra: có chứa 0 không? Cộng hai phần tử có ra ngoài không?",
+      "$\\{1, 5, 9\\}$ có chứa identity không? $\\{0, 3, 6\\}$: $3 + 6 = ?$",
+      "$\\{0, 5\\}$: $5 + 5 = 10$ — có trong tập không?"
+    ],
+    "solution": "$\\{0, 6\\}$: $6 + 6 = 12 \\equiv 0$, closed và có inverse. $\\{0, 5\\}$ hỏng vì $5 + 5 = 10$. $\\{1, 5, 9\\}$ không chứa 0 (nó là một coset). $\\{0, 3, 6\\}$ hỏng vì $3 + 6 = 9$."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.index-2-mod-7",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Let $H = \\langle 2 \\rangle$ in $\\mathbb{Z}_7^*$. How many different cosets of $H$ are there?",
+    "answer": "2",
+    "verify": { "fn": "mulIndex", "args": [2, 7] },
+    "hints": [
+      "Lagrange: số coset $= |G| / |H|$.",
+      "$|\\mathbb{Z}_7^*| = 6$. Còn $|H|$ = order của 2.",
+      "$2, 4, 8 \\equiv 1$."
+    ],
+    "solution": "$H = \\{1, 2, 4\\}$, $|H| = 3$, nên có $6 / 3 = 2$ coset: $H$ và $3H = \\{3, 5, 6\\}$."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.size-3-mod-13",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many elements does $\\langle 3 \\rangle$ have in $\\mathbb{Z}_{13}^*$?",
+    "answer": "3",
+    "verify": { "fn": "order", "args": [3, 13] },
+    "hints": [
+      "$|\\langle g \\rangle|$ = order của $g$.",
+      "Tính $3, 3^2, 3^3, \\dots \\bmod 13$ cho tới khi gặp 1.",
+      "$3^3 = 27 = 2 \\cdot 13 + 1$."
+    ],
+    "solution": "$3, 9, 27 \\equiv 1$. Vậy $\\langle 3 \\rangle = \\{1, 3, 9\\}$ có 3 phần tử, và $3 \\mid 12$."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.order-35",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: a group with 35 elements can have a subgroup with 10 elements.",
+    "answer": false,
+    "reasons": [
+      "By Lagrange, a subgroup's size must divide 35, and 10 does not divide 35.",
+      "It is false because 35 is odd and every group needs an even size.",
+      "It is true because 10 < 35.",
+      "It is true if the group is abelian."
+    ],
+    "reason": 0,
+    "hints": [
+      "Định lý nào giới hạn cỡ của subgroup?",
+      "Lagrange: $|H|$ phải chia hết $|G|$.",
+      "Ước của 35 là 1, 5, 7, 35."
+    ],
+    "solution": "**False.** $10 \\nmid 35$, nên theo Lagrange không thể có subgroup 10 phần tử. Abelian hay không cũng không cứu được."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.generators-13",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "How many elements of $(\\mathbb{Z}_{13}, +)$ are generators?",
+    "answer": "12",
+    "verify": { "fn": "phi", "args": [13] },
+    "hints": [
+      "$|\\mathbb{Z}_{13}| = 13$ là số nguyên tố. Lagrange nói gì về order của mỗi phần tử?",
+      "Order phải là 1 hoặc 13. Phần tử nào có order 1?",
+      "Chỉ identity $0$ có order 1."
+    ],
+    "solution": "Order của mỗi phần tử chia hết 13, nên là 1 hoặc 13. Chỉ $0$ có order 1; **12** phần tử còn lại đều có order 13, tức đều là generator."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.cosets-overlap",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: two different cosets $aH \\neq bH$ can share an element.",
+    "answer": false,
+    "reasons": [
+      "If $x \\in aH \\cap bH$ then $a = b h_2 h_1^{-1}$, which forces $aH = bH$.",
+      "Cosets can overlap only when $G$ is not abelian.",
+      "It is true: $H$ and $gH$ always share $e$.",
+      "It is true because cosets can have different sizes."
+    ],
+    "reason": 0,
+    "hints": [
+      "Giả sử $x$ nằm trong cả hai: $x = a h_1 = b h_2$.",
+      "Giải ra $a$ theo $b$.",
+      "$a = b\\, h_2 h_1^{-1}$, và $h_2 h_1^{-1} \\in H$. Vậy $aH$ nằm trong đâu?"
+    ],
+    "solution": "**False.** Nếu chung $x$, thì $a = b\\,h_2 h_1^{-1}$ với $h_2 h_1^{-1} \\in H$, nên $aH \\subseteq bH$ và ngược lại — hai coset trùng nhau. Chỉ có thể *trùng hẳn* hoặc *rời hẳn*."
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.lagrange-order",
+    "level": "C",
+    "type": "proof-order",
+    "prompt": "Order the proof of Lagrange's theorem: $H \\le G$ finite $\\Rightarrow |H|$ divides $|G|$.",
+    "steps": [
+      "For each $g \\in G$ consider the coset $gH = \\{gh : h \\in H\\}$.",
+      "The map $h \\mapsto gh$ is injective (cancel $g$ on the left), so $|gH| = |H|$.",
+      "Every $g$ lies in some coset, because $g = g \\cdot e \\in gH$.",
+      "If two cosets share an element, then they are equal; so distinct cosets are disjoint.",
+      "So $G$ is a disjoint union of $m$ cosets of size $|H|$, giving $|G| = m \\cdot |H|$."
+    ],
+    "hints": [
+      "Ý chính: cắt $G$ thành các lát bằng nhau.",
+      "Cần ba tính chất: mỗi lát cỡ $|H|$, phủ kín $G$, không chồng nhau.",
+      "Bước cuối là đếm: $|G|$ = số lát × cỡ mỗi lát."
+    ],
+    "solution": "Định nghĩa coset → cùng cỡ $|H|$ → phủ kín → rời nhau → đếm: $|G| = m|H|$. ∎"
+  },
+  {
+    "id": "math.algebra.subgroups-cosets.prime-cyclic",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove: every group $G$ with $|G| = p$ prime is cyclic.",
+    "rubric": [
+      "Picks an element $g \\neq e$ (possible since $p \\ge 2$).",
+      "Uses Lagrange: $|\\langle g \\rangle|$ divides $p$.",
+      "Rules out size 1, because $\\langle g \\rangle$ contains both $e$ and $g \\neq e$.",
+      "Concludes $|\\langle g \\rangle| = p = |G|$, so $\\langle g \\rangle = G$ and $g$ is a generator."
+    ],
+    "hints": [
+      "Cyclic nghĩa là có một $g$ sinh ra tất cả. Thử lấy một $g \\neq e$ bất kỳ.",
+      "Áp dụng Lagrange cho subgroup $\\langle g \\rangle$.",
+      "Ước của $p$ chỉ có 1 và $p$. $\\langle g \\rangle$ có thể có 1 phần tử không?"
+    ],
+    "solution": "Vì $p \\ge 2$ nên có $g \\neq e$. Theo Lagrange, $|\\langle g \\rangle|$ chia hết $p$, nên bằng 1 hoặc $p$. Nhưng $\\langle g \\rangle \\ni e, g$ là hai phần tử khác nhau, nên cỡ $\\ge 2$, do đó bằng $p$. Một tập con $p$ phần tử của tập $p$ phần tử là chính nó: $\\langle g \\rangle = G$. ∎"
+  }
+]

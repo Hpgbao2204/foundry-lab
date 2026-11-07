@@ -1,0 +1,158 @@
+[
+  {
+    "id": "math.algebra.finite-fields.size-f9",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many elements does the field $\\mathbb{F}_3[x] / (x^2 + 1)$ have?",
+    "answer": "9",
+    "verify": { "fn": "pow", "args": [3, 2] },
+    "hints": [
+      "Phần tử là các đa thức bậc nhỏ hơn bậc của $x^2 + 1$.",
+      "Mỗi phần tử có dạng $a x + b$ với $a, b \\in \\mathbb{F}_3$.",
+      "Có bao nhiêu cách chọn $a$? Bao nhiêu cách chọn $b$?"
+    ],
+    "solution": "Phần tử là $ax + b$ với $a, b \\in \\{0, 1, 2\\}$: $3 \\cdot 3 = 9$ phần tử. (Vì $x^2 = -1$, đây giống \"số phức mod 3\" — $x$ đóng vai $i$.)"
+  },
+  {
+    "id": "math.algebra.finite-fields.xor-add",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "In $\\mathbb{F}_8$, add $(x^2 + x) + (x + 1)$. Answer as 3 bits $a_2 a_1 a_0$ (e.g. $101$ for $x^2 + 1$).",
+    "answer": "101",
+    "verify": { "fn": "xorBits", "args": [6, 3] },
+    "hints": [
+      "Cộng từng hệ số, mod 2.",
+      "Dạng bit: $110 + 011$. Cộng mod 2 từng cột, không nhớ.",
+      "Hệ số của $x$: $1 + 1 = 0$."
+    ],
+    "solution": "$110 \\oplus 011 = 101$, tức $x^2 + 1$. Hai số hạng $x$ triệt tiêu nhau vì $1 + 1 = 0$."
+  },
+  {
+    "id": "math.algebra.finite-fields.x-cubed",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "In $\\mathbb{F}_8 = \\mathbb{F}_2[x] / (x^3 + x + 1)$, compute $x \\cdot x^2$. Answer as 3 bits $a_2 a_1 a_0$.",
+    "answer": "011",
+    "verify": { "fn": "gf2MulBits", "args": [2, 4, 11] },
+    "hints": [
+      "$x \\cdot x^2 = x^3$, nhưng bậc 3 không được phép — phải rút gọn.",
+      "Trong field này $x^3 + x + 1 = 0$, nên $x^3 = ?$",
+      "Trong $\\mathbb{F}_2$, $-1 = 1$."
+    ],
+    "solution": "$x^3 = -x - 1 = x + 1$, dạng bit $011$."
+  },
+  {
+    "id": "math.algebra.finite-fields.mul-f8",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "In $\\mathbb{F}_8 = \\mathbb{F}_2[x] / (x^3 + x + 1)$, compute $(x^2 + x) \\cdot x$. Answer as 3 bits.",
+    "answer": "111",
+    "verify": { "fn": "gf2MulBits", "args": [6, 2, 11] },
+    "hints": [
+      "Nhân bình thường trước, rút gọn sau.",
+      "$(x^2 + x) \\cdot x = x^3 + x^2$.",
+      "Thay $x^3 = x + 1$."
+    ],
+    "solution": "$x^3 + x^2 = (x + 1) + x^2 = x^2 + x + 1$, dạng bit $111$. (Trong bảng: $x^4 \\cdot x = x^5$.)"
+  },
+  {
+    "id": "math.algebra.finite-fields.possible-sizes",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Which numbers are the size of some finite field?",
+    "options": ["$4$", "$6$", "$8$", "$9$", "$10$", "$12$", "$25$"],
+    "answer": [0, 2, 3, 6],
+    "hints": [
+      "Finite field có đúng $p^k$ phần tử.",
+      "Phân tích từng số ra thừa số nguyên tố.",
+      "$6 = 2 \\cdot 3$ có hai nguyên tố khác nhau."
+    ],
+    "solution": "$4 = 2^2$, $8 = 2^3$, $9 = 3^2$, $25 = 5^2$ là lũy thừa nguyên tố. $6, 10, 12$ không phải."
+  },
+  {
+    "id": "math.algebra.finite-fields.x-to-7",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "In $\\mathbb{F}_8 = \\mathbb{F}_2[x] / (x^3 + x + 1)$, compute $x^7$. Answer as 3 bits.",
+    "answer": "001",
+    "verify": { "fn": "gf2PowBits", "args": [2, 7, 11] },
+    "hints": [
+      "Group các phần tử khác 0 có bao nhiêu phần tử?",
+      "Lagrange (hay Fermat cho field): $a^{|G|} = 1$ với $|G| = 8 - 1$.",
+      "Hoặc dùng bảng lũy thừa trong worked example."
+    ],
+    "solution": "Group nhân có $7$ phần tử, nên $x^7 = 1$, dạng bit $001$. Đây là Fermat's little theorem phiên bản $\\mathbb{F}_8$."
+  },
+  {
+    "id": "math.algebra.finite-fields.z4-not-f4",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: $\\mathbb{Z}_4$ (arithmetic mod 4) is the field with 4 elements.",
+    "answer": false,
+    "reasons": [
+      "In $\\mathbb{Z}_4$, $2 \\cdot 2 = 0$, so 2 has no inverse; $\\mathbb{F}_4$ is $\\mathbb{F}_2[x] / (x^2 + x + 1)$ instead.",
+      "There is no field with 4 elements at all.",
+      "It is true: $\\mathbb{Z}_n$ is a field whenever $n$ is a prime power.",
+      "$\\mathbb{Z}_4$ is not even a ring."
+    ],
+    "reason": 0,
+    "hints": [
+      "Kiểm tra zero divisor trong $\\mathbb{Z}_4$.",
+      "$2 \\cdot 2 = ?$",
+      "Field 4 phần tử có tồn tại không, theo định lý phân loại?"
+    ],
+    "solution": "**False.** $2 \\cdot 2 = 4 \\equiv 0$ trong $\\mathbb{Z}_4$. Field 4 phần tử có tồn tại, nhưng đó là $\\{0, 1, x, x+1\\}$ với $x^2 = x + 1$; ở đó $1 + 1 = 0$ (characteristic 2), khác hẳn $\\mathbb{Z}_4$ nơi $1 + 1 = 2 \\neq 0$."
+  },
+  {
+    "id": "math.algebra.finite-fields.orders-f16",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "In $\\mathbb{F}_{16}$, which numbers can be the multiplicative order of a nonzero element?",
+    "options": ["$1$", "$3$", "$5$", "$15$", "$4$", "$8$", "$16$"],
+    "answer": [0, 1, 2, 3],
+    "hints": [
+      "Các phần tử khác 0 tạo group nhân bao nhiêu phần tử?",
+      "$16 - 1 = 15$. Lagrange nói gì?",
+      "Group đó cyclic, nên **mọi** ước của 15 đều xuất hiện."
+    ],
+    "solution": "Group nhân có order 15 và cyclic, nên order có thể là đúng các ước của 15: $1, 3, 5, 15$. Không có order 4, 8 hay 16."
+  },
+  {
+    "id": "math.algebra.finite-fields.reducible",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: $\\mathbb{F}_2[x] / (x^2 + 1)$ is a field.",
+    "answer": false,
+    "reasons": [
+      "$x^2 + 1 = (x+1)^2$ over $\\mathbb{F}_2$, so $(x+1)(x+1) = 0$ is a zero divisor.",
+      "Because $x^2 + 1$ has no roots in $\\mathbb{F}_2$.",
+      "It is true: every degree-2 polynomial gives a field.",
+      "Because it has 3 elements."
+    ],
+    "reason": 0,
+    "hints": [
+      "Phải dùng irreducible polynomial. $x^2 + 1$ có nghiệm trong $\\mathbb{F}_2$ không?",
+      "Thử $x = 1$: $1 + 1 = ?$",
+      "Khai triển $(x+1)^2$ trên $\\mathbb{F}_2$."
+    ],
+    "solution": "**False.** $(x+1)^2 = x^2 + 2x + 1 = x^2 + 1$ trên $\\mathbb{F}_2$, nên trong thương $(x+1)(x+1) = 0$ dù $x + 1 \\neq 0$ — zero divisor."
+  },
+  {
+    "id": "math.algebra.finite-fields.char-prime",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "The characteristic of a field $F$ is the smallest $n \\ge 1$ with $\\underbrace{1 + \\dots + 1}_{n} = 0$. Prove: if it exists, it is prime.",
+    "rubric": [
+      "Assumes $n = ab$ with $1 < a, b < n$ (for contradiction).",
+      "Writes $n \\cdot 1 = (a \\cdot 1)(b \\cdot 1)$ using distributivity.",
+      "Uses no zero divisors: $a \\cdot 1 = 0$ or $b \\cdot 1 = 0$.",
+      "Contradiction with minimality of $n$, since $a, b < n$. Also notes $n \\neq 1$ because $1 \\neq 0$."
+    ],
+    "hints": [
+      "Phản chứng: giả sử $n = ab$ là hợp số.",
+      "Viết $n \\cdot 1$ thành tích của $(a \\cdot 1)$ và $(b \\cdot 1)$.",
+      "Field không có zero divisor — dùng kết quả của lesson trước."
+    ],
+    "solution": "$n \\neq 1$ vì $1 \\neq 0$. Giả sử $n = ab$ với $1 < a, b < n$. Theo luật phân phối, $0 = n \\cdot 1 = (a \\cdot 1)(b \\cdot 1)$. Field không có zero divisor nên $a \\cdot 1 = 0$ hoặc $b \\cdot 1 = 0$ — mâu thuẫn với việc $n$ là số nhỏ nhất. Vậy $n$ nguyên tố. ∎"
+  }
+]

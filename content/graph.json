@@ -18,5 +18,14 @@
   ],
   "rust.basics.structs-traits": [
     "rust.basics.ownership"
+  ],
+  "math.algebra.subgroups-cosets": [
+    "math.algebra.groups"
+  ],
+  "math.algebra.rings-fields": [
+    "math.algebra.subgroups-cosets"
+  ],
+  "math.algebra.finite-fields": [
+    "math.algebra.rings-fields"
   ]
 }

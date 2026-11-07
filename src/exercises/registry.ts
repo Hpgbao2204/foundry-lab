@@ -64,6 +64,19 @@ export function euclidSteps(a: number, b: number): number {
   return steps;
 }
 
+/** Carry-less multiply of bit-mask polynomials over F_2, reduced mod `poly`. */
+export function gf2Mul(a: number, b: number, poly: number): number {
+  const deg = 31 - Math.clz32(poly);
+  let r = 0;
+  while (b) {
+    if (b & 1) r ^= a;
+    b >>= 1;
+    a <<= 1;
+    if (a & (1 << deg)) a ^= poly;
+  }
+  return r;
+}
+
 /** Solve a·x + b ≡ c (mod p); returns x in [0, p) or null. */
 export function solveLinear(a: number, b: number, c: number, p: number): bigint | null {
   const inv = modInverse(B(a), B(p));
@@ -91,6 +104,30 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
     return c;
   },
   phi: (n) => phi(n),
+  /** size of the cyclic subgroup <a> of (Z_n, +) = n / gcd(a, n) */
+  addOrder: (a, n) => n / Number(gcd(B(a), B(n))),
+  /** number of cosets of <a> in Z_p^* = (p − 1) / order(a) */
+  mulIndex: (a, p) => (p - 1) / elementOrder(a, p),
+  /** number of x in Z_n with x² ≡ x */
+  idempotents: (n) => {
+    let c = 0;
+    for (let x = 0; x < n; x++) if ((x * x) % n === x) c++;
+    return c;
+  },
+  /** a XOR b (addition in F_2[x]), as a bit string read in decimal */
+  xorBits: (a, b) => Number((a ^ b).toString(2)),
+  /** p^k */
+  pow: (p, k) => p ** k,
+  /** nonzero zero divisors of Z_n: nonzero a with gcd(a, n) > 1 */
+  zeroDivisors: (n) => n - 1 - phi(n),
+  /** a · b in F_2[x] / (poly), all as bit masks; returned as the bit string read in decimal (x²+1 → 101) */
+  gf2MulBits: (a, b, poly) => Number(gf2Mul(a, b, poly).toString(2)),
+  /** a^e in F_2[x] / (poly), as a bit string read in decimal */
+  gf2PowBits: (a, e, poly) => {
+    let r = 1;
+    for (let i = 0; i < e; i++) r = gf2Mul(r, a, poly);
+    return Number(r.toString(2));
+  },
   euclidSteps: (a, b) => euclidSteps(a, b),
   /** smallest prime p with 2^p − 1 composite */
   minCompositeMersenneExponent: () => {

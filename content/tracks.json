@@ -25,7 +25,10 @@
         "id": "abstract-algebra",
         "title": "Abstract algebra",
         "lessons": [
-          "math.algebra.groups"
+          "math.algebra.groups",
+          "math.algebra.subgroups-cosets",
+          "math.algebra.rings-fields",
+          "math.algebra.finite-fields"
         ]
       }
     ]

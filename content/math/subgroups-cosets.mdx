@@ -1,0 +1,105 @@
+---
+id: math.algebra.subgroups-cosets
+track: math
+chapter: abstract-algebra
+title: "Subgroups & cosets — why Lagrange's theorem is true"
+minutes: 10
+prerequisites: [math.algebra.groups]
+researchBridge: "Diffie–Hellman và chữ ký số luôn làm việc trong một subgroup có order là số nguyên tố lớn. Nếu order của group bị 'vỡ' thành nhiều thừa số nhỏ, kẻ tấn công giải bài toán trên từng subgroup nhỏ rồi ghép lại bằng CRT (Pohlig–Hellman, small subgroup attack). Lagrange cho biết những subgroup nào có thể tồn tại."
+flashcards:
+  - front: "What is a subgroup?"
+    back: "A subset H of a group G that is itself a group under the same operation (contains e, closed under the operation and inverses)."
+  - front: "What is the coset gH?"
+    back: "The set {g·h : h ∈ H} — the subgroup H shifted by g."
+  - front: "Two key facts about cosets of H?"
+    back: "Every coset has exactly |H| elements, and two cosets are either equal or disjoint."
+  - front: "Lagrange's theorem (full version)?"
+    back: "If H is a subgroup of a finite group G, then |H| divides |G|. The number of cosets is |G| / |H|."
+  - front: "Size of the subgroup ⟨a⟩ of (ℤ_n, +)?"
+    back: "n / gcd(a, n)."
+  - front: "Why is every group of prime order cyclic?"
+    back: "Any g ≠ e has order dividing p and > 1, so its order is p: g generates everything."
+---
+
+<Why>
+
+**Puzzle.** Một kim đồng hồ 12 giờ, mỗi lần nhảy cùng một số giờ $k$. Nhảy 4 giờ một lần thì kim chỉ ghé $0, 4, 8$ — 3 vị trí. Nhảy 3 giờ thì ghé $0, 3, 6, 9$ — 4 vị trí. Có cách chọn $k$ nào để kim ghé **đúng 5** vị trí không?
+
+Thử bao nhiêu lần cũng không được, và lý do không nằm ở số 12 mà ở một định lý tổng quát. Lesson trước ta đã *dùng* Lagrange (order chia hết $|G|$) để có Fermat. Lesson này ta **chứng minh** nó — bằng một ý tưởng hình học rất đẹp: cắt group thành các "lát" bằng nhau.
+
+</Why>
+
+<Intuition>
+
+Những vị trí kim ghé $\{0, 4, 8\}$ tự tạo thành một group nhỏ nằm bên trong $(\mathbb{Z}_{12}, +)$: cộng hai số trong đó vẫn ra số trong đó, có 0, và mỗi số có "số ngược" ($4 + 8 = 12 \equiv 0$). Đó là một <Term en="subgroup">subgroup</Term>.
+
+Giờ **dịch** cả tập đó đi 1 giờ: $\{1, 5, 9\}$. Dịch 2 giờ: $\{2, 6, 10\}$. Dịch 3 giờ: $\{3, 7, 11\}$. Bốn "lát", mỗi lát 3 số, không chồng lên nhau, phủ kín 12 giờ. Mỗi lát là một <Term en="coset">coset</Term>.
+
+Vì 12 số bị cắt thành các lát **cùng kích thước 3**, nên 3 phải chia hết 12. Đó là toàn bộ ý tưởng của Lagrange. Kim ghé 5 vị trí sẽ cần cắt 12 thành các lát cỡ 5 — bất khả.
+
+</Intuition>
+
+<Definition title="Subgroup, cyclic subgroup">
+
+A subset $H \subseteq G$ is a **subgroup** if it contains $e$, and for all $a, b \in H$ also $a \cdot b \in H$ and $a^{-1} \in H$.
+For $g \in G$, the **cyclic subgroup** $\langle g \rangle = \{e, g, g^2, g^3, \dots\}$ is the smallest subgroup containing $g$. Its size equals the order of $g$.
+
+</Definition>
+
+<Definition title="Coset">
+
+For a subgroup $H$ and $g \in G$, the (left) **coset** is $gH = \{g \cdot h : h \in H\}$. In additive notation it is written $g + H$.
+
+</Definition>
+
+<Example title="cosets in ℤ₇*">
+
+Lấy $H = \langle 2 \rangle$ trong $\mathbb{Z}_7^*$. Lũy thừa của 2: $2, 4, 8 \equiv 1$, nên $H = \{1, 2, 4\}$.
+
+**Step 1 — pick an element outside $H$.** Lấy $3$, nhân 3 với từng phần tử của $H$:
+$3 \cdot 1 = 3$, $\; 3 \cdot 2 = 6$, $\; 3 \cdot 4 = 12 \equiv 5$. Vậy $3H = \{3, 5, 6\}$.
+
+**Step 2 — check.** $H = \{1, 2, 4\}$ và $3H = \{3, 5, 6\}$: rời nhau, cùng 3 phần tử, hợp lại đúng bằng $\{1, \dots, 6\}$.
+
+**Step 3 — try another shift.** $5H = \{5, 10, 20\} \equiv \{5, 3, 6\} = 3H$. Không ra lát mới — đã hết chỗ.
+
+Vậy $|G| = 6 = 2 \cdot 3$: 2 coset, mỗi coset 3 phần tử.
+
+</Example>
+
+<Theorem title="Lagrange">
+
+If $H$ is a subgroup of a finite group $G$, then $|H|$ divides $|G|$, and $G$ splits into exactly $|G| / |H|$ disjoint cosets of $H$.
+
+</Theorem>
+
+**Proof**, ba bước, mỗi bước một dòng:
+
+1. **Mỗi coset có đúng $|H|$ phần tử.** Ánh xạ $h \mapsto gh$ không gộp hai phần tử: nếu $gh = gh'$ thì nhân $g^{-1}$ bên trái được $h = h'$.
+2. **Mỗi phần tử nằm trong một coset.** $g = g \cdot e \in gH$.
+3. **Hai coset hoặc trùng nhau, hoặc rời nhau.** Nếu $x \in aH \cap bH$ thì $x = a h_1 = b h_2$, nên $a = b\,h_2 h_1^{-1}$. Khi đó mọi $a h = b\,(h_2 h_1^{-1} h) \in bH$, tức $aH \subseteq bH$; đổi vai trò thì có chiều ngược lại.
+
+Vậy $G$ bị cắt thành $m$ lát rời nhau, mỗi lát $|H|$ phần tử: $|G| = m \cdot |H|$. ∎
+
+**Aha 1:** áp dụng cho $H = \langle g \rangle$, có $|H| = $ order của $g$ — ra đúng phiên bản "order chia hết $|G|$" của lesson trước, và từ đó ra Fermat.
+
+**Aha 2:** nếu $|G| = p$ là số nguyên tố, mọi $g \ne e$ có order chia hết $p$ và lớn hơn 1, nên order là $p$: **mọi** phần tử khác $e$ đều là generator. Đây là lý do crypto thích group có order nguyên tố — không có subgroup nhỏ nào để kẻ tấn công trốn vào.
+
+<Pitfalls>
+
+- **Đảo ngược Lagrange.** "Nếu $d \mid |G|$ thì có subgroup cỡ $d$" — đúng với cyclic group, nhưng **sai** nói chung (có group 12 phần tử không có subgroup cỡ 6).
+- **Quên kiểm tra identity.** $\{1, 5, 9\}$ trong $(\mathbb{Z}_{12}, +)$ có 3 phần tử nhưng không chứa 0 — nó là coset, không phải subgroup.
+- **Nhầm coset với subgroup.** Chỉ đúng một coset là subgroup: chính $H = eH$. Các coset khác không chứa $e$.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Subgroup = group nằm bên trong group; $\langle g \rangle$ có cỡ bằng order của $g$.
+- Coset $gH$ = $H$ dịch đi $g$. Các coset cùng cỡ $|H|$ và chia $G$ thành các lát rời nhau.
+- Lagrange: $|H|$ chia hết $|G|$. Hệ quả: order chia hết $|G|$, Fermat, và group order nguyên tố thì cyclic.
+- Trong $(\mathbb{Z}_n, +)$: $|\langle a \rangle| = n / \gcd(a, n)$.
+
+</Summary>

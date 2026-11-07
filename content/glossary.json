@@ -163,5 +163,40 @@
     "en": "Chinese Remainder Theorem",
     "vi": "định lý số dư Trung Hoa",
     "explain": "Moduli coprime ⇒ hệ x ≡ aᵢ (mod nᵢ) có đúng một nghiệm modulo tích các nᵢ."
+  },
+  {
+    "en": "subgroup",
+    "vi": "nhóm con",
+    "explain": "Tập con của một group, tự nó cũng là group với cùng phép toán: chứa identity, đóng với phép toán và nghịch đảo."
+  },
+  {
+    "en": "coset",
+    "vi": "lớp kề",
+    "explain": "gH = {g·h : h ∈ H}: subgroup H được 'dịch' đi g. Các coset cùng cỡ và chia group thành các lát rời nhau."
+  },
+  {
+    "en": "ring",
+    "vi": "vành",
+    "explain": "Tập có phép cộng và nhân như số nguyên: cộng/trừ/nhân thoải mái, có luật phân phối, nhưng chưa chắc chia được."
+  },
+  {
+    "en": "field",
+    "vi": "trường",
+    "explain": "Ring mà mọi phần tử khác 0 đều có nghịch đảo nhân — chia được. Ví dụ ℚ, ℝ, 𝔽_p."
+  },
+  {
+    "en": "unit",
+    "vi": "phần tử khả nghịch",
+    "explain": "Phần tử có nghịch đảo nhân. Trong ℤ_n: các a với gcd(a, n) = 1."
+  },
+  {
+    "en": "characteristic",
+    "vi": "đặc số",
+    "explain": "Số n nhỏ nhất sao cho 1 + 1 + … + 1 (n lần) = 0. Của một field luôn là số nguyên tố (hoặc không tồn tại, như ℚ)."
+  },
+  {
+    "en": "irreducible polynomial",
+    "vi": "đa thức bất khả quy",
+    "explain": "Đa thức không phân tích được thành tích hai đa thức bậc thấp hơn — 'số nguyên tố' của thế giới đa thức."
   }
 ]

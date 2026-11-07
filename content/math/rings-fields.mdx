@@ -1,0 +1,95 @@
+---
+id: math.algebra.rings-fields
+track: math
+chapter: abstract-algebra
+title: "Rings & fields — when can you divide?"
+minutes: 10
+prerequisites: [math.algebra.subgroups-cosets]
+researchBridge: "Mọi phép tính trong RSA sống trong ring ℤ_n (nên có zero divisor — và nếu tình cờ gặp một cái, bạn vừa phân tích được n!). Elliptic curve, AES, zk-SNARK thì sống trong field, nơi phép chia luôn làm được. Biết mình đang ở ring hay field là biết phép 'chia' nào an toàn."
+flashcards:
+  - front: "What is a ring (commutative, with 1)?"
+    back: "A set with + and · where (R, +) is an abelian group, · is associative and commutative with identity 1, and · distributes over +."
+  - front: "What is a field?"
+    back: "A ring where 1 ≠ 0 and every nonzero element has a multiplicative inverse."
+  - front: "When is ℤ_n a field?"
+    back: "Exactly when n is prime."
+  - front: "What is a unit of a ring? Units of ℤ_n?"
+    back: "An element with a multiplicative inverse. In ℤ_n: the a with gcd(a, n) = 1 — there are φ(n) of them."
+  - front: "Why does a field have no zero divisors?"
+    back: "If ab = 0 and a ≠ 0, multiply by a⁻¹: b = a⁻¹·0 = 0."
+  - front: "Freshman's dream in characteristic p?"
+    back: "(a + b)^p = a^p + b^p, because p divides every binomial coefficient C(p, k) with 0 < k < p."
+---
+
+<Why>
+
+**Puzzle.** Giải phương trình $2x = 1$ trong bốn thế giới:
+
+- trong số nguyên $\mathbb{Z}$: **không có nghiệm** ($x = 1/2$ không phải số nguyên);
+- trong số hữu tỉ $\mathbb{Q}$: $x = 1/2$;
+- trong $\mathbb{Z}_7$: $x = 4$, vì $2 \cdot 4 = 8 \equiv 1$;
+- trong $\mathbb{Z}_6$: thử hết $0, \dots, 5$, tích $2x$ chỉ ra $0, 2, 4$ — **không có nghiệm**.
+
+Cả bốn thế giới đều cộng, trừ, nhân thoải mái. Khác biệt duy nhất: **chia được hay không**. Lesson này đặt tên cho hai loại thế giới đó — ring và field — và trả lời: $\mathbb{Z}_n$ nào cho phép chia?
+
+</Why>
+
+<Intuition>
+
+Group chỉ có **một** phép toán. Nhưng số học thật có hai: cộng và nhân, gắn với nhau bằng luật phân phối $a(b + c) = ab + ac$.
+
+- Một <Term en="ring">ring</Term> là thế giới cộng/trừ/nhân "như số nguyên": $\mathbb{Z}$, $\mathbb{Z}_6$, các đa thức.
+- Một <Term en="field">field</Term> là ring mà **chia được cho mọi số khác 0**: $\mathbb{Q}$, $\mathbb{R}$, $\mathbb{Z}_7$.
+
+Cái gì chặn phép chia trong $\mathbb{Z}_6$? Thủ phạm là <Term en="zero divisor">zero divisor</Term>: $2 \cdot 3 = 6 \equiv 0$. Hai số khác 0 nhân ra 0. Nếu 2 có nghịch đảo, nhân hai vế với $2^{-1}$ sẽ được $3 = 0$ — vô lý. Vậy hễ có zero divisor là mất phép chia.
+
+</Intuition>
+
+<Definition title="Ring, unit, field">
+
+A (commutative) **ring** $R$ has two operations $+$ and $\cdot$ such that $(R, +)$ is an abelian group with identity $0$; $\cdot$ is associative, commutative and has identity $1$; and $a(b + c) = ab + ac$.
+A <Term en="unit">unit</Term> is an element with a multiplicative inverse.
+A **field** is a ring with $1 \neq 0$ in which every nonzero element is a unit.
+
+</Definition>
+
+Nói gọn: field = ring mà $(F \setminus \{0\}, \cdot)$ cũng là một group. Hai group đan vào nhau bằng luật phân phối.
+
+<Theorem title="When ℤₙ is a field">
+
+The units of $\mathbb{Z}_n$ are exactly the $a$ with $\gcd(a, n) = 1$. Hence $\mathbb{Z}_n$ is a field if and only if $n$ is prime. For prime $p$ we write $\mathbb{F}_p$.
+
+</Theorem>
+
+Chiều "units": nếu $\gcd(a, n) = 1$, Bézout cho $ax + ny = 1$, tức $ax \equiv 1$. Nếu $n = ab$ với $1 < a, b < n$, thì $a \cdot b \equiv 0$ — có zero divisor, không phải field.
+
+<Example title="units and zero divisors of ℤ₁₂">
+
+**Step 1 — units.** Các $a \in \{1, \dots, 11\}$ với $\gcd(a, 12) = 1$: $\{1, 5, 7, 11\}$ — đúng $\varphi(12) = 4$ số. Mỗi số tự là nghịch đảo của mình: $5 \cdot 5 = 25 \equiv 1$, $7 \cdot 7 = 49 \equiv 1$, $11 \cdot 11 = 121 \equiv 1$.
+
+**Step 2 — zero divisors.** 7 số khác 0 còn lại: $\{2, 3, 4, 6, 8, 9, 10\}$. Mỗi số đều có "bạn" nhân ra 0: $2 \cdot 6$, $3 \cdot 4$, $8 \cdot 3$, $9 \cdot 4$, $10 \cdot 6$ đều $\equiv 0 \pmod{12}$.
+
+**Check:** $1 + 4 + 7 = 12$ (số 0, units, zero divisors). Trong $\mathbb{Z}_n$, mỗi số khác 0 **hoặc** là unit **hoặc** là zero divisor — không có loại thứ ba.
+
+</Example>
+
+**Aha — freshman's dream.** Trong field có <Term en="characteristic">characteristic</Term> $p$ (cộng $1$ với chính nó $p$ lần ra 0, như $\mathbb{F}_p$), ta có $(a + b)^p = a^p + b^p$. Lý do: mọi hệ số nhị thức $\binom{p}{k}$ với $0 < k < p$ chia hết $p$. Ví dụ $p = 3$: $(a + b)^3 = a^3 + 3a^2b + 3ab^2 + b^3 \equiv a^3 + b^3$. Lỗi sai kinh điển của sinh viên năm nhất lại đúng trong $\mathbb{F}_p$ — và nó là chìa khóa cho finite field ở lesson sau.
+
+<Pitfalls>
+
+- **"Chia" trong $\mathbb{Z}_n$ khi $n$ không nguyên tố.** $2x \equiv 4 \pmod 6$ có **hai** nghiệm $x = 2$ và $x = 5$; không được "chia 2 hai vế" để ra một nghiệm duy nhất.
+- **Nghĩ rằng ring nào cũng có nghịch đảo cho phép cộng lẫn phép nhân.** Phép cộng luôn có ($-a$); phép nhân thì chỉ units mới có.
+- **Quên $1 \neq 0$.** Ring một phần tử $\{0\}$ thỏa mọi luật khác nhưng không được tính là field.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Ring: cộng, trừ, nhân, phân phối. Field: thêm phép chia cho mọi số khác 0.
+- Zero divisor ($ab = 0$, $a, b \neq 0$) giết phép chia. Field không có zero divisor.
+- Units của $\mathbb{Z}_n$: $\gcd(a, n) = 1$, có $\varphi(n)$ cái. $\mathbb{Z}_n$ là field $\iff$ $n$ nguyên tố.
+- Characteristic $p$: $(a + b)^p = a^p + b^p$.
+
+</Summary>

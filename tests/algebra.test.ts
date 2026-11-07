@@ -1,0 +1,68 @@
+/** Re-derives the hand-computed numbers in the abstract-algebra lessons. */
+import { describe, expect, it } from 'vitest';
+import { elementOrder, gf2Mul, phi } from '../src/exercises/registry';
+
+describe('subgroups & cosets lesson', () => {
+  it('cosets of ⟨2⟩ = {1,2,4} in Z_7^* are {1,2,4} and {3,5,6}; 5H = 3H', () => {
+    const H = [1, 2, 4];
+    const coset = (g: number) => H.map((h) => (g * h) % 7).sort((a, b) => a - b);
+    expect(coset(1)).toEqual([1, 2, 4]);
+    expect(coset(3)).toEqual([3, 5, 6]);
+    expect(coset(5)).toEqual([3, 5, 6]);
+  });
+
+  it('jump-by-k on a 12-hour clock visits 12/gcd(k,12) spots — never 5', () => {
+    const visits = (k: number) => new Set(Array.from({ length: 12 }, (_, i) => (i * k) % 12)).size;
+    expect(visits(4)).toBe(3);
+    expect(visits(3)).toBe(4);
+    for (let k = 0; k < 12; k++) expect(visits(k)).not.toBe(5);
+  });
+});
+
+describe('rings & fields lesson', () => {
+  it('Z_12: units {1,5,7,11} are self-inverse, 7 zero divisors', () => {
+    const units = Array.from({ length: 11 }, (_, i) => i + 1).filter((a) => elementOrder(a, 12) > 0);
+    expect(units).toEqual([1, 5, 7, 11]);
+    for (const u of units) expect((u * u) % 12).toBe(1);
+    expect(11 - phi(12)).toBe(7);
+    for (const [a, b] of [[2, 6], [3, 4], [8, 3], [9, 4], [10, 6]]) expect((a! * b!) % 12).toBe(0);
+  });
+
+  it('2x ≡ 1 has no solution mod 6, x = 4 mod 7; 2x ≡ 4 mod 6 has x = 2, 5', () => {
+    expect([0, 1, 2, 3, 4, 5].filter((x) => (2 * x) % 6 === 1)).toEqual([]);
+    expect([0, 1, 2, 3, 4, 5, 6].filter((x) => (2 * x) % 7 === 1)).toEqual([4]);
+    expect([0, 1, 2, 3, 4, 5].filter((x) => (2 * x) % 6 === 4)).toEqual([2, 5]);
+  });
+
+  it('freshman’s dream holds in Z_p for small p', () => {
+    for (const p of [2, 3, 5, 7]) for (let a = 0; a < p; a++) for (let b = 0; b < p; b++) {
+      expect((a + b) ** p % p).toBe((a ** p + b ** p) % p);
+    }
+  });
+});
+
+describe('finite fields lesson', () => {
+  const M = 0b1011; // x³ + x + 1
+  it('power table of x in F_8', () => {
+    const table: number[] = [];
+    for (let i = 1, r = 2; i <= 7; i++, r = gf2Mul(r, 2, M)) table.push(r);
+    expect(table).toEqual([0b010, 0b100, 0b011, 0b110, 0b111, 0b101, 0b001]);
+  });
+
+  it('(x² + 1)(x + 1) = x² in F_8', () => {
+    expect(gf2Mul(0b101, 0b011, M)).toBe(0b100);
+  });
+
+  it('x³ + x + 1 and x² + x + 1 have no roots in F_2; x² + 1 = (x + 1)²', () => {
+    for (const x of [0, 1]) {
+      expect((x ** 3 + x + 1) % 2).toBe(1);
+      expect((x ** 2 + x + 1) % 2).toBe(1);
+    }
+    expect(gf2Mul(0b11, 0b11, 0b111 << 4)).toBe(0b101); // no reduction: plain (x+1)² over F_2
+  });
+
+  it('AES example: {57} + {83} = {d4}, {57} · {83} = {c1}', () => {
+    expect(0x57 ^ 0x83).toBe(0xd4);
+    expect(gf2Mul(0x57, 0x83, 0x11b)).toBe(0xc1);
+  });
+});

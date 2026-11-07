@@ -37,6 +37,28 @@ function gcdPair(rng: Rng, max: number): [number, number] {
 }
 
 export const GENERATORS: Record<string, Gen> = {
+  addSubgroup: (rng) => {
+    const n = pick(rng, [12, 15, 18, 20, 24, 30, 36]);
+    let a: number;
+    do a = int(rng, 2, n - 1);
+    while (gcd(BigInt(a), BigInt(n)) === 1n);
+    const g = Number(gcd(BigInt(a), BigInt(n)));
+    const size = n / g;
+    const elems: number[] = [];
+    for (let k = 0; k < size; k++) elems.push(k * g);
+    return {
+      prompt: `How many elements does the subgroup $\\langle ${a} \\rangle$ of $(\\mathbb{Z}_{${n}}, +)$ have?`,
+      answer: String(size),
+      hints: [
+        `$\\langle ${a} \\rangle$ gồm $0, ${a}, ${a} + ${a}, \\dots$ (mod ${n}) cho tới khi quay về 0.`,
+        `Số bước để quay về 0 là $${n} / \\gcd(${a}, ${n})$. Theo Lagrange, nó phải chia hết ${n}.`,
+        `$\\gcd(${a}, ${n}) = ${g}$.`,
+      ],
+      solution: `Các phần tử là các bội của $${g}$: $\\{${elems.join(', ')}\\}$ — có $${n} / ${g} = ${size}$ phần tử, và $${size} \\mid ${n}$.`,
+      verify: { fn: 'addOrder', args: [a, n] },
+    };
+  },
+
   crt2: (rng) => {
     let m: number, n: number;
     do {

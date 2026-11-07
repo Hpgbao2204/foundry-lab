@@ -258,5 +258,20 @@
     "en": "lifetime",
     "vi": "lifetime (thời gian sống)",
     "explain": "Khoảng code mà một reference còn hợp lệ. Chú thích 'a liên kết lifetime của input và output để compiler kiểm tra không có dangling reference."
+  },
+  {
+    "en": "collision",
+    "vi": "va chạm",
+    "explain": "Hai đầu vào khác nhau cho cùng một đầu ra (cùng ngày sinh, cùng hash). Hash an toàn phải làm việc tìm collision gần như bất khả."
+  },
+  {
+    "en": "birthday bound",
+    "vi": "cận ngày sinh",
+    "explain": "Với N giá trị đều, va chạm trở nên khả dĩ sau khoảng √N mẫu. Hash b bit chỉ chống collision cỡ 2^(b/2)."
+  },
+  {
+    "en": "union bound",
+    "vi": "cận hợp",
+    "explain": "Pr[A₁ hoặc A₂ hoặc …] ≤ Pr[A₁] + Pr[A₂] + … — đúng kể cả khi các sự kiện phụ thuộc nhau."
   }
 ]

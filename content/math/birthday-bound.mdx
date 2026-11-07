@@ -1,0 +1,86 @@
+---
+id: math.prob.birthday
+track: math
+chapter: probability
+title: "The birthday paradox — why a 256-bit hash gives only 128-bit security"
+minutes: 10
+prerequisites: [math.logic.proof-techniques]
+researchBridge: "Birthday bound quyết định độ dài của hash (SHA-256 cho 128-bit chống collision), của nonce trong AES-GCM (nonce ngẫu nhiên 96-bit không được dùng quá ~2³² lần với cùng một khóa), và giải thích vì sao MD5 và SHA-1 bị phá bằng tấn công collision. Nó cũng xuất hiện khi ước lượng xác suất trùng ID ngẫu nhiên, UUID, hay địa chỉ trong hash table."
+flashcards:
+  - front: "How many people for a 50% chance that two share a birthday?"
+    back: "23 (out of 365 days)."
+  - front: "Birthday bound for N equally likely values?"
+    back: "A collision becomes likely after about √N samples; P(collision) ≈ 1 − e^{−n²/(2N)}."
+  - front: "Union bound for collisions among n samples?"
+    back: "P(some collision) ≤ C(n, 2)/N = n(n − 1)/(2N)."
+  - front: "Collision resistance of a b-bit hash?"
+    back: "About 2^{b/2} work (birthday attack), so 256-bit hashes give 128-bit collision security."
+  - front: "Linearity of expectation (one line)?"
+    back: "E[X + Y] = E[X] + E[Y], always — even when X and Y are dependent."
+---
+
+<Why>
+
+**Puzzle.** Một lớp học có 23 người. Bạn đoán xác suất có **hai người trùng ngày sinh** là bao nhiêu? Đa số đoán khoảng 6% ($23 / 365$). Câu trả lời thật: **hơn 50%**. Với 70 người: hơn 99.9%.
+
+Đây không phải mẹo — đây là một trong những sự thật quan trọng nhất của crypto. Nó cho biết vì sao hash 128-bit (MD5) là quá ngắn, vì sao SHA-256 dài gấp đôi mức an toàn mong muốn, và vì sao không được dùng nonce ngẫu nhiên ngắn quá nhiều lần.
+
+</Why>
+
+<Intuition>
+
+Trực giác sai vì ta nghĩ về **một người** (bạn) so với 22 người kia: chỉ 22 cặp. Nhưng va chạm có thể xảy ra ở **bất kỳ cặp nào**. 23 người tạo ra $\binom{23}{2} = 253$ cặp — nhiều hơn số ngày trong năm! Mỗi cặp trùng với xác suất $\frac{1}{365}$, nên trung bình có $\frac{253}{365} \approx 0.69$ cặp trùng.
+
+Số cặp tăng như $n^2$, nên chỉ cần $n \approx \sqrt{N}$ mẫu là <Term en="collision">va chạm</Term> trở nên khả dĩ — đó là <Term en="birthday bound">birthday bound</Term>. Với $N = 365$: $\sqrt{365} \approx 19$. Với hash 128-bit, $N = 2^{128}$: chỉ cần $\approx 2^{64}$ lần băm — trong tầm tay của một cụm máy lớn.
+
+</Intuition>
+
+<Definition title="Probability of no collision">
+
+Draw $n$ values independently and uniformly from $N$ possibilities. Then
+$$\Pr[\text{all distinct}] = \frac{N}{N} \cdot \frac{N-1}{N} \cdots \frac{N-n+1}{N} = \prod_{i=0}^{n-1}\left(1 - \frac{i}{N}\right).$$
+
+</Definition>
+
+Giải thích: người đầu tiên tự do; người thứ hai phải tránh 1 ngày; người thứ ba tránh 2 ngày; ... Các sự kiện "tránh được" nối tiếp nhau nên ta **nhân** xác suất.
+
+<Theorem title="Birthday bound">
+
+Using $1 - x \le e^{-x}$: $\Pr[\text{all distinct}] \le e^{-n(n-1)/(2N)}$. Also, by the union bound, $\Pr[\text{some collision}] \le \binom{n}{2} / N$.
+So collisions are unlikely for $n \ll \sqrt{N}$ and likely for $n \gtrsim \sqrt{N}$; at $n \approx 1.18\sqrt{N}$ the probability is about $\frac{1}{2}$.
+
+</Theorem>
+
+<Example title="small numbers you can check by hand">
+
+**Step 1 — a tiny year with 4 days, 3 people.**
+$\Pr[\text{all distinct}] = \frac{4}{4} \cdot \frac{3}{4} \cdot \frac{2}{4} = \frac{24}{64} = \frac{3}{8}$. Vậy $\Pr[\text{collision}] = \frac{5}{8}$. Kiểm bằng cách đếm: có $4^3 = 64$ cách gán ngày, trong đó $4 \cdot 3 \cdot 2 = 24$ cách khác nhau hết ✓.
+
+**Step 2 — union bound for the same case.** $\binom{3}{2} / 4 = \frac{3}{4} \ge \frac{5}{8}$ ✓ — cận trên đúng nhưng hơi rộng.
+
+**Step 3 — 23 people, 365 days.** Tích $\prod_{i=0}^{22}(1 - i/365) \approx 0.4927$, nên xác suất có trùng $\approx 0.5073$. Xấp xỉ mũ: $\frac{23 \cdot 22}{2 \cdot 365} = \frac{506}{730} \approx 0.693$, và $1 - e^{-0.693} \approx 0.50$ ✓.
+
+**Step 4 — a 64-bit hash.** $N = 2^{64}$, $\sqrt N = 2^{32} \approx 4.3$ tỷ. Băm khoảng 5 tỷ thông điệp ngẫu nhiên là có khoảng 50% tìm được hai thông điệp cùng hash — một laptop làm được trong vài giờ.
+
+</Example>
+
+**Aha:** để có $k$ bit an toàn chống **collision**, hash phải dài $2k$ bit. Đó là vì sao SHA-256 (không phải SHA-128) là chuẩn cho mức 128-bit. Trong khi đó, tìm một thông điệp khớp với **một hash cho trước** (preimage) vẫn tốn $2^{b}$ — giống "tìm người trùng ngày sinh với **bạn**", cần khoảng $N$ người chứ không phải $\sqrt N$.
+
+<Pitfalls>
+
+- **Nhầm "trùng với tôi" và "trùng với nhau".** Để có 50% ai đó trùng ngày sinh **với bạn**, cần khoảng 253 người; để có 50% hai người bất kỳ trùng nhau, chỉ cần 23.
+- **Cộng xác suất của các sự kiện không rời nhau.** "Cặp 1 trùng" và "cặp 2 trùng" có thể cùng xảy ra; tổng $\binom{n}{2}/N$ chỉ là **cận trên** (<Term en="union bound">union bound</Term>), có thể vượt quá 1.
+- **Quên giả thiết "đều và độc lập".** Ngày sinh thật không đều (nhiều người sinh tháng 9 hơn) — điều đó chỉ làm va chạm **dễ hơn**.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- $\Pr[\text{khác nhau hết}] = \prod_{i<n}(1 - i/N) \le e^{-n(n-1)/(2N)}$; union bound: $\Pr[\text{trùng}] \le \binom{n}{2}/N$.
+- Va chạm xuất hiện sau khoảng $\sqrt N$ mẫu: 23 người cho 365 ngày, $2^{b/2}$ lần băm cho hash $b$ bit.
+- Kỳ vọng số cặp trùng $= \binom{n}{2}/N$ (linearity of expectation).
+- Collision: $2^{b/2}$; preimage: $2^b$. Muốn $k$ bit an toàn collision thì hash dài $2k$ bit.
+
+</Summary>

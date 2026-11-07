@@ -48,6 +48,13 @@
           "math.ec.finite-fields",
           "math.ec.scalar-dlog"
         ]
+      },
+      {
+        "id": "probability",
+        "title": "Probability",
+        "lessons": [
+          "math.prob.birthday"
+        ]
       }
     ]
   },

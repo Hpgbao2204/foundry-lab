@@ -59,5 +59,8 @@
   ],
   "rust.basics.lifetimes": [
     "rust.basics.generics"
+  ],
+  "math.prob.birthday": [
+    "math.logic.proof-techniques"
   ]
 }

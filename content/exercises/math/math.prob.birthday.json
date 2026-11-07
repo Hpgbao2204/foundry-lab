@@ -1,0 +1,137 @@
+[
+  {
+    "id": "math.prob.birthday.tiny-year",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "A year has 5 days. Three people pick birthdays uniformly and independently. What is the probability that all three birthdays are **different**? (Fraction.)",
+    "answer": "12/25",
+    "hints": [
+      "Người 1 tự do; người 2 phải tránh 1 ngày; người 3 phải tránh 2 ngày.",
+      "$\\frac{5}{5} \\cdot \\frac{4}{5} \\cdot \\frac{3}{5}$.",
+      "$\\frac{60}{125}$, rút gọn."
+    ],
+    "solution": "$\\frac{5 \\cdot 4 \\cdot 3}{5^3} = \\frac{60}{125} = \\frac{12}{25}$. Vậy xác suất có trùng là $\\frac{13}{25}$ — hơn một nửa, chỉ với 3 người!"
+  },
+  {
+    "id": "math.prob.birthday.pairs-23",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many pairs of people are there among 23 people?",
+    "answer": "253",
+    "hints": [
+      "Số cặp là $\\binom{n}{2} = \\frac{n(n-1)}{2}$.",
+      "$\\frac{23 \\cdot 22}{2}$.",
+      "$23 \\cdot 11$."
+    ],
+    "solution": "$\\binom{23}{2} = \\frac{23 \\cdot 22}{2} = 253$ — gần bằng 365, nên trung bình đã có $253/365 \\approx 0.69$ cặp trùng. Đó là lý do 23 người đã đủ."
+  },
+  {
+    "id": "math.prob.birthday.expected-pairs",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "10 random values are drawn uniformly from 100 possibilities. What is the expected number of colliding pairs? (Fraction.)",
+    "answer": "9/20",
+    "hints": [
+      "Linearity of expectation: cộng xác suất trùng của từng cặp.",
+      "Có $\\binom{10}{2} = 45$ cặp, mỗi cặp trùng với xác suất $\\frac{1}{100}$.",
+      "$\\frac{45}{100}$, rút gọn."
+    ],
+    "solution": "$\\binom{10}{2} \\cdot \\frac{1}{100} = \\frac{45}{100} = \\frac{9}{20}$."
+  },
+  {
+    "id": "math.prob.birthday.hash-64",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "A hash outputs 64 bits. A collision becomes likely after about $2^k$ random hashes. What is $k$?",
+    "answer": "32",
+    "hints": [
+      "Birthday bound: khoảng $\\sqrt{N}$ mẫu.",
+      "$N = 2^{64}$.",
+      "$\\sqrt{2^{64}} = 2^{?}$"
+    ],
+    "solution": "$\\sqrt{2^{64}} = 2^{32}$, khoảng 4.3 tỷ lần băm."
+  },
+  {
+    "id": "math.prob.birthday.one-pair",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Two specific people pick birthdays uniformly from 365 days. What is the probability they share a birthday? (Fraction.)",
+    "answer": "1/365",
+    "hints": [
+      "Cố định ngày sinh của người thứ nhất.",
+      "Người thứ hai phải trúng đúng ngày đó.",
+      "Có 365 khả năng như nhau."
+    ],
+    "solution": "$\\frac{1}{365}$. Xác suất nhỏ cho **một** cặp — nhưng 23 người có 253 cặp."
+  },
+  {
+    "id": "math.prob.birthday.your-birthday",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: in a room of 23 people, there is about a 50% chance that someone shares **your** birthday.",
+    "answer": false,
+    "reasons": [
+      "Matching one fixed birthday involves only 22 comparisons; about 253 people are needed for 50%.",
+      "It is true: that is exactly the birthday paradox.",
+      "It is false because birthdays are not uniform.",
+      "It is true because 23 > √365."
+    ],
+    "reason": 0,
+    "hints": [
+      "Bài toán \"trùng với bạn\" có bao nhiêu phép so sánh? Bài toán \"hai người bất kỳ\" có bao nhiêu?",
+      "$\\Pr[\\text{không ai trùng với bạn}] = (364/365)^{22}$.",
+      "$(364/365)^{22} \\approx 0.94$."
+    ],
+    "solution": "**False.** Chỉ có 22 so sánh với bạn: $1 - (364/365)^{22} \\approx 6\\%$. Cần khoảng 253 người để đạt 50%. Đây chính là khác biệt collision ($\\sqrt N$) và preimage ($N$)."
+  },
+  {
+    "id": "math.prob.birthday.million",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "IDs are drawn uniformly from $N = 10^6$ values. What is the smallest $n$ for which the union bound $\\binom{n}{2}/N$ reaches 1? (Beyond this point the bound says nothing.)",
+    "answer": "1415",
+    "hints": [
+      "Cần $\\frac{n(n-1)}{2} \\ge 10^6$, tức $n(n-1) \\ge 2 \\cdot 10^6$.",
+      "$\\sqrt{2 \\cdot 10^6} \\approx 1414.2$.",
+      "Kiểm tra $1414 \\cdot 1413$ và $1415 \\cdot 1414$."
+    ],
+    "solution": "$1414 \\cdot 1413 = 1997982 < 2 \\cdot 10^6$, còn $1415 \\cdot 1414 = 2000810 \\ge 2 \\cdot 10^6$. Vậy $n = 1415$ — chỉ cỡ $\\sqrt{2N}$, rất nhỏ so với một triệu."
+  },
+  {
+    "id": "math.prob.birthday.hash-length",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "You want 128-bit security against hash **collisions**. What output length do you need, and why?",
+    "options": [
+      "256 bits, because a birthday attack finds collisions in about $2^{b/2}$ work",
+      "128 bits, because security equals output length",
+      "64 bits, because collisions need two messages",
+      "512 bits, because attackers can use quantum computers for collisions"
+    ],
+    "answer": 0,
+    "hints": [
+      "Birthday attack tốn khoảng bao nhiêu lần băm cho hash $b$ bit?",
+      "$2^{b/2} = 2^{128}$ thì $b = ?$",
+      "Đó là lý do chuẩn là SHA-256."
+    ],
+    "solution": "256 bit: birthday attack tìm collision sau $\\approx 2^{b/2}$ lần băm, nên $b/2 = 128$. Hash 128 bit (như MD5) chỉ cho 64-bit chống collision — quá yếu."
+  },
+  {
+    "id": "math.prob.birthday.union-bound",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove the union bound for collisions: if $n$ values are drawn independently and uniformly from $N$ possibilities, then $\\Pr[\\text{some two are equal}] \\le \\binom{n}{2} / N$.",
+    "rubric": [
+      "Defines for each pair $i < j$ the event $E_{ij}$ = values $i$ and $j$ are equal.",
+      "Shows $\\Pr[E_{ij}] = 1/N$ using independence and uniformity.",
+      "Writes 'some collision' as the union of all $E_{ij}$ and applies $\\Pr[\\bigcup E] \\le \\sum \\Pr[E]$.",
+      "Counts $\\binom{n}{2}$ pairs to get the bound."
+    ],
+    "hints": [
+      "\"Có hai giá trị bằng nhau\" = \"cặp $(1,2)$ trùng HOẶC cặp $(1,3)$ trùng HOẶC ...\".",
+      "Xác suất của hợp nhiều sự kiện không vượt quá tổng xác suất của chúng.",
+      "Mỗi cặp trùng với xác suất bao nhiêu? Có bao nhiêu cặp?"
+    ],
+    "solution": "Với mỗi cặp $i < j$, đặt $E_{ij}$: giá trị $i$ và $j$ bằng nhau. Cố định giá trị $i$; giá trị $j$ độc lập và đều nên trùng với xác suất $\\frac{1}{N}$. Sự kiện \"có va chạm\" là $\\bigcup_{i<j} E_{ij}$, và $\\Pr[\\bigcup E_{ij}] \\le \\sum \\Pr[E_{ij}] = \\binom{n}{2} \\cdot \\frac{1}{N}$. ∎"
+  }
+]

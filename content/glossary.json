@@ -238,5 +238,10 @@
     "en": "point at infinity",
     "vi": "điểm vô cực",
     "explain": "Điểm O thêm vào elliptic curve, nằm 'ở cuối' mọi đường thẳng đứng; là identity của group: P + O = P."
+  },
+  {
+    "en": "discrete logarithm problem",
+    "vi": "bài toán logarit rời rạc",
+    "explain": "Biết g và g^k (hoặc G và k·G trên curve), tìm k. Dễ tính chiều tiến, được tin là rất khó tính chiều lùi khi group lớn."
   }
 ]

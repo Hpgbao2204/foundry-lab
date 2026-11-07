@@ -50,5 +50,8 @@
   "math.ec.finite-fields": [
     "math.ec.reals",
     "math.algebra.subgroups-cosets"
+  ],
+  "math.ec.scalar-dlog": [
+    "math.ec.finite-fields"
   ]
 }

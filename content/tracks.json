@@ -45,7 +45,8 @@
         "title": "Elliptic curves",
         "lessons": [
           "math.ec.reals",
-          "math.ec.finite-fields"
+          "math.ec.finite-fields",
+          "math.ec.scalar-dlog"
         ]
       }
     ]

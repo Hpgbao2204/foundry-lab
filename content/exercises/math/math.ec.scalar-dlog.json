@@ -1,0 +1,155 @@
+[
+  {
+    "id": "math.ec.scalar-dlog.dlog-small",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 + 2x + 2$ over $\\mathbb{F}_{17}$ with $G = (5, 1)$, find $k \\in \\{1, \\dots, 18\\}$ with $kG = (9, 16)$.",
+    "answer": "5",
+    "verify": { "fn": "ecLog", "args": [2, 17, 5, 1, 9, 16] },
+    "hints": [
+      "Đây là một discrete log nhỏ — với 19 điểm, tra bảng là được.",
+      "Dùng bảng bội trong worked example.",
+      "Tìm cột có điểm $(9, 16)$."
+    ],
+    "solution": "Bảng cho $5G = (9, 16)$, nên $k = 5$. Với curve thật có $2^{256}$ điểm, không có bảng nào như vậy."
+  },
+  {
+    "id": "math.ec.scalar-dlog.double-2g",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Same curve and $G = (5, 1)$. Compute the $x$-coordinate of $2G$ by hand. ($a = 2$, $p = 17$.)",
+    "answer": "6",
+    "modulus": 17,
+    "verify": { "fn": "ecMulX", "args": [2, 17, 2, 5, 1] },
+    "hints": [
+      "Tiếp tuyến: $\\lambda = (3x_1^2 + a)/(2y_1) = (75 + 2)/2$.",
+      "$77 \\equiv 9 \\pmod{17}$, và $2^{-1} \\equiv 9$ (vì $2 \\cdot 9 = 18 \\equiv 1$). Vậy $\\lambda \\equiv 81 \\equiv 13$.",
+      "$x_3 = \\lambda^2 - 2 \\cdot 5 = 169 - 10$."
+    ],
+    "solution": "$\\lambda = 9 \\cdot 9 = 81 \\equiv 13$. $x_3 = 169 - 10 = 159 = 9 \\cdot 17 + 6 \\equiv 6$. ($2G = (6, 3)$ ✓ bảng.)"
+  },
+  {
+    "id": "math.ec.scalar-dlog.ecdh",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "ECDH on the same curve, $G = (5, 1)$ of order 19. Alice's secret is $a = 4$, Bob's is $b = 6$. The shared point is $(ab)G$. What is its $x$-coordinate?",
+    "answer": "9",
+    "verify": { "fn": "ecMulX", "args": [2, 17, 24, 5, 1] },
+    "hints": [
+      "Bí mật chung là $abG = 24G$.",
+      "$G$ có order 19, nên rút gọn $24 \\bmod 19$.",
+      "$24 \\equiv 5$. Tra bảng $5G$."
+    ],
+    "solution": "$24G = (24 \\bmod 19)G = 5G = (9, 16)$; hoành độ là $9$."
+  },
+  {
+    "id": "math.ec.scalar-dlog.reduce",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "$G$ has order 19. Find $k \\in \\{0, \\dots, 18\\}$ with $kG = 100G$.",
+    "answer": "5",
+    "verify": { "fn": "mod", "args": [100, 19] },
+    "hints": [
+      "$19G = O$, nên mỗi khối 19 lần cộng triệt tiêu.",
+      "Rút gọn $100 \\bmod 19$.",
+      "$5 \\cdot 19 = 95$."
+    ],
+    "solution": "$100 = 5 \\cdot 19 + 5$, nên $100G = 5 \\cdot (19G) + 5G = 5G$. $k = 5$."
+  },
+  {
+    "id": "math.ec.scalar-dlog.count-doublings",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Left-to-right double-and-add computes $kG$ for $k = 45$. How many **additions** of $G$ does it perform? (Start from $G$ for the leading 1 bit.)",
+    "answer": "3",
+    "hints": [
+      "Viết 45 ở hệ nhị phân.",
+      "$45 = 101101_2$.",
+      "Mỗi bit 1 **sau bit đầu** cần một phép cộng $G$."
+    ],
+    "solution": "$45 = 101101_2$ có bốn bit 1; bit đầu là điểm xuất phát, nên có $3$ phép cộng (và 5 phép nhân đôi): $G \\to 2G \\to 5G \\to 11G \\to 22G \\to 45G$."
+  },
+  {
+    "id": "math.ec.scalar-dlog.ladder-fill",
+    "level": "A",
+    "type": "step-fill",
+    "prompt": "Double-and-add for $13G$, with $13 = 1101_2$. Fill in the multiples of $G$ after each bit.",
+    "template": [
+      "Bit 1 (leading): start with $1G$.",
+      "Bit 1: double to $2G$, add $G$: {{3}} $G$.",
+      "Bit 0: double only: {{6}} $G$.",
+      "Bit 1: double to {{12}} $G$, add $G$: {{13}} $G$."
+    ],
+    "hints": [
+      "Mỗi bit: luôn nhân đôi; nếu bit là 1 thì cộng thêm $G$.",
+      "Sau bit thứ hai: $2 \\cdot 1 + 1$.",
+      "Sau bit thứ ba: $2 \\cdot 3 + 0$."
+    ],
+    "solution": "$1 \\to 3 \\to 6 \\to 13$. Mỗi bước là \"đọc thêm một bit\": $1_2 = 1$, $11_2 = 3$, $110_2 = 6$, $1101_2 = 13$."
+  },
+  {
+    "id": "math.ec.scalar-dlog.bits",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "A private key $k$ is a 256-bit number with leading bit 1. How many doublings does left-to-right double-and-add perform?",
+    "answer": "255",
+    "hints": [
+      "Mỗi bit sau bit đầu tốn đúng một lần nhân đôi.",
+      "Có bao nhiêu bit sau bit đầu?",
+      "$256 - 1$."
+    ],
+    "solution": "$255$ lần nhân đôi (và trung bình ~128 lần cộng). So với $\\sim 2^{256}$ phép cộng nếu cộng lặp — đó là toàn bộ lý do crypto curve chạy được."
+  },
+  {
+    "id": "math.ec.scalar-dlog.divide",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: given $G$ and $Q = kG$, you can recover $k$ quickly by \"dividing\" $Q$ by $G$ with the inverse of the slope formulas.",
+    "answer": false,
+    "reasons": [
+      "There is no known efficient way to undo scalar multiplication; best generic attacks need about $\\sqrt{n}$ steps (ECDLP).",
+      "It is true: division is always possible in a group.",
+      "It is true because $k = x_Q / x_G \\bmod p$.",
+      "It is false only because $p$ is prime."
+    ],
+    "reason": 0,
+    "hints": [
+      "Trong group của curve có phép toán nào giữa hai **điểm** cho ra một **số** không?",
+      "Thử với bảng: $x$ của $5G$ là 9, $x$ của $G$ là 5. $9 / 5 \\bmod 17$ có ra 5 không?",
+      "Đây chính là discrete log problem."
+    ],
+    "solution": "**False.** Group chỉ có phép cộng điểm; không có \"chia điểm cho điểm\" ra một số. Công thức kiểu $x_Q / x_G$ vô nghĩa ($9 \\cdot 5^{-1} \\equiv 9 \\cdot 7 = 63 \\equiv 12 \\neq 5$). Thuật toán tốt nhất đã biết cần cỡ $\\sqrt{n}$ bước."
+  },
+  {
+    "id": "math.ec.scalar-dlog.wrong-modulus",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "On the $\\mathbb{F}_{17}$ curve, $G$ has order 19. Which equality is correct?",
+    "options": ["$21G = 2G$", "$21G = 4G$", "$17G = O$", "$21G = O$"],
+    "answer": 0,
+    "hints": [
+      "Hệ số $k$ được rút gọn theo cái gì: $p$ hay order của $G$?",
+      "$19G = O$.",
+      "$21 = 19 + 2$."
+    ],
+    "solution": "$21G = 19G + 2G = O + 2G = 2G$. Rút gọn theo $p = 17$ (cho $4G$) là sai — $k$ sống trong $\\mathbb{Z}_{19}$, còn tọa độ sống trong $\\mathbb{F}_{17}$."
+  },
+  {
+    "id": "math.ec.scalar-dlog.ecdh-proof",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove that in ECDH Alice and Bob get the same point: $a \\cdot (bG) = b \\cdot (aG)$.",
+    "rubric": [
+      "Writes $a(bG)$ as a sum of $a$ copies of $bG$, i.e. $ab$ copies of $G$.",
+      "Uses associativity of point addition to regroup the sum.",
+      "Concludes $a(bG) = (ab)G$ and similarly $b(aG) = (ba)G$.",
+      "Uses $ab = ba$ (integers commute) to conclude both equal $(ab)G$."
+    ],
+    "hints": [
+      "$bG$ là $G$ cộng $b$ lần. $a(bG)$ là gì?",
+      "Group của curve có tính kết hợp, nên có thể bỏ ngoặc và đếm số lần $G$ xuất hiện.",
+      "Số nguyên giao hoán: $ab = ba$."
+    ],
+    "solution": "$a(bG) = \\underbrace{bG + \\dots + bG}_{a}$; mỗi $bG$ là $b$ bản sao của $G$, và nhờ tính kết hợp ta bỏ ngoặc được: tổng là $ab$ bản sao của $G$, tức $(ab)G$. Tương tự $b(aG) = (ba)G$. Vì $ab = ba$ nên hai điểm bằng nhau. ∎ (Kẻ nghe lén thấy $aG$ và $bG$ nhưng tính $(ab)G$ mà không biết $a$ hay $b$ được cho là khó — giả thuyết Diffie–Hellman.)"
+  }
+]

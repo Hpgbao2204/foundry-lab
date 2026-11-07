@@ -142,3 +142,28 @@ describe('elliptic curve lessons', () => {
     for (const P of pointsMod(1, 1, 5)) expect(onCurveMod(1, 1, 5, mulMod(1, 5, 4, P))).toBe(true);
   });
 });
+
+describe('scalar multiplication lesson', () => {
+  const G: [number, number] = [5, 1];
+  it('y² = x³ + 2x + 2 over F_17 has 19 points and G = (5,1) has order 19', () => {
+    expect(pointsMod(2, 2, 17).length + 1).toBe(19);
+    expect(mulMod(2, 17, 19, G)).toBeNull();
+  });
+
+  it('multiples table matches the lesson', () => {
+    const want = [[5, 1], [6, 3], [10, 6], [3, 1], [9, 16], [16, 13], [0, 6], [13, 7], [7, 6], [7, 11], [13, 10], [0, 11], [16, 4], [9, 1], [3, 16], [10, 11], [6, 14], [5, 16]];
+    want.forEach((P, i) => expect(mulMod(2, 17, i + 1, G)).toEqual(P));
+  });
+
+  it('ECDH: 3·(7G) = 7·(3G) = 2G = (6,3); 4·6 = 24 ≡ 5 → (9,16)', () => {
+    expect(mulMod(2, 17, 3, mulMod(2, 17, 7, G))).toEqual([6, 3]);
+    expect(mulMod(2, 17, 7, mulMod(2, 17, 3, G))).toEqual([6, 3]);
+    expect(mulMod(2, 17, 24, G)).toEqual([9, 16]);
+  });
+
+  it('2^128 / 1e18 per second ≈ 1e13 years', () => {
+    const years = 2 ** 128 / 1e18 / (365.25 * 24 * 3600);
+    expect(years).toBeGreaterThan(1e13);
+    expect(years).toBeLessThan(1.2e13);
+  });
+});

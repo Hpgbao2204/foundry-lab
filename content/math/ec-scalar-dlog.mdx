@@ -1,0 +1,94 @@
+---
+id: math.ec.scalar-dlog
+track: math
+chapter: elliptic-curves
+title: "Scalar multiplication & discrete log — easy forward, hopeless backward"
+minutes: 10
+prerequisites: [math.ec.finite-fields]
+researchBridge: "Khóa bí mật Bitcoin của bạn là một số k 256-bit; địa chỉ của bạn được suy ra từ khóa công khai Q = k·G trên secp256k1. Tính Q từ k mất vài micro-giây; tìm k từ Q với thuật toán tốt nhất đã biết cần cỡ 2¹²⁸ phép toán. ECDH (thỏa thuận khóa trong TLS, Signal) và chữ ký ECDSA/EdDSA đều dựa trên đúng sự bất đối xứng này."
+flashcards:
+  - front: "What is scalar multiplication k·P?"
+    back: "P + P + … + P (k times), computed fast by double-and-add."
+  - front: "Cost of double-and-add for an n-bit k?"
+    back: "At most n − 1 doublings and n − 1 additions — linear in the number of bits, not in k."
+  - front: "Elliptic curve discrete logarithm problem (ECDLP)?"
+    back: "Given G and Q = k·G, find k. Best generic attacks need about √n steps for a group of prime order n."
+  - front: "ECDH in one line?"
+    back: "Alice sends A = aG, Bob sends B = bG; both compute aB = bA = (ab)G."
+  - front: "Why is k·G = (k mod n)·G when G has order n?"
+    back: "Because n·G = O, so every block of n additions cancels."
+---
+
+<Why>
+
+**Puzzle.** Trên một curve, bạn biết điểm $G$ và điểm $Q$. Có người nói "$Q$ chính là $G$ cộng với chính nó $k$ lần". Tìm $k$.
+
+Với số thực, phép "chia" $Q / G$ sẽ trả lời ngay. Nhưng trên curve trên $\mathbb{F}_p$, các bội $G, 2G, 3G, \dots$ nhảy lung tung trên đám chấm, không có thứ tự nào để lần theo. Cách duy nhất có vẻ khả thi là thử từng $k$.
+
+Trong khi đó, chiều ngược lại — tính $kG$ khi biết $k$ — lại **cực nhanh**, kể cả khi $k$ có 77 chữ số. Lesson này giải thích cả hai chiều, và vì sao khoảng cách giữa chúng là nền móng của chữ ký Bitcoin và HTTPS.
+
+</Why>
+
+<Intuition>
+
+**Chiều tiến — double-and-add.** Muốn tính $13G$, đừng cộng $G$ mười hai lần. Viết $13 = 1101_2$ và đi từ bit cao xuống:
+
+- bắt đầu với $G$ (bit đầu là 1);
+- mỗi bit tiếp theo: **nhân đôi**; nếu bit là 1 thì **cộng thêm** $G$.
+
+$G \to 3G \to 6G \to 13G$: chỉ 3 lần nhân đôi và 2 lần cộng. Với $k$ 256-bit: khoảng 256 lần nhân đôi và 128 lần cộng — chứ không phải $2^{256}$ lần cộng. Giống hệt square-and-multiply cho $a^k \bmod p$ ở lesson Fermat, chỉ đổi "nhân" thành "cộng điểm".
+
+**Chiều lùi — discrete log.** Không có "chia" nào cho điểm. Ta chỉ biết thử: $G, 2G, 3G, \dots$ cho tới khi gặp $Q$. Các thuật toán thông minh nhất đã biết (baby-step giant-step, Pollard's rho) cũng chỉ giảm xuống cỡ $\sqrt{n}$ bước. Với $n \approx 2^{256}$, đó là $2^{128} \approx 3.4 \times 10^{38}$ bước — thử $10^{18}$ khả năng mỗi giây vẫn mất khoảng $10^{13}$ năm, gần ngàn lần tuổi vũ trụ.
+
+</Intuition>
+
+<Definition title="Scalar multiplication and ECDLP">
+
+For an integer $k \ge 1$ and a point $P$, $kP = P + \dots + P$ ($k$ times), $0P = O$. If $G$ has order $n$, then $kG = (k \bmod n)\,G$.
+The <Term en="discrete logarithm problem">elliptic curve discrete logarithm problem</Term> (ECDLP): given $G$ and $Q \in \langle G \rangle$, find $k$ with $kG = Q$.
+
+</Definition>
+
+<Example title="y² = x³ + 2x + 2 over 𝔽₁₇, G = (5, 1)">
+
+Curve này có 19 điểm (số nguyên tố!), nên $G$ có order 19. Bảng bội (tính bằng code, kiểm từng điểm nằm trên curve):
+
+| $k$ | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|
+| $kG$ | (5,1) | (6,3) | (10,6) | (3,1) | (9,16) | (16,13) | (0,6) | (13,7) | (7,6) |
+
+| $k$ | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 |
+|---|---|---|---|---|---|---|---|---|---|
+| $kG$ | (7,11) | (13,10) | (0,11) | (16,4) | (9,1) | (3,16) | (10,11) | (6,14) | (5,16) |
+
+Và $19G = O$. Nhìn hàng $x$: $5, 6, 10, 3, 9, 16, 0, \dots$ — không có quy luật nào để đoán $k$ từ điểm.
+
+**Step 1 — double-and-add for $13G$.** $13 = 1101_2$: $G \xrightarrow{\text{dbl, add}} 3G = (10, 6) \xrightarrow{\text{dbl}} 6G = (16, 13) \xrightarrow{\text{dbl, add}} 13G = (16, 4)$ ✓ (khớp bảng).
+
+**Step 2 — ECDH key exchange.** Alice chọn bí mật $a = 3$, gửi $A = 3G = (10, 6)$. Bob chọn $b = 7$, gửi $B = 7G = (0, 6)$.
+Alice tính $aB = 3 \cdot 7G = 21G$; Bob tính $bA = 7 \cdot 3G = 21G$. Vì order là 19: $21G = 2G = (6, 3)$. Cả hai có chung bí mật $(6, 3)$, trong khi kẻ nghe lén chỉ thấy $(10, 6)$ và $(0, 6)$.
+
+**Step 3 — the eavesdropper's problem.** Để có bí mật, kẻ nghe lén cần $a$ từ $A = (10, 6)$: tra bảng thì thấy $a = 3$. Với 19 điểm thì dễ; với $2^{256}$ điểm thì không có bảng nào đủ lớn.
+
+</Example>
+
+**Aha:** cùng một cấu trúc xuất hiện lần thứ ba. Trong $\mathbb{Z}_p^*$: dễ tính $g^k$, khó tìm $k$ (Diffie–Hellman gốc). Trên curve: dễ tính $kG$, khó tìm $k$. Group khác nhau, bài toán y hệt. Curve được ưa chuộng vì với cùng mức an toàn, khóa ngắn hơn nhiều: 256-bit curve ≈ 3072-bit RSA/DH, vì trên curve không có "đường tắt" kiểu index calculus.
+
+<Pitfalls>
+
+- **Nghĩ rằng $kG$ phải cộng $k$ lần.** Double-and-add tốn $O(\log k)$ phép, không phải $O(k)$.
+- **Quên rút gọn $k$ theo order.** $21G = 2G$ khi order là 19. Nhưng rút gọn theo $p = 17$ là **sai**: order của group (19) mới là thứ quan trọng.
+- **Double-and-add "ngây thơ" rò rỉ khóa.** Bước "cộng" chỉ chạy khi bit bằng 1, nên đo thời gian hoặc điện năng có thể đọc ra từng bit của $k$ (side-channel). Thư viện thật dùng Montgomery ladder chạy thời gian hằng số.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- $kP$ = cộng $P$ với chính nó $k$ lần; tính nhanh bằng double-and-add theo bit của $k$.
+- $kG = (k \bmod n)G$ khi $G$ có order $n$.
+- ECDLP: biết $G$ và $kG$, tìm $k$ — tốt nhất cỡ $\sqrt n$ bước, bất khả với $n \approx 2^{256}$.
+- ECDH: $a(bG) = b(aG) = (ab)G$ là bí mật chung.
+
+</Summary>

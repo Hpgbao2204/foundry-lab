@@ -75,7 +75,8 @@
           "rust.basics.ownership",
           "rust.basics.structs-traits",
           "rust.basics.error-handling",
-          "rust.basics.iterators-closures"
+          "rust.basics.iterators-closures",
+          "rust.basics.generics"
         ]
       }
     ]

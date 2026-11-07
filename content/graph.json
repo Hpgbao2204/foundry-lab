@@ -53,5 +53,8 @@
   ],
   "math.ec.scalar-dlog": [
     "math.ec.finite-fields"
+  ],
+  "rust.basics.generics": [
+    "rust.basics.iterators-closures"
   ]
 }

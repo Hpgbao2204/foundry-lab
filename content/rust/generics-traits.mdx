@@ -1,0 +1,129 @@
+---
+id: rust.basics.generics
+track: rust
+chapter: basics
+title: "Generics & trait bounds — write pow once, use it for every field"
+minutes: 10
+prerequisites: [rust.basics.iterators-closures]
+researchBridge: "Thư viện arkworks (dùng trong nhiều hệ thống zk-SNARK) viết thuật toán một lần cho mọi field và mọi curve: code được viết cho 'mọi F: Field', rồi compiler sinh bản chuyên biệt cho BN254, BLS12-381… mà không tốn chi phí runtime. Const generics như Fp<P> ngăn từ lúc compile lỗi kinh điển: trộn phần tử của hai field khác nhau."
+flashcards:
+  - front: "What does `fn f<T: Trait>(x: T)` mean?"
+    back: "f works for any type T that implements Trait — the bound says which operations f may use on T."
+  - front: "`where` clause — why use it?"
+    back: "Same as inline bounds, but readable when there are many: `where T: Mul<Output = T> + Copy`."
+  - front: "What is monomorphization?"
+    back: "The compiler generates a separate, specialized copy of a generic function for each concrete type used — no runtime cost."
+  - front: "What is a const generic, e.g. Fp<const P: u64>?"
+    back: "A type parameterized by a constant value; Fp<7> and Fp<11> are different types, so mixing them is a compile error."
+  - front: "Why does pow need the bound `Copy`?"
+    back: "b * b consumes b (Mul takes self by value); Copy lets us keep using b afterwards."
+---
+
+<Why>
+
+Ở lesson error handling, bạn viết `pow` (square-and-multiply) cho `Fp`. Ngày mai bạn cần nó cho `u64`. Tuần sau cho ma trận. Rồi cho điểm trên elliptic curve (với "nhân" là cộng điểm). Copy-paste bốn lần, sửa bug bốn lần?
+
+Thuật toán square-and-multiply không quan tâm nó nhân **cái gì** — chỉ cần một phép nhân có tính kết hợp và một phần tử "1". Lesson này dạy cách nói đúng điều đó với compiler: <Term en="generics">generics</Term> và <Term en="trait bound">trait bound</Term>. Phần thưởng thêm: compiler sẽ chặn luôn việc nhân một phần tử của $\mathbb{F}_7$ với một phần tử của $\mathbb{F}_{11}$.
+
+</Why>
+
+<Intuition>
+
+Generic giống một **công thức nấu ăn có chỗ trống**: "lấy một loại bột $T$, nhào, nướng". Nhưng không phải bột nào cũng nướng được — công thức phải ghi rõ yêu cầu: "$T$ phải nướng được".
+
+Trong Rust, "yêu cầu" đó là trait bound:
+
+- `T: Mul<Output = T>` — $T$ nhân được với $T$, ra $T$.
+- `T: Copy` — dùng $T$ xong vẫn còn (vì phép nhân nhận giá trị, không phải tham chiếu).
+
+Compiler chỉ cho phép thân hàm dùng **đúng** những gì bound hứa. Viết `b + b` mà không có `Add` trong bound? Lỗi compile, kể cả khi mọi kiểu bạn định dùng đều có `+`. Đổi lại, mọi lời gọi hàm với một kiểu không thỏa bound cũng bị chặn — lỗi xuất hiện ở chỗ gọi, rõ ràng, chứ không phải lúc chạy.
+
+</Intuition>
+
+<Definition title="Generic function, trait bound, const generic">
+
+`fn f<T: A + B>(x: T)` declares a function generic over type `T`, usable for any `T` implementing traits `A` and `B`; the body may only use operations those traits provide. The same bounds can go in a `where` clause.
+The compiler **monomorphizes**: for each concrete `T` used, it generates a specialized copy, so generics cost nothing at runtime.
+A **const generic** `struct Fp<const P: u64>` is parameterized by a value; different values give different types.
+
+</Definition>
+
+<Example title="one pow for u64, f64 and every 𝔽ₚ">
+
+**Step 1 — the generic function.**
+
+```rust
+use std::ops::Mul;
+
+fn pow<T>(base: T, mut e: u64, one: T) -> T
+where
+    T: Mul<Output = T> + Copy,
+{
+    let (mut b, mut acc) = (base, one);
+    while e > 0 {
+        if e & 1 == 1 { acc = acc * b; }
+        b = b * b;
+        e >>= 1;
+    }
+    acc
+}
+```
+
+**Step 2 — a field type whose modulus is part of the type.**
+
+```rust
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Fp<const P: u64> { value: u64 }
+
+impl<const P: u64> Fp<P> {
+    fn new(v: u64) -> Self { Fp { value: v % P } }
+}
+impl<const P: u64> Mul for Fp<P> {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self { Fp::new(self.value * rhs.value) }
+}
+```
+
+**Step 3 — use it everywhere.**
+
+```rust
+pow(3u64, 4, 1);                          // 81
+pow(1.5f64, 2, 1.0);                      // 2.25
+pow(Fp::<7>::new(3), 6, Fp::new(1));      // Fp { value: 1 }   — Fermat: 3^6 ≡ 1 (mod 7)
+pow(Fp::<13>::new(2), 6, Fp::new(1));     // Fp { value: 12 }  — 64 = 4·13 + 12
+```
+
+Compiler sinh bốn bản `pow` riêng (cho `u64`, `f64`, `Fp<7>`, `Fp<13>`), mỗi bản nhanh như viết tay.
+
+**Step 4 — the bug that can't happen.**
+
+```rust
+let a = Fp::<7>::new(1);
+let b = Fp::<11>::new(1);
+let c = a * b;   // error[E0308]: mismatched types — expected Fp<7>, found Fp<11>
+```
+
+Với `Fp` của lesson structs (modulus là một `const P` toàn cục), bạn chỉ có **một** field. Với const generic, mỗi modulus là một kiểu riêng, và trộn chúng là lỗi compile.
+
+</Example>
+
+**Aha:** trait bound chính là **định nghĩa toán học** viết cho compiler đọc. "Group" = tập + phép toán kết hợp + identity + inverse; trong Rust, bạn có thể viết `trait Group: Copy + Add<Output = Self> { fn zero() -> Self; fn neg(self) -> Self; }` — và mọi thuật toán viết cho `G: Group` chạy được cho $\mathbb{Z}_n$, cho $\mathbb{F}_p^*$, cho elliptic curve. Đúng tinh thần "chứng minh một lần, dùng cho mọi group" của chương abstract algebra.
+
+<Pitfalls>
+
+- **Thiếu bound.** Thân hàm dùng `a + b` mà bound chỉ có `Mul` → lỗi `cannot add T to T`. Thêm `Add<Output = T>`.
+- **Quên `Output = T`.** `T: Mul` một mình cho phép `a * b` ra **một kiểu khác**; để gán lại vào biến kiểu `T`, cần `Mul<Output = T>`.
+- **Bound quá chặt.** Đòi `Copy` khi chỉ cần `Clone` (hoặc chỉ cần `&T`) làm hàm không dùng được cho kiểu lớn như `BigUint`. Bắt đầu từ bound tối thiểu.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- `fn f<T: Bound>` = một hàm cho mọi kiểu thỏa bound; thân hàm chỉ dùng được những gì bound hứa.
+- `where` clause cho bound dài; `Mul<Output = T>` nói rõ kiểu kết quả.
+- Monomorphization: mỗi kiểu cụ thể một bản riêng — không tốn chi phí runtime.
+- Const generic `Fp<const P: u64>`: modulus nằm trong kiểu, trộn field khác nhau là lỗi compile.
+
+</Summary>

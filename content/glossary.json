@@ -243,5 +243,15 @@
     "en": "discrete logarithm problem",
     "vi": "bài toán logarit rời rạc",
     "explain": "Biết g và g^k (hoặc G và k·G trên curve), tìm k. Dễ tính chiều tiến, được tin là rất khó tính chiều lùi khi group lớn."
+  },
+  {
+    "en": "generics",
+    "vi": "generics",
+    "explain": "Viết hàm/kiểu với tham số kiểu T, dùng được cho nhiều kiểu cụ thể. Rust sinh bản riêng cho từng kiểu (monomorphization) nên không tốn chi phí runtime."
+  },
+  {
+    "en": "trait bound",
+    "vi": "ràng buộc trait",
+    "explain": "Điều kiện T: Trait trên tham số generic — nói T phải hỗ trợ những phép nào; thân hàm chỉ được dùng đúng những phép đó."
   }
 ]

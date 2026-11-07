@@ -1,0 +1,150 @@
+[
+  {
+    "id": "rust.basics.generics.pow-u64",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "With the generic `pow` from the lesson, what is `pow(2u64, 10, 1)`?",
+    "answer": "1024",
+    "hints": [
+      "`pow(base, e, one)` tính $\\text{base}^e$, bắt đầu từ `one`.",
+      "Ở đây $T = $ `u64`, nên phép nhân là nhân số nguyên bình thường.",
+      "$2^{10}$."
+    ],
+    "solution": "$2^{10} = 1024$."
+  },
+  {
+    "id": "rust.basics.generics.pow-fp13",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `pow(Fp::<13>::new(2), 6, Fp::new(1)).value`?",
+    "answer": "12",
+    "verify": { "fn": "modPow", "args": [2, 6, 13] },
+    "hints": [
+      "Đây là $2^6$ trong $\\mathbb{F}_{13}$.",
+      "$2^6 = 64$.",
+      "$64 = 4 \\cdot 13 + 12$."
+    ],
+    "solution": "$2^6 = 64 \\equiv 12 \\pmod{13}$. (Để ý $12 \\equiv -1$: $2$ có order 12 trong $\\mathbb{F}_{13}^*$, nên $2^6 = -1$.)"
+  },
+  {
+    "id": "rust.basics.generics.fermat-fp7",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `pow(Fp::<7>::new(5), 6, Fp::new(1)).value`?",
+    "answer": "1",
+    "verify": { "fn": "modPow", "args": [5, 6, 7] },
+    "hints": [
+      "Định lý nào nói về $a^{p-1} \\bmod p$?",
+      "Fermat: $a^{6} \\equiv 1 \\pmod 7$ với $7 \\nmid a$.",
+      "Không cần tính gì thêm."
+    ],
+    "solution": "Theo Fermat, $5^6 \\equiv 1 \\pmod 7$, nên `.value` là `1`."
+  },
+  {
+    "id": "rust.basics.generics.which-bound",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "A generic function computes `let c: T = a * b;` for `a, b: T`. Which bound makes this compile?",
+    "options": ["`T: Mul<Output = T>`", "`T: Mul`", "`T: Copy`", "`T: PartialEq`"],
+    "answer": 0,
+    "hints": [
+      "Phép `*` đến từ trait nào trong `std::ops`?",
+      "`T: Mul` một mình cho `a * b` có kiểu `<T as Mul>::Output` — chưa chắc là `T`.",
+      "Cần nói rõ kết quả có kiểu `T`."
+    ],
+    "solution": "`T: Mul<Output = T>`: cho phép `*` **và** đảm bảo kết quả là `T`, nên gán vào `c: T` được."
+  },
+  {
+    "id": "rust.basics.generics.why-copy",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "In `pow`, why is the bound `Copy` needed?",
+    "options": [
+      "`b * b` takes `b` by value (moves it); `Copy` lets us use `b` again afterwards",
+      "Because `Mul` only works on integers",
+      "To make the function faster",
+      "Because generic functions always require `Copy`"
+    ],
+    "answer": 0,
+    "hints": [
+      "Chữ ký của `mul` là `fn mul(self, rhs: Self)` — nhận `self` theo giá trị.",
+      "Nhớ lesson Ownership: truyền theo giá trị một kiểu không `Copy` thì sao?",
+      "Trong vòng lặp, `b` được dùng nhiều lần."
+    ],
+    "solution": "`Mul::mul` nhận `self` theo giá trị, nên `b * b` sẽ *move* `b` nếu `T` không `Copy`. Với `Copy`, mỗi lần dùng là một bản chép; `b` vẫn dùng được ở vòng sau."
+  },
+  {
+    "id": "rust.basics.generics.mix-fields",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: `let c = Fp::<7>::new(1) * Fp::<11>::new(1);` compiles (with the lesson's `impl<const P: u64> Mul for Fp<P>`).",
+    "answer": false,
+    "reasons": [
+      "`Mul for Fp<P>` multiplies `Fp<P>` by the same `Fp<P>`; `Fp<7>` and `Fp<11>` are different types.",
+      "It fails at runtime with a panic, not at compile time.",
+      "It compiles and reduces the result mod 7.",
+      "It compiles and reduces the result mod 77."
+    ],
+    "reason": 0,
+    "hints": [
+      "Const generic: `Fp<7>` và `Fp<11>` có phải cùng một kiểu không?",
+      "`impl Mul for Fp<P>` có `rhs: Self`, tức cùng `P`.",
+      "Lỗi xuất hiện lúc nào: compile hay chạy?"
+    ],
+    "solution": "**False.** `rhs` phải là `Self = Fp<7>`, nhưng nhận được `Fp<11>`: `error[E0308]: mismatched types`. Lỗi bị chặn ngay lúc compile."
+  },
+  {
+    "id": "rust.basics.generics.monomorphization",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "A program calls `pow` with `u64`, `f64` and `Fp<7>`. What does the compiler do?",
+    "options": [
+      "Generates three specialized copies of `pow`, one per type, with no runtime dispatch",
+      "Generates one copy that checks the type at runtime",
+      "Converts every argument to `f64`",
+      "Refuses: a generic function can only be used with one type"
+    ],
+    "answer": 0,
+    "hints": [
+      "Tên kỹ thuật: monomorphization.",
+      "\"Zero-cost abstraction\" nghĩa là gì về runtime?",
+      "Mỗi kiểu cụ thể được thay vào chỗ `T`."
+    ],
+    "solution": "Monomorphization: compiler sinh `pow::<u64>`, `pow::<f64>`, `pow::<Fp<7>>` riêng biệt, mỗi bản được tối ưu như code viết tay. Đổi lại, binary có thể lớn hơn một chút."
+  },
+  {
+    "id": "rust.basics.generics.sum-fill",
+    "level": "B",
+    "type": "step-fill",
+    "prompt": "Complete the bounds so `sum_all` compiles.",
+    "template": [
+      "fn sum_all<T>(xs: &[T], zero: T) -> T",
+      "where T: {{Add<Output = T>|Add<Output=T>}} + {{Copy}},",
+      "{ xs.iter().fold(zero, |acc, &x| acc + x) }"
+    ],
+    "hints": [
+      "Thân hàm dùng phép toán nào trên `T`?",
+      "`acc + x` cần trait gì, và kết quả phải có kiểu gì để làm `acc` mới?",
+      "Pattern `&x` chép giá trị ra khỏi tham chiếu — cần trait nào?"
+    ],
+    "solution": "`where T: Add<Output = T> + Copy`. `Add<Output = T>` cho `acc + x` kiểu `T`; `Copy` cho phép `|acc, &x|` chép phần tử ra khỏi slice."
+  },
+  {
+    "id": "rust.basics.generics.const-generic-why",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Explain why `struct Fp<const P: u64>` is safer than `struct Fp { value: u64, modulus: u64 }` (modulus stored at runtime). Describe a concrete bug the runtime version allows.",
+    "rubric": [
+      "Notes that with const generics the modulus is part of the type, so `Fp<7>` and `Fp<11>` cannot be combined — checked at compile time.",
+      "Gives a concrete bug for the runtime version, e.g. adding values with moduli 7 and 11 and reducing by one of them silently.",
+      "Mentions the runtime version needs a check (panic/Result) in every operation, which can be forgotten.",
+      "Mentions a cost/limitation trade-off, e.g. the const version needs the modulus known at compile time (or extra memory per element in the runtime version)."
+    ],
+    "hints": [
+      "Với phiên bản runtime, `a + b` khi `a.modulus = 7` và `b.modulus = 11` thì sao?",
+      "Ai sẽ phát hiện lỗi đó, và khi nào?",
+      "Với const generic, compiler biết gì về `Fp<7>` và `Fp<11>`?"
+    ],
+    "solution": "Với `modulus` lưu lúc chạy, `a + b` với moduli 7 và 11 vẫn compile; nếu `add` lấy `self.modulus` thì kết quả âm thầm sai (hoặc phải tự viết `assert_eq!` ở **mọi** phép toán và hy vọng không quên). Với `Fp<const P: u64>`, modulus là một phần của kiểu: `Fp<7> + Fp<11>` là lỗi compile, không cần kiểm tra runtime, và mỗi phần tử chỉ tốn 8 byte. Đổi lại, modulus phải biết lúc compile — field có modulus chọn lúc chạy (ví dụ RSA với khóa người dùng) vẫn cần phiên bản runtime."
+  }
+]

@@ -1,5 +1,5 @@
 import { egcd, gcd, mod, modInverse } from '../lib/nt';
-import { elementOrder, isPrime, modPow } from '../exercises/registry';
+import { crt, elementOrder, isPrime, modPow } from '../exercises/registry';
 import type { Exercise, NumericExercise } from '../exercises/types';
 import { int, mulberry32, pick, type Rng } from './rng';
 
@@ -37,6 +37,30 @@ function gcdPair(rng: Rng, max: number): [number, number] {
 }
 
 export const GENERATORS: Record<string, Gen> = {
+  crt2: (rng) => {
+    let m: number, n: number;
+    do {
+      m = int(rng, 3, 13);
+      n = int(rng, 3, 17);
+    } while (m === n || gcd(BigInt(m), BigInt(n)) !== 1n);
+    const a = int(rng, 0, m - 1);
+    const b = int(rng, 0, n - 1);
+    const x = crt([a, m, b, n])!;
+    const t = (x - b) / n;
+    return {
+      prompt: `Solve $x \\equiv ${a} \\pmod{${m}}$, $x \\equiv ${b} \\pmod{${n}}$. Give $x$ modulo $${m * n}$.`,
+      answer: String(x),
+      modulus: m * n,
+      hints: [
+        `$\\gcd(${m}, ${n}) = 1$, nên có đúng một nghiệm mod ${m * n}.`,
+        `Viết $x = ${b} + ${n}t$ từ phương trình thứ hai, rồi thế vào phương trình đầu.`,
+        `Cần $${b} + ${n}t \\equiv ${a} \\pmod{${m}}$. Thử $t = 0, 1, 2, \\dots$`,
+      ],
+      solution: `$t = ${t}$ cho $x = ${b} + ${n} \\cdot ${t} = ${x}$. Check: $${x} \\bmod ${m} = ${x % m}$, $${x} \\bmod ${n} = ${x % n}$.`,
+      verify: { fn: 'crt', args: [a, m, b, n] },
+    };
+  },
+
   fermatPow: (rng) => {
     const p = primeBetween(rng, 5, 31);
     const a = int(rng, 2, p - 1);

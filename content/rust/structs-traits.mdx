@@ -1,0 +1,119 @@
+---
+id: rust.basics.structs-traits
+track: rust
+chapter: basics
+title: "Structs, impl & traits — build your own number type"
+minutes: 10
+prerequisites: [rust.basics.ownership]
+researchBridge: "Mọi thư viện crypto bằng Rust (arkworks, dalek, ring) đều bắt đầu bằng đúng việc trong lesson này: một struct cho phần tử của F_p, rồi implement các trait Add, Mul để viết a * b + c như với số thường."
+flashcards:
+  - front: "What does `impl Fp { ... }` do?"
+    back: "Defines methods and associated functions (like Fp::new) for the type Fp."
+  - front: "&self vs self vs &mut self in a method?"
+    back: "&self borrows to read; &mut self borrows to modify; self takes ownership (or copies, if the type is Copy)."
+  - front: "What is a trait?"
+    back: "A named set of methods a type can implement — like an interface. Example: std::ops::Add enables the + operator."
+  - front: "What does #[derive(Clone, Copy, Debug, PartialEq)] give you?"
+    back: "Auto-generated impls: copy semantics, {:?} printing, and == comparing all fields."
+  - front: "Why compute a * b in u128 when p is close to 2^64?"
+    back: "The product of two 64-bit numbers needs up to 128 bits; in u64 it would overflow."
+---
+
+<Why>
+
+Ở lesson modular arithmetic, bạn tính tay trong $\mathbb{F}_7$. Giờ hãy dạy máy làm điều đó — theo cách của Rust. Cuối lesson, bạn sẽ viết được `a * b + c` với `a, b, c` là phần tử của $\mathbb{F}_7$, và compiler đảm bảo không ai lỡ tay cộng một số "thường" với một phần tử của field. Đây cũng là cách nhanh nhất để hiểu ba khái niệm trung tâm của Rust: <Term en="struct">struct</Term>, `impl`, và <Term en="trait">trait</Term>.
+
+</Why>
+
+<Intuition>
+
+- **Struct** = một cái hộp có tên, chứa dữ liệu. `Fp { value: 3 }` là "số 3, nhưng sống trong $\mathbb{F}_7$".
+- **`impl`** = dạy cái hộp biết làm việc: tạo mới, cộng, nhân.
+- **Trait** = một "hợp đồng" chung. Trait `Add` nói: "kiểu nào implement tôi thì được dùng dấu `+`". `i32` đã ký hợp đồng này; ta cho `Fp` ký luôn.
+
+Điểm hay: một hàm generic viết cho "mọi `T` có `Add`" sẽ chạy được với `i32`, `f64`, **và** `Fp` của bạn — không cần viết lại.
+
+</Intuition>
+
+<Definition title="Struct, method, trait">
+
+A **struct** groups named fields into a new type. An **`impl` block** attaches functions to that type: functions taking `self`, `&self` or `&mut self` are **methods**; others (like `new`) are **associated functions**, called as `Type::f(...)`.
+A **trait** declares methods that many types can implement; `impl Trait for Type { ... }` provides them.
+
+</Definition>
+
+<Example title="a tiny F₇">
+
+**Step 1 — the struct, with free implementations from `derive`.**
+
+```rust
+const P: u64 = 7;
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Fp { value: u64 }
+```
+
+`Copy` làm `Fp` hành xử như `i32` (gán là chép, không move — xem lesson Ownership). `PartialEq` cho phép `==`. `Debug` cho phép in bằng `{:?}`.
+
+**Step 2 — a constructor that keeps the invariant.**
+
+```rust
+impl Fp {
+    fn new(v: u64) -> Fp { Fp { value: v % P } }   // always store 0..P-1
+}
+```
+
+Nhờ luôn rút gọn trong `new`, `Fp::new(10) == Fp::new(3)` là `true` — đúng như $10 \equiv 3 \pmod 7$.
+
+**Step 3 — sign the `Add` and `Mul` contracts.**
+
+```rust
+use std::ops::{Add, Mul};
+
+impl Add for Fp {
+    type Output = Fp;
+    fn add(self, rhs: Fp) -> Fp { Fp::new(self.value + rhs.value) }
+}
+impl Mul for Fp {
+    type Output = Fp;
+    fn mul(self, rhs: Fp) -> Fp { Fp::new(self.value * rhs.value) }
+}
+```
+
+**Step 4 — use it like a normal number.**
+
+```rust
+fn main() {
+    let a = Fp::new(3);
+    let b = Fp::new(5);
+    println!("{:?}", a * b);            // Fp { value: 1 }   since 15 ≡ 1 (mod 7)
+    println!("{:?}", a + b + b);        // Fp { value: 6 }   since 13 ≡ 6
+    // Fermat check: 3^6 ≡ 1
+    let mut x = Fp::new(1);
+    for _ in 0..6 { x = x * a; }
+    assert_eq!(x, Fp::new(1));
+}
+```
+
+Một vòng lặp sáu dòng vừa kiểm chứng Fermat's little theorem cho bạn.
+
+</Example>
+
+<Pitfalls>
+
+- **Quên rút gọn trong `new`.** Nếu lưu `value: 10`, phép `==` sẽ nói $10 \ne 3$ dù chúng bằng nhau trong $\mathbb{F}_7$. Giữ **invariant** ở một chỗ duy nhất.
+- **Tràn số với $p$ lớn.** Khi $p \approx 2^{64}$, `self.value * rhs.value` vượt quá `u64`. Ở debug build Rust panic, ở release build nó âm thầm wrap-around. Nhân trong `u128` rồi mới `%`.
+- **Dùng `self` khi chỉ cần đọc.** Với kiểu không `Copy` (ví dụ chứa `Vec`), method `fn f(self)` sẽ **nuốt** giá trị. Mặc định nên dùng `&self`.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- `struct` gói dữ liệu; `impl` gắn hàm; `Type::new` là associated function, `x.method()` là method.
+- `&self` đọc, `&mut self` sửa, `self` lấy luôn (hoặc copy nếu `Copy`).
+- Trait là hợp đồng chung; implement `Add`/`Mul` để dùng `+`/`*` với kiểu của bạn.
+- Giữ invariant trong constructor; cẩn thận overflow — dùng `u128` cho tích trung gian.
+
+</Summary>

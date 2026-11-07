@@ -1,0 +1,132 @@
+[
+  {
+    "id": "math.nt.crt.sunzi",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Find the smallest $x \\ge 0$ with $x \\equiv 2 \\pmod 3$, $x \\equiv 3 \\pmod 5$, $x \\equiv 2 \\pmod 7$.",
+    "answer": "23",
+    "modulus": 105,
+    "verify": { "fn": "crt", "args": [2, 3, 3, 5, 2, 7] },
+    "hints": [
+      "3, 5, 7 coprime nên có đúng một nghiệm mod 105.",
+      "Dùng công thức $x = \\sum a_i N_i M_i$ với $N = 105$, hoặc thế dần.",
+      "Thế dần: $x \\equiv 2 \\pmod 3$ và $\\pmod 7$ ⇒ $x \\equiv 2 \\pmod{21}$. Thử $2, 23, 44, \\dots$ với điều kiện mod 5."
+    ],
+    "solution": "$x \\equiv 2 \\pmod{21}$ (vì $x - 2$ chia hết cho cả 3 và 7). Các ứng viên $2, 23, 44, \\dots$: $23 \\bmod 5 = 3$. Vậy $x = 23$."
+  },
+  {
+    "id": "math.nt.crt.mod-3-4",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Solve $x \\equiv 2 \\pmod 3$, $x \\equiv 3 \\pmod 4$. Give $x$ modulo $12$.",
+    "answer": "11",
+    "modulus": 12,
+    "verify": { "fn": "crt", "args": [2, 3, 3, 4] },
+    "generator": "crt2",
+    "hints": [
+      "$\\gcd(3, 4) = 1$, nên có đúng một nghiệm mod 12.",
+      "Viết $x = 3 + 4t$ (từ phương trình thứ hai), thế vào phương trình đầu.",
+      "$3 + 4t \\equiv 2 \\pmod 3$ ⇒ $t \\equiv 2 \\pmod 3$."
+    ],
+    "solution": "$x = 3 + 4t$, cần $3 + 4t \\equiv t \\equiv 2 \\pmod 3$ (vì $3 \\equiv 0$, $4 \\equiv 1$). $t = 2$ ⇒ $x = 11$. Check: $11 = 3 \\cdot 3 + 2 = 2 \\cdot 4 + 3$."
+  },
+  {
+    "id": "math.nt.crt.formula-fill",
+    "level": "A",
+    "type": "step-fill",
+    "prompt": "Use the CRT formula for $x \\equiv 1 \\pmod 3$, $x \\equiv 4 \\pmod 5$.",
+    "template": [
+      "$N =$ {{15}}, $\\; N_1 = 5$, $\\; N_2 = 3$.",
+      "$M_1 = 5^{-1} \\bmod 3 =$ {{2}}, so the first term is $1 \\cdot 5 \\cdot 2 =$ {{10}}.",
+      "$M_2 = 3^{-1} \\bmod 5 =$ {{2}}, so the second term is $4 \\cdot 3 \\cdot 2 =$ {{24}}.",
+      "$x \\equiv 10 + 24 = 34 \\equiv$ {{4}} $\\pmod{15}$."
+    ],
+    "hints": [
+      "$N$ là tích các moduli; $N_i = N / n_i$.",
+      "$5 \\equiv 2 \\pmod 3$ và $2 \\cdot 2 = 4 \\equiv 1$. Còn $3 \\cdot 2 = 6 \\equiv 1 \\pmod 5$.",
+      "Cộng hai số hạng rồi rút gọn mod 15."
+    ],
+    "solution": "$N = 15$, $M_1 = 2$, $M_2 = 2$. $x \\equiv 1 \\cdot 5 \\cdot 2 + 4 \\cdot 3 \\cdot 2 = 34 \\equiv 4$. Check: $4 \\bmod 3 = 1$, $4 \\bmod 5 = 4$."
+  },
+  {
+    "id": "math.nt.crt.gen",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "",
+    "answer": "",
+    "generator": "crt2",
+    "hints": ["", "", ""],
+    "solution": ""
+  },
+  {
+    "id": "math.nt.crt.eggs",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "A basket of eggs: taking them out 2, 3, 4, 5 or 6 at a time always leaves 1 egg, but taking them out 7 at a time leaves none. What is the smallest possible number of eggs?",
+    "answer": "301",
+    "verify": { "fn": "crt", "args": [1, 60, 0, 7] },
+    "hints": [
+      "\"Dư 1 khi chia cho 2, 3, 4, 5, 6\" gộp lại thành một điều kiện duy nhất.",
+      "$x - 1$ chia hết cho 2, 3, 4, 5, 6 ⇔ chia hết cho $\\text{lcm} = 60$. Vậy $x \\equiv 1 \\pmod{60}$ và $x \\equiv 0 \\pmod 7$.",
+      "Thử $61, 121, 181, 241, 301$ — số nào chia hết cho 7?"
+    ],
+    "solution": "$x \\equiv 1 \\pmod{60}$ và $x \\equiv 0 \\pmod 7$ (60 và 7 coprime). Ứng viên $61, 121, 181, 241, 301$: $301 = 7 \\cdot 43$. Vậy 301 quả trứng (tiếp theo là $301 + 420 = 721$). Lưu ý: 2, 3, 4, 5, 6 không coprime, nên phải gộp bằng lcm trước."
+  },
+  {
+    "id": "math.nt.crt.no-solution",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: the system $x \\equiv 1 \\pmod 4$, $x \\equiv 2 \\pmod 6$ has a solution.",
+    "answer": false,
+    "reasons": [
+      "The first congruence forces $x$ odd, the second forces $x$ even — they contradict each other.",
+      "CRT always gives a solution.",
+      "There is a solution modulo 24.",
+      "It has no solution because 6 is not prime."
+    ],
+    "reason": 0,
+    "hints": [
+      "4 và 6 có coprime không? Nếu không, CRT không áp dụng — nhưng chưa chắc vô nghiệm.",
+      "Xét modulo 2 cả hai phương trình.",
+      "$x \\equiv 1 \\pmod 4$ ⇒ $x$ lẻ. $x \\equiv 2 \\pmod 6$ ⇒ $x$ chẵn."
+    ],
+    "solution": "**False.** Modulo 2, phương trình đầu cho $x \\equiv 1$, phương trình sau cho $x \\equiv 0$. Mâu thuẫn, nên vô nghiệm. (Nếu không coprime, hệ có nghiệm khi và chỉ khi $a_1 \\equiv a_2 \\pmod{\\gcd(n_1, n_2)}$.)"
+  },
+  {
+    "id": "math.nt.crt.rsa-speed",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "RSA decryption computes $c^d \\bmod n$ with $n = pq$. Why is it faster to compute $c^d \\bmod p$ and $c^d \\bmod q$ and then combine with CRT?",
+    "options": [
+      "The numbers mod $p$ and mod $q$ are half as long, so each multiplication is much cheaper (and exponents can be reduced mod $p-1$, $q-1$).",
+      "Because CRT avoids doing any multiplication.",
+      "Because $p$ and $q$ are public.",
+      "It is not faster; it is only more secure."
+    ],
+    "answer": 0,
+    "hints": [
+      "Chi phí nhân hai số $k$ bit tăng nhanh hơn tuyến tính theo $k$.",
+      "$p$ và $q$ chỉ dài bằng nửa $n$. Số mũ $d$ cũng rút gọn được nhờ Fermat.",
+      "CRT ghép hai kết quả nhỏ thành kết quả mod $n$ chỉ với vài phép tính."
+    ],
+    "solution": "Làm việc với số dài một nửa giúp mỗi phép nhân rẻ hơn khoảng 4 lần, số mũ rút gọn theo $p - 1$, $q - 1$ (Fermat) còn ngắn hơn, rồi CRT ghép lại gần như miễn phí. Tổng cộng nhanh hơn khoảng 3–4 lần. (Lưu ý: $p, q$ là bí mật.)"
+  },
+  {
+    "id": "math.nt.crt.uniqueness",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove the uniqueness part of CRT for two moduli: if $\\gcd(m, n) = 1$ and both $x$ and $y$ satisfy $x \\equiv y \\equiv a \\pmod m$ and $x \\equiv y \\equiv b \\pmod n$, then $x \\equiv y \\pmod{mn}$.",
+    "rubric": [
+      "Shows $m \\mid (x - y)$ and $n \\mid (x - y)$.",
+      "Writes $x - y = mk$ for some integer $k$.",
+      "Uses $\\gcd(m, n) = 1$ and $n \\mid mk$ to get $n \\mid k$ (Euclid's lemma).",
+      "Concludes $mn \\mid (x - y)$, i.e. $x \\equiv y \\pmod{mn}$."
+    ],
+    "hints": [
+      "Xét hiệu $x - y$. Nó chia hết cho những số nào?",
+      "Viết $x - y = mk$. Khi đó $n \\mid mk$.",
+      "Euclid's lemma (lesson gcd): $\\gcd(m, n) = 1$ và $n \\mid mk$ ⇒ $n \\mid k$."
+    ],
+    "solution": "Vì $x \\equiv y \\pmod m$ và $\\pmod n$, ta có $m \\mid x - y$ và $n \\mid x - y$. Viết $x - y = mk$. Khi đó $n \\mid mk$, mà $\\gcd(m, n) = 1$, nên theo Euclid's lemma $n \\mid k$: $k = nl$. Vậy $x - y = mnl$, tức $x \\equiv y \\pmod{mn}$. ∎"
+  }
+]

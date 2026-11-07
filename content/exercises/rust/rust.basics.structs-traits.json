@@ -1,0 +1,136 @@
+[
+  {
+    "id": "rust.basics.structs-traits.add-value",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "With `P = 7` and the `Fp` type from the lesson, what is `(Fp::new(5) + Fp::new(4)).value`?",
+    "answer": "2",
+    "hints": [
+      "`add` gọi `Fp::new(self.value + rhs.value)`.",
+      "`new` luôn lấy `% P`.",
+      "$5 + 4 = 9$, và $9 \\bmod 7 = ?$"
+    ],
+    "solution": "$5 + 4 = 9$, `Fp::new(9)` lưu $9 \\bmod 7 = 2$."
+  },
+  {
+    "id": "rust.basics.structs-traits.mul-value",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "With `P = 7`, what is `(Fp::new(3) * Fp::new(5)).value`?",
+    "answer": "1",
+    "hints": [
+      "`mul` nhân hai `value` rồi gọi `Fp::new`.",
+      "$3 \\cdot 5 = 15$.",
+      "$15 = 2 \\cdot 7 + 1$."
+    ],
+    "solution": "$15 \\bmod 7 = 1$ — nghĩa là $5 = 3^{-1}$ trong $\\mathbb{F}_7$."
+  },
+  {
+    "id": "rust.basics.structs-traits.derive-copy",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "`Fp` derives `Clone, Copy`. After `let a = Fp::new(3); let b = a;`, what is true?",
+    "options": [
+      "`a` is still usable — it was copied",
+      "`a` was moved and cannot be used",
+      "`b` is a reference to `a`",
+      "It does not compile without `.clone()`"
+    ],
+    "answer": 0,
+    "hints": [
+      "Nhớ lại lesson Ownership: `Copy` thay đổi hành vi của phép gán thế nào?",
+      "`Fp` chỉ chứa một `u64` — không có gì trên heap.",
+      "Kiểu `Copy` được chép bit-by-bit khi gán."
+    ],
+    "solution": "Vì `Fp: Copy`, `let b = a;` chép giá trị; `a` vẫn dùng được, giống `i32`."
+  },
+  {
+    "id": "rust.basics.structs-traits.method-receiver",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "You want a method that **reads** an `Fp` and returns its double, without taking ownership or modifying it. Which signature?",
+    "options": ["`fn double(&self) -> Fp`", "`fn double(&mut self) -> Fp`", "`fn double(self) -> Fp`", "`fn double() -> Fp`"],
+    "answer": 0,
+    "hints": [
+      "Ba kiểu receiver: `self`, `&self`, `&mut self`. Cái nào chỉ đọc?",
+      "`&mut self` dùng khi cần sửa; `self` lấy quyền sở hữu.",
+      "Không có receiver thì đó là associated function, không phải method."
+    ],
+    "solution": "`&self` — mượn để đọc. (Với `Fp: Copy` thì `self` cũng chạy, nhưng `&self` là thói quen đúng cho kiểu tổng quát.)"
+  },
+  {
+    "id": "rust.basics.structs-traits.impl-add-fill",
+    "level": "A",
+    "type": "step-fill",
+    "prompt": "Complete the `Add` implementation for `Fp`.",
+    "template": [
+      "impl Add for Fp {",
+      "    type Output = {{Fp}};",
+      "    fn add(self, rhs: Fp) -> Fp { Fp::{{new}}(self.value + rhs.{{value}}) }",
+      "}"
+    ],
+    "hints": [
+      "`Output` là kiểu kết quả của `a + b`.",
+      "Dùng constructor để giữ invariant `value < P`.",
+      "Field của struct tên là gì?"
+    ],
+    "solution": "`type Output = Fp;` và `Fp::new(self.value + rhs.value)`."
+  },
+  {
+    "id": "rust.basics.structs-traits.eq-after-new",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "With `P = 7` and `#[derive(PartialEq)]`, true or false: `Fp::new(10) == Fp::new(3)`.",
+    "answer": true,
+    "reasons": [
+      "`new` stores `10 % 7 = 3`, and the derived `==` compares the stored fields.",
+      "`PartialEq` compares numbers modulo `P` automatically.",
+      "It is false: 10 and 3 are different numbers.",
+      "It is true only in release builds."
+    ],
+    "reason": 0,
+    "hints": [
+      "`derive(PartialEq)` so sánh cái gì?",
+      "Nó so sánh từng field, không biết gì về modulo.",
+      "Vậy câu hỏi là: `Fp::new(10).value` bằng bao nhiêu?"
+    ],
+    "solution": "**True** — nhưng chỉ vì `new` rút gọn. `derive(PartialEq)` so sánh field `value`: cả hai đều là 3. Nếu bỏ `% P` trong `new` thì kết quả sẽ là false. Đó là lý do giữ invariant trong constructor."
+  },
+  {
+    "id": "rust.basics.structs-traits.why-trait",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Why implement the `Add` trait instead of just writing a method `fn add_fp(self, rhs: Fp) -> Fp`?",
+    "options": [
+      "You get the `+` operator, and generic code written for any `T: Add` works with `Fp` too.",
+      "Traits make the code run faster.",
+      "Methods cannot take two arguments.",
+      "There is no difference."
+    ],
+    "answer": 0,
+    "hints": [
+      "Trait là một \"hợp đồng\" mà nhiều kiểu cùng ký.",
+      "Hàm `fn sum<T: Add<Output = T>>(...)` cần gì từ `T`?",
+      "Operator `+` trong Rust thực chất gọi `Add::add`."
+    ],
+    "solution": "Implement `Add` cho bạn dấu `+`, và quan trọng hơn: mọi hàm generic yêu cầu `T: Add` (ví dụ tính tổng, đánh giá đa thức) dùng được ngay với `Fp`. Đó là cách arkworks viết một lần cho mọi field."
+  },
+  {
+    "id": "rust.basics.structs-traits.overflow",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Suppose `P` is a prime close to $2^{64}$. Explain what goes wrong in `Fp::new(self.value * rhs.value)` with `u64`, and how to fix it.",
+    "rubric": [
+      "Notes both values can be close to $2^{64}$, so the product can be close to $2^{128}$.",
+      "Says this does not fit in `u64`: debug builds panic on overflow, release builds silently wrap around (giving a wrong result).",
+      "Fix: cast to `u128`, multiply, take `% P`, then cast back to `u64` (the result is < P so it fits).",
+      "Mentions why the cast back is safe, or mentions alternatives (Montgomery multiplication / checked ops)."
+    ],
+    "hints": [
+      "Hai số $< 2^{64}$ nhân với nhau có thể lớn tới bao nhiêu bit?",
+      "Rust xử lý overflow khác nhau ở debug và release.",
+      "Tích của hai `u64` luôn vừa trong `u128`."
+    ],
+    "solution": "Hai giá trị gần $2^{64}$ cho tích gần $2^{128}$, không vừa `u64`. Debug build panic \"attempt to multiply with overflow\"; release build wrap-around và cho kết quả sai mà không báo gì. Sửa: `((self.value as u128 * rhs.value as u128) % P as u128) as u64`. Ép về `u64` an toàn vì kết quả $< P < 2^{64}$. Thư viện thật dùng Montgomery multiplication để tránh phép `%` chậm."
+  }
+]

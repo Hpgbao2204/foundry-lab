@@ -148,5 +148,20 @@
     "en": "borrowing",
     "vi": "mượn",
     "explain": "Dùng reference &T (chỉ đọc, nhiều người) hoặc &mut T (sửa, một người) mà không lấy quyền sở hữu."
+  },
+  {
+    "en": "struct",
+    "vi": "kiểu cấu trúc",
+    "explain": "Kiểu dữ liệu tự định nghĩa gồm các field có tên, ví dụ struct Fp { value: u64 }."
+  },
+  {
+    "en": "trait",
+    "vi": "trait (giống interface)",
+    "explain": "Tập method mà nhiều kiểu có thể implement. Ví dụ trait Add cho phép dùng dấu +."
+  },
+  {
+    "en": "Chinese Remainder Theorem",
+    "vi": "định lý số dư Trung Hoa",
+    "explain": "Moduli coprime ⇒ hệ x ≡ aᵢ (mod nᵢ) có đúng một nghiệm modulo tích các nᵢ."
   }
 ]

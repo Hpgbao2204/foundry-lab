@@ -1,0 +1,90 @@
+---
+id: math.nt.crt
+track: math
+chapter: number-theory
+title: "Chinese Remainder Theorem — solving several clocks at once"
+minutes: 9
+prerequisites: [math.nt.mod-arith]
+researchBridge: "Bài toán đếm lính của Tôn Tử (thế kỷ 3–5) chính là CRT. Ngày nay RSA dùng CRT để giải mã nhanh hơn khoảng 4 lần: thay vì tính modulo n khổng lồ, nó tính modulo p và q (nhỏ bằng nửa) rồi ghép lại."
+flashcards:
+  - front: "State the Chinese Remainder Theorem (two moduli)."
+    back: "If gcd(m, n) = 1, the system x ≡ a (mod m), x ≡ b (mod n) has exactly one solution mod mn."
+  - front: "CRT construction: x = ?"
+    back: "x = Σ aᵢ · Nᵢ · (Nᵢ⁻¹ mod nᵢ) mod N, where N = ∏ nᵢ and Nᵢ = N / nᵢ."
+  - front: "Why must the moduli be coprime?"
+    back: "Otherwise the congruences can contradict each other, e.g. x ≡ 1 (mod 4) says x is odd, x ≡ 2 (mod 6) says x is even."
+  - front: "Sunzi's puzzle: x ≡ 2 (3), x ≡ 3 (5), x ≡ 2 (7). Smallest x?"
+    back: "23."
+---
+
+<Why>
+
+Một vị tướng muốn đếm quân mà không đếm từng người. Ông cho lính xếp hàng 3: dư 2 người. Hàng 5: dư 3. Hàng 7: dư 2. Vậy có bao nhiêu lính (giả sử ít hơn 105)? Câu đố này nằm trong sách toán Trung Hoa của Tôn Tử, hơn 1500 năm trước. Cách giải tổng quát của nó — <Term en="Chinese Remainder Theorem">Chinese Remainder Theorem</Term> — là một trong những định lý đẹp và hữu ích nhất của số học.
+
+</Why>
+
+<Intuition>
+
+Tưởng tượng **ba cái đồng hồ** chạy cùng lúc: một cái có 3 vạch, một cái 5 vạch, một cái 7 vạch. Mỗi số nguyên $x$ cho ra một bộ ba vị trí $(x \bmod 3, x \bmod 5, x \bmod 7)$.
+
+Có $3 \cdot 5 \cdot 7 = 105$ bộ ba khác nhau, và có đúng 105 số từ $0$ tới $104$. CRT nói rằng: **mỗi bộ ba ứng với đúng một số** trong khoảng đó — không trùng, không thiếu. Nói cách khác, biết số dư khi chia cho 3, 5, 7 là biết chính xác $x$ mod 105.
+
+Điều kiện: các "đồng hồ" phải coprime. Đồng hồ 4 vạch và 6 vạch cùng "biết" tính chẵn lẻ, nên chúng có thể mâu thuẫn nhau: $x \equiv 1 \pmod 4$ nói $x$ lẻ, còn $x \equiv 2 \pmod 6$ nói $x$ chẵn — vô nghiệm.
+
+</Intuition>
+
+<Theorem title="Chinese Remainder Theorem">
+
+Let $n_1, \dots, n_k$ be pairwise coprime and $N = n_1 n_2 \cdots n_k$. For any $a_1, \dots, a_k$, the system
+$$
+x \equiv a_1 \pmod{n_1}, \quad \dots, \quad x \equiv a_k \pmod{n_k}
+$$
+has exactly one solution modulo $N$. It is
+$$
+x \equiv \sum_{i=1}^{k} a_i \, N_i \, M_i \pmod N, \qquad N_i = \frac{N}{n_i}, \quad M_i = N_i^{-1} \bmod n_i.
+$$
+
+</Theorem>
+
+Vì sao công thức đúng? Số hạng $a_i N_i M_i$ được thiết kế như một **công tắc**: modulo $n_i$ nó bằng $a_i$ (vì $N_i M_i \equiv 1$), còn modulo mọi $n_j$ khác nó bằng $0$ (vì $N_i$ chứa thừa số $n_j$). Cộng các công tắc lại, mỗi đồng hồ chỉ "thấy" đúng số hạng của mình.
+
+<Example title="Sunzi's soldiers">
+
+Giải $x \equiv 2 \pmod 3$, $x \equiv 3 \pmod 5$, $x \equiv 2 \pmod 7$.
+
+**Step 1 — compute $N$ and each $N_i$.** $N = 105$; $N_1 = 35$, $N_2 = 21$, $N_3 = 15$.
+
+**Step 2 — invert each $N_i$ modulo its own $n_i$.** *(Chỉ cần modulo số nhỏ — dễ tính nhẩm.)*
+- $35 \equiv 2 \pmod 3$, và $2 \cdot 2 = 4 \equiv 1$, nên $M_1 = 2$.
+- $21 \equiv 1 \pmod 5$, nên $M_2 = 1$.
+- $15 \equiv 1 \pmod 7$, nên $M_3 = 1$.
+
+**Step 3 — add the switches.**
+$$
+x \equiv 2 \cdot 35 \cdot 2 + 3 \cdot 21 \cdot 1 + 2 \cdot 15 \cdot 1 = 140 + 63 + 30 = 233 \equiv 23 \pmod{105}.
+$$
+
+**Check:** $23 = 7 \cdot 3 + 2$, $\; 23 = 4 \cdot 5 + 3$, $\; 23 = 3 \cdot 7 + 2$. ✓ Vị tướng có 23 lính (hoặc 128, 233, … nếu biết có nhiều hơn 105).
+
+</Example>
+
+**Cách nhanh cho hai phương trình:** từ $x \equiv 2 \pmod 3$ viết $x = 2 + 3t$, thế vào phương trình kia rồi giải $t$. Với số nhỏ, cách "thế dần" này thường nhanh hơn công thức.
+
+<Pitfalls>
+
+- **Moduli không coprime.** Công thức cần $N_i^{-1} \bmod n_i$ — không tồn tại khi gcd khác 1. Kiểm tra coprime trước, hoặc kiểm tra hệ có mâu thuẫn không.
+- **Quên rút gọn mod $N$ ở cuối.** $233$ cũng thỏa hệ, nhưng đáp án chuẩn là $23$.
+- **Nghịch đảo sai modulo.** $M_i$ là nghịch đảo của $N_i$ **mod $n_i$**, không phải mod $N$.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Moduli coprime ⇒ biết các số dư là biết $x$ mod tích của chúng — đúng một nghiệm.
+- Công thức: $x = \sum a_i N_i (N_i^{-1} \bmod n_i)$; mỗi số hạng là một "công tắc" chỉ bật ở một modulo.
+- Với hai phương trình nhỏ, thế $x = a + mt$ vào phương trình còn lại là nhanh nhất.
+- RSA-CRT: tính modulo $p$ và $q$ riêng rồi ghép lại, nhanh hơn khoảng 4 lần.
+
+</Summary>

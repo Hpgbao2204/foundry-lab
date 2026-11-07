@@ -17,7 +17,8 @@
         "lessons": [
           "math.nt.gcd-euclid",
           "math.nt.mod-arith",
-          "math.nt.fermat"
+          "math.nt.fermat",
+          "math.nt.crt"
         ]
       },
       {
@@ -38,7 +39,7 @@
   {
     "id": "syssec",
     "title": "Systems Security",
-    "description": "Kiến thức nền để đọc paper USENIX Security.",
+    "description": "How real systems get broken and defended: memory bugs, fuzzing, sandboxes, side channels, web, privacy.",
     "chapters": []
   },
   {
@@ -50,7 +51,8 @@
         "id": "basics",
         "title": "Basics",
         "lessons": [
-          "rust.basics.ownership"
+          "rust.basics.ownership",
+          "rust.basics.structs-traits"
         ]
       }
     ]

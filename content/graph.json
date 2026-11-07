@@ -12,5 +12,11 @@
   "math.algebra.groups": [
     "math.nt.fermat"
   ],
-  "rust.basics.ownership": []
+  "rust.basics.ownership": [],
+  "math.nt.crt": [
+    "math.nt.mod-arith"
+  ],
+  "rust.basics.structs-traits": [
+    "rust.basics.ownership"
+  ]
 }

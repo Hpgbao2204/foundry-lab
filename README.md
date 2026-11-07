@@ -3,7 +3,7 @@
 A local-first study app for re-learning the math behind crypto/ZK, systems security, Rust, ML, and quantum computing.
 Theory is short and readable; the core is **exercises with step-by-step hints** (no answer until you ask twice).
 
-The full design is in [SPEC.md](SPEC.md) (package name: `forge-lab`).
+The full design is in [SPEC.md](SPEC.md) (package name: `forge-lab`). **Current status and next steps: [PROGRESS.md](PROGRESS.md).**
 
 ## Run
 
@@ -41,10 +41,10 @@ The tests check the structure, the A/B/C counts, the glossary, and recompute ans
 |---|---|---|
 | M1 | App shell, MDX lessons, glossary, FSRS flashcards | ✅ |
 | M2 | Exercise engine, hint ladder, generators, problem sets | ✅ |
-| M3 | Math content (logic → elliptic curves → probability → linear algebra → statistics) | next |
+| M3 | Math content (logic → elliptic curves → probability → linear algebra → statistics) | in progress |
 | M4 | Crypto / ZK track | |
 | M5 | Systems Security track + Paper Decoder | |
-| M6 | Rust runner + katas | |
+| M6 | Rust runner + katas (2 Rust theory lessons already) | |
 | M7 | Pyodide + ML / DL track | |
 | M8 | Quantum + AI Trends | |
 | M9 | AI Tutor (optional) | |

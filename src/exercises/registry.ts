@@ -31,6 +31,23 @@ export function elementOrder(a: number, n: number): number {
   return 0;
 }
 
+/** Solve x ≡ a_i (mod n_i) by brute-force stepping (moduli need not be coprime). */
+export function crt(pairs: number[]): number | null {
+  let x = 0;
+  let step = 1;
+  for (let i = 0; i < pairs.length; i += 2) {
+    const a = pairs[i]!;
+    const n = pairs[i + 1]!;
+    let k = 0;
+    while (((x - a) % n + n) % n !== 0) {
+      x += step;
+      if (++k > n) return null;
+    }
+    step = (step * n) / Number(gcd(B(step), B(n)));
+  }
+  return x;
+}
+
 export function phi(n: number): number {
   let count = 0;
   for (let a = 1; a <= n; a++) if (gcd(B(a), B(n)) === 1n) count++;
@@ -66,6 +83,8 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
   solveLinear: (a, b, c, p) => solveLinear(a, b, c, p),
   sumTo: (n) => (n * (n + 1)) / 2,
   order: (a, n) => elementOrder(a, n),
+  /** crt(a1, n1, a2, n2, ...) → smallest x ≥ 0 satisfying every x ≡ ai (mod ni), or null */
+  crt: (...pairs) => crt(pairs),
   countGenerators: (p) => {
     let c = 0;
     for (let a = 1; a < p; a++) if (elementOrder(a, p) === p - 1) c++;

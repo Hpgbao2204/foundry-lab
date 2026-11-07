@@ -65,5 +65,8 @@
   ],
   "math.linalg.systems-fp": [
     "math.poly.lagrange-interpolation"
+  ],
+  "math.poly.ntt": [
+    "math.poly.lagrange-interpolation"
   ]
 }

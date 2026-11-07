@@ -1,0 +1,87 @@
+---
+id: math.poly.ntt
+track: math
+chapter: polynomials
+title: "Roots of unity & the NTT — multiply polynomials by evaluating them"
+minutes: 10
+prerequisites: [math.poly.lagrange-interpolation]
+researchBridge: "Prover của zk-SNARK/STARK dành phần lớn thời gian cho hai việc: NTT và multi-scalar multiplication. Vì thế các field 'thân thiện với ZK' được chọn sao cho p − 1 chia hết cho một lũy thừa lớn của 2: Goldilocks p = 2⁶⁴ − 2³² + 1, BabyBear p = 15·2²⁷ + 1. Kyber/ML-KEM (mật mã hậu lượng tử được chuẩn hóa) cũng nhân đa thức bằng NTT."
+flashcards:
+  - front: "What is a primitive n-th root of unity ω in 𝔽_p?"
+    back: "An element of multiplicative order exactly n: ωⁿ = 1 and ω^k ≠ 1 for 0 < k < n."
+  - front: "When does 𝔽_p contain a primitive n-th root of unity?"
+    back: "Exactly when n divides p − 1 (𝔽_p* is cyclic of order p − 1)."
+  - front: "Multiply polynomials with the NTT in three steps?"
+    back: "Evaluate both at the n powers of ω, multiply the values pointwise, interpolate back (inverse NTT)."
+  - front: "Cost of FFT/NTT vs naive multiplication?"
+    back: "O(n log n) vs O(n²)."
+  - front: "Inverse NTT formula?"
+    back: "c_k = n⁻¹ · Σ_j y_j · ω^{−jk}."
+---
+
+<Why>
+
+**Puzzle.** Nhân hai đa thức bậc 1000 theo cách ở trường: mỗi hệ số của đa thức này nhân với mỗi hệ số của đa thức kia — khoảng **một triệu** phép nhân. Với bậc một triệu (chuyện thường ngày trong một ZK prover), con số đó là $10^{12}$.
+
+Có một con đường vòng kỳ lạ nhưng nhanh hơn nhiều: **đừng nhân hệ số — hãy nhân giá trị**. Lesson Lagrange cho biết một đa thức bậc $< n$ được xác định bởi $n$ giá trị của nó. Mà nhân giá trị thì dễ: $C(x) = A(x) \cdot B(x)$ tại từng điểm. Vấn đề chỉ còn: tính $n$ giá trị và nội suy ngược lại **thật nhanh**. Bí quyết là chọn các điểm rất đặc biệt — **căn bậc $n$ của đơn vị**.
+
+</Why>
+
+<Intuition>
+
+Ba bước:
+
+1. **Evaluate:** tính $A$ và $B$ tại $n$ điểm.
+2. **Multiply pointwise:** $C(x_i) = A(x_i) \cdot B(x_i)$ — chỉ $n$ phép nhân.
+3. **Interpolate:** dựng lại $C$ từ $n$ giá trị.
+
+Nếu chọn điểm bừa, bước 1 và 3 tốn $n^2$ — chẳng lợi gì. Nhưng nếu các điểm là $1, \omega, \omega^2, \dots, \omega^{n-1}$ với $\omega^n = 1$, thì bình phương các điểm này chỉ cho $n/2$ điểm khác nhau ($\omega^{2}$ cũng là căn của đơn vị, bậc $n/2$). Tách $A(x) = A_{\text{even}}(x^2) + x \cdot A_{\text{odd}}(x^2)$, bài toán cỡ $n$ thành **hai** bài toán cỡ $n/2$ — lặp lại cho tới cỡ 1. Đó là FFT, tốn $n \log n$ thay vì $n^2$. Trên finite field nó được gọi là <Term en="NTT">NTT</Term> (number-theoretic transform).
+
+</Intuition>
+
+<Definition title="Root of unity, NTT">
+
+$\omega \in \mathbb{F}_p$ is a **primitive $n$-th root of unity** if its multiplicative order is exactly $n$. It exists if and only if $n \mid p - 1$.
+The **NTT** of coefficients $(c_0, \dots, c_{n-1})$ is the vector of values $y_j = \sum_k c_k \omega^{jk} = C(\omega^j)$. The inverse is $c_k = n^{-1} \sum_j y_j \omega^{-jk}$.
+
+</Definition>
+
+Vì sao tồn tại khi $n \mid p - 1$? Lesson groups: $\mathbb{F}_p^*$ là cyclic với order $p - 1$. Nếu $g$ là generator thì $\omega = g^{(p-1)/n}$ có order đúng bằng $n$.
+
+<Example title="multiply (1 + 2x)(3 + x) in 𝔽₁₇ with n = 4">
+
+**Step 1 — find $\omega$.** $4 \mid 16 = p - 1$. Thử $\omega = 4$: $4^2 = 16 \equiv -1$, $4^4 = 1$. Order 4 ✓. Các điểm: $1, 4, 16, 13$ (vì $4^3 = 64 \equiv 13$).
+
+**Step 2 — evaluate.** $A(x) = 1 + 2x$: $A = (3, 9, 33, 27) \equiv (3, 9, 16, 10)$. $\;B(x) = 3 + x$: $B = (4, 7, 19, 16) \equiv (4, 7, 2, 16)$.
+
+**Step 3 — multiply pointwise.** $(3 \cdot 4, 9 \cdot 7, 16 \cdot 2, 10 \cdot 16) = (12, 63, 32, 160) \equiv (12, 12, 15, 7)$.
+
+**Step 4 — interpolate back** với $n^{-1} = 4^{-1} = 13$ và $\omega^{-1} = 13$ (vì $4 \cdot 13 = 52 \equiv 1$). Lũy thừa của $\omega^{-1}$: $1, 13, 16, 4$.
+$c_0 = 13 \cdot (12 + 12 + 15 + 7) = 13 \cdot 46 \equiv 13 \cdot 12 = 156 \equiv 3$.
+$c_1 = 13 \cdot (12 \cdot 1 + 12 \cdot 13 + 15 \cdot 16 + 7 \cdot 4) = 13 \cdot 436 \equiv 13 \cdot 11 = 143 \equiv 7$.
+(Tương tự $c_2 = 2$, $c_3 = 0$.)
+
+**Check:** $(1 + 2x)(3 + x) = 3 + 7x + 2x^2$ ✓. Với 4 hệ số thì vòng vèo, nhưng với $2^{20}$ hệ số thì NTT nhanh hơn hàng chục nghìn lần.
+
+</Example>
+
+**Aha:** NTT chỉ là **evaluation + interpolation** (lesson Lagrange) tại những điểm khéo chọn, và nó chạy được nhờ $\mathbb{F}_p^*$ là cyclic group (lesson groups) có subgroup cỡ $n$ khi $n \mid p - 1$ (Lagrange, lesson subgroups). Gần như mọi viên gạch của chương math ghép lại trong một thuật toán.
+
+<Pitfalls>
+
+- **$n$ quá nhỏ.** Tích có bậc $\deg A + \deg B$, cần $n > \deg A + \deg B$ điểm; nếu không, các hệ số bậc cao "quấn" vào bậc thấp (phép nhân thành cyclic convolution).
+- **$\omega$ không primitive.** $\omega = 16 = -1$ có $\omega^4 = 1$ nhưng order chỉ là 2; bốn "điểm" chỉ có hai giá trị khác nhau, nội suy hỏng.
+- **Field không có căn đơn vị đủ lớn.** Muốn NTT cỡ $2^{20}$ thì cần $2^{20} \mid p - 1$. Đó là lý do chọn các field như Goldilocks hay BabyBear.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- $\omega$ là primitive $n$-th root of unity nếu order đúng bằng $n$; tồn tại $\iff n \mid p - 1$.
+- Nhân đa thức = evaluate tại $1, \omega, \dots, \omega^{n-1}$ → nhân từng điểm → inverse NTT.
+- FFT/NTT chia đôi bài toán nhờ $\omega^2$ là căn bậc $n/2$: $O(n \log n)$ thay vì $O(n^2)$.
+- Inverse: $c_k = n^{-1} \sum_j y_j \omega^{-jk}$.
+
+</Summary>

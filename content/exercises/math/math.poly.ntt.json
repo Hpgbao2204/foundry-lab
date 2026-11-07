@@ -1,0 +1,140 @@
+[
+  {
+    "id": "math.poly.ntt.order-4",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is the multiplicative order of $4$ in $\\mathbb{F}_{17}^*$?",
+    "answer": "4",
+    "verify": { "fn": "order", "args": [4, 17] },
+    "generator": "elementOrder",
+    "hints": [
+      "Tính $4, 4^2, 4^3, \\dots \\bmod 17$ tới khi gặp 1.",
+      "$4^2 = 16 \\equiv -1$.",
+      "$(-1)^2 = ?$"
+    ],
+    "solution": "$4^2 \\equiv -1$, $4^4 \\equiv 1$, nên order là 4: $4$ là primitive 4th root of unity trong $\\mathbb{F}_{17}$."
+  },
+  {
+    "id": "math.poly.ntt.eval",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Evaluate $A(x) = 1 + 2x$ at $x = 16$ in $\\mathbb{F}_{17}$.",
+    "answer": "16",
+    "modulus": 17,
+    "verify": { "fn": "polyEval", "args": [17, 16, 2, 1] },
+    "hints": [
+      "$16 \\equiv -1 \\pmod{17}$.",
+      "$A(-1) = 1 - 2$.",
+      "$-1 \\bmod 17$."
+    ],
+    "solution": "$A(16) = 1 + 32 = 33 \\equiv 16$ (hay $A(-1) = -1 \\equiv 16$)."
+  },
+  {
+    "id": "math.poly.ntt.pointwise",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "With $A(x) = 1 + 2x$ and $B(x) = 3 + x$ over $\\mathbb{F}_{17}$, compute $A(4) \\cdot B(4) \\bmod 17$.",
+    "answer": "12",
+    "modulus": 17,
+    "verify": { "fn": "polyEval", "args": [17, 4, 2, 7, 3] },
+    "hints": [
+      "$A(4) = 9$, $B(4) = 7$.",
+      "$9 \\cdot 7 = 63$.",
+      "$63 - 3 \\cdot 17$."
+    ],
+    "solution": "$9 \\cdot 7 = 63 \\equiv 12$. Đây cũng là $C(4)$ với $C = 3 + 7x + 2x^2$: $3 + 28 + 32 = 63 \\equiv 12$ ✓."
+  },
+  {
+    "id": "math.poly.ntt.n-inverse",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "The inverse NTT of size $n = 4$ over $\\mathbb{F}_{17}$ multiplies by $n^{-1}$. What is $4^{-1} \\bmod 17$?",
+    "answer": "13",
+    "modulus": 17,
+    "verify": { "fn": "modInverse", "args": [4, 17] },
+    "hints": [
+      "Tìm $x$ với $4x \\equiv 1 \\pmod{17}$.",
+      "Các bội của 17 cộng 1: $18, 35, 52, \\dots$ — cái nào chia hết cho 4?",
+      "$52 = 4 \\cdot 13$."
+    ],
+    "solution": "$4 \\cdot 13 = 52 = 3 \\cdot 17 + 1$, nên $4^{-1} = 13$."
+  },
+  {
+    "id": "math.poly.ntt.points-needed",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "You multiply a degree-3 polynomial by a degree-4 polynomial using evaluation and interpolation. At least how many evaluation points are needed?",
+    "answer": "8",
+    "hints": [
+      "Tích có bậc bao nhiêu?",
+      "$3 + 4 = 7$.",
+      "Đa thức bậc 7 cần bao nhiêu điểm để xác định?"
+    ],
+    "solution": "Tích có bậc 7, cần $7 + 1 = 8$ điểm. (Trong NTT người ta làm tròn lên lũy thừa của 2 — ở đây vừa đúng $n = 8$.)"
+  },
+  {
+    "id": "math.poly.ntt.n-log-n",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "An NTT of size $n = 2048$ costs about $n \\log_2 n$ basic operations. Compute $n \\log_2 n$.",
+    "answer": "22528",
+    "hints": [
+      "$2048 = 2^{?}$",
+      "$\\log_2 2048 = 11$.",
+      "$2048 \\cdot 11$."
+    ],
+    "solution": "$2048 \\cdot 11 = 22528$ — so với $1024^2 \\approx 10^6$ phép nhân của cách ở trường cho hai đa thức bậc $< 1024$."
+  },
+  {
+    "id": "math.poly.ntt.which-n",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "For which $n$ does $\\mathbb{F}_{13}$ contain a primitive $n$-th root of unity?",
+    "options": ["$n = 3$", "$n = 4$", "$n = 5$", "$n = 8$", "$n = 12$"],
+    "answer": [0, 1, 4],
+    "hints": [
+      "Điều kiện: $n \\mid p - 1$.",
+      "$p - 1 = 12$.",
+      "Ước của 12: 1, 2, 3, 4, 6, 12."
+    ],
+    "solution": "$\\mathbb{F}_{13}^*$ là cyclic với order 12, nên có phần tử order $n$ đúng khi $n \\mid 12$: $n = 3, 4, 12$ có; $5$ và $8$ không."
+  },
+  {
+    "id": "math.poly.ntt.two-not-primitive",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: $\\omega = 2$ is a primitive 4th root of unity in $\\mathbb{F}_{17}$.",
+    "answer": false,
+    "reasons": [
+      "$2^4 = 16 \\neq 1$; in fact $2$ has order 8.",
+      "It is true because $2^4$ is a power of 2.",
+      "It is false because 17 has no 4th roots of unity.",
+      "It is true because $2^2 = 4$ has order 4."
+    ],
+    "reason": 0,
+    "hints": [
+      "Kiểm tra $2^4 \\bmod 17$.",
+      "$2^4 = 16 \\equiv -1$.",
+      "Vậy $2^8 = ?$"
+    ],
+    "solution": "**False.** $2^4 = 16 \\equiv -1 \\neq 1$, và $2^8 \\equiv 1$, nên 2 có order 8 — nó là primitive **8th** root of unity. Còn $2^2 = 4$ mới có order 4."
+  },
+  {
+    "id": "math.poly.ntt.sum-roots",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Let $\\omega$ be a primitive $n$-th root of unity in a field, $n > 1$. Prove $1 + \\omega + \\omega^2 + \\dots + \\omega^{n-1} = 0$, and check it for $\\omega = 4$ in $\\mathbb{F}_{17}$.",
+    "rubric": [
+      "Sets $S = \\sum_{j=0}^{n-1} \\omega^j$ and computes $\\omega S = \\sum_{j=1}^{n} \\omega^j$.",
+      "Uses $\\omega^n = 1$ to see $\\omega S = S$.",
+      "Concludes $(\\omega - 1)S = 0$ and uses $\\omega \\neq 1$ (primitive, $n > 1$) plus no zero divisors to get $S = 0$.",
+      "Checks $1 + 4 + 16 + 13 = 34 \\equiv 0 \\pmod{17}$."
+    ],
+    "hints": [
+      "Nhân tổng với $\\omega$: các số hạng dịch đi một vị trí.",
+      "Số hạng cuối $\\omega^n$ bằng gì?",
+      "$(\\omega - 1)S = 0$ trong một field, và $\\omega \\neq 1$."
+    ],
+    "solution": "Đặt $S = \\sum_{j=0}^{n-1}\\omega^j$. Khi đó $\\omega S = \\omega + \\dots + \\omega^{n-1} + \\omega^n = S$ vì $\\omega^n = 1$. Vậy $(\\omega - 1)S = 0$; vì $\\omega$ primitive và $n > 1$ nên $\\omega \\neq 1$, field không có zero divisor nên $S = 0$. ∎ Kiểm tra: $1 + 4 + 16 + 13 = 34 = 2 \\cdot 17 \\equiv 0$ ✓. (Đây là lý do công thức inverse NTT đúng.)"
+  }
+]

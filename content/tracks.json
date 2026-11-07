@@ -37,7 +37,8 @@
         "lessons": [
           "math.poly.division-roots",
           "math.poly.lagrange-interpolation",
-          "math.poly.schwartz-zippel"
+          "math.poly.schwartz-zippel",
+          "math.poly.ntt"
         ]
       },
       {

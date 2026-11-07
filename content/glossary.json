@@ -273,5 +273,10 @@
     "en": "union bound",
     "vi": "cận hợp",
     "explain": "Pr[A₁ hoặc A₂ hoặc …] ≤ Pr[A₁] + Pr[A₂] + … — đúng kể cả khi các sự kiện phụ thuộc nhau."
+  },
+  {
+    "en": "NTT",
+    "vi": "NTT (biến đổi số học)",
+    "explain": "Number-theoretic transform: FFT trên finite field. Đánh giá đa thức tại các lũy thừa của một căn đơn vị ω trong O(n log n); dùng để nhân đa thức nhanh."
   }
 ]

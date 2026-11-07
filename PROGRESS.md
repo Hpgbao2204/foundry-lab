@@ -9,7 +9,7 @@ Last updated: 2026-11-08.
 |---|---|---|
 | M1 | App shell, MDX lessons, glossary hover, IndexedDB, FSRS flashcards | ✅ done |
 | M2 | Exercise engine (all types), hint ladder, generators, problem sets, mixed review | ✅ done (code exercise types are stubs until M6/M7) |
-| M3 | Math content | 🟡 in progress — 16 math lessons (algebra, polynomials, elliptic curves done; probability started) |
+| M3 | Math content | 🟡 in progress — 18 math lessons (algebra, polynomials incl. NTT, elliptic curves done; probability + linear algebra started) |
 | M4 | Crypto / ZK track | ⬜ |
 | M5 | Systems Security track + Paper Decoder (offline) | ⬜ |
 | M6 | Rust runner (local server + `cargo test`) + 6 katas | 🟡 6 Rust theory lessons written (basics chapter complete), runner not started |
@@ -33,10 +33,12 @@ Last updated: 2026-11-08.
 | math | polynomials | `math.poly.division-roots` | 5 / 3 / 2 |
 | math | polynomials | `math.poly.lagrange-interpolation` | 6 / 3 / 1 |
 | math | polynomials | `math.poly.schwartz-zippel` | 5 / 3 / 1 |
+| math | polynomials | `math.poly.ntt` | 5 / 3 / 1 |
 | math | elliptic-curves | `math.ec.reals` | 5 / 3 / 1 |
 | math | elliptic-curves | `math.ec.finite-fields` | 6 / 3 / 1 |
 | math | elliptic-curves | `math.ec.scalar-dlog` | 6 / 3 / 1 |
 | math | probability | `math.prob.birthday` | 5 / 3 / 1 |
+| math | linear-algebra | `math.linalg.systems-fp` | 5 / 3 / 1 |
 | rust | basics | `rust.basics.ownership` | 5 / 3 / 1 |
 | rust | basics | `rust.basics.structs-traits` | 5 / 2 / 1 |
 | rust | basics | `rust.basics.error-handling` | 6 / 3 / 1 |
@@ -44,17 +46,18 @@ Last updated: 2026-11-08.
 | rust | basics | `rust.basics.generics` | 5 / 3 / 1 |
 | rust | basics | `rust.basics.lifetimes` | 5 / 3 / 1 |
 
-Generators (`src/generators/index.ts`): `gcd`, `bezout`, `modInverse`, `negMod`, `mulAddMod`, `linearCongruence`, `fermatPow`, `elementOrder`, `crt2`, `addSubgroup`, `polyRemainder`, `shamir`, `ecAdd`.
+Generators (`src/generators/index.ts`): `gcd`, `bezout`, `modInverse`, `negMod`, `mulAddMod`, `linearCongruence`, `fermatPow`, `elementOrder`, `crt2`, `addSubgroup`, `polyRemainder`, `shamir`, `ecAdd`, `linear2`.
 
 Widgets usable in MDX (`mdxComponents` in `src/widgets/lesson-components.tsx`): `InterpolationPlot` (drag points, see the interpolating polynomial and f(0)), `EcAddPlot` (chord-and-tangent on y² = x³ − x + 1).
 Curve arithmetic lives in `src/lib/ec.ts` (real + F_p, double-and-add, point counting); verify fns `ecAddX/Y`, `ecMulX/Y`, `ecCount`, `ecOrder`, `ecLog`.
 Exercise prompts support fenced code blocks (```` ```rust ```` … ```` ``` ````) via `MathText`.
 Answers in 𝔽_{2^k} are typed as bit strings ("011"); verify fns `gf2MulBits`/`xorBits` return the bit string read as a decimal number.
-Hand-computed numbers of the algebra/polynomial lessons are re-checked in `tests/algebra.test.ts`.
+Hand-computed numbers of the algebra/polynomial/curve/NTT lessons are re-checked in `tests/algebra.test.ts` (probability in `tests/probability.test.ts`).
+Display math must be written as `$$` on its own line, then the formula, then `$$` (single-line `$$…$$` renders inline) — `tests/mdx-lint.test.ts` enforces it.
 
 ## Next up (in order)
 
-1. **Math:** probability basics & expectation (optional, birthday lesson already covers union bound + linearity) → linear algebra over 𝔽_p (Gaussian elimination, Vandermonde ↔ interpolation) → statistics for benchmarking; FFT/NTT.
+1. **Math:** statistics for benchmarking (mean/median/variance, confidence intervals, why you repeat timing runs) → optionally probability basics/expectation and vector spaces/rank. Then M3 can be called done.
 2. **Rust:** next chapter could be "field & curve arithmetic" katas, but they need the M6 runner (see linker note below).
 3. Then M4 (Crypto/ZK) and M5 (Systems Security).
 

@@ -185,3 +185,24 @@ describe('linear systems lesson', () => {
     expect(det3([[1, 1, 1], [1, 2, 4], [1, 4, 16]])).toBe(6);
   });
 });
+
+describe('NTT lesson', () => {
+  const p = 17, w = 4, winv = 13, ninv = 13;
+  const pw = (b: number, e: number) => { let r = 1; for (let i = 0; i < e; i++) r = (r * b) % p; return r; };
+  const ntt = (c: number[], root: number) => c.map((_, j) => c.reduce((s, ck, k) => (s + ck * pw(root, j * k)) % p, 0));
+  it('(1 + 2x)(3 + x) via NTT of size 4 = 3 + 7x + 2x²', () => {
+    const A = ntt([1, 2, 0, 0], w), B = ntt([3, 1, 0, 0], w);
+    expect(A).toEqual([3, 9, 16, 10]);
+    expect(B).toEqual([4, 7, 2, 16]);
+    const Y = A.map((a, i) => (a * B[i]!) % p);
+    expect(Y).toEqual([12, 12, 15, 7]);
+    expect(ntt(Y, winv).map((v) => (v * ninv) % p)).toEqual([3, 7, 2, 0]);
+    expect([0, 1, 2, 3].map((j) => pw(w, j))).toEqual([1, 4, 16, 13]);
+    expect([0, 1, 2, 3].map((j) => pw(winv, j))).toEqual([1, 13, 16, 4]);
+    expect((1 + 4 + 16 + 13) % p).toBe(0);
+  });
+  it('ZK-friendly primes: BabyBear = 15·2^27 + 1; Goldilocks − 1 divisible by 2^32', () => {
+    expect(15 * 2 ** 27 + 1).toBe(2 ** 31 - 2 ** 27 + 1);
+    expect((2n ** 64n - 2n ** 32n) % 2n ** 32n).toBe(0n);
+  });
+});

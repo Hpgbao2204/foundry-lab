@@ -1,0 +1,120 @@
+---
+id: math.nt.fermat
+track: math
+chapter: number-theory
+title: "Fermat's little theorem & fast powers"
+minutes: 9
+prerequisites: [math.nt.mod-arith]
+researchBridge: "Mỗi lần bạn mở một trang HTTPS, máy tính phải tính kiểu a^e mod n với e dài hàng trăm bit — trong vài micro giây. Square-and-multiply làm được điều đó; Fermat giải thích vì sao lũy thừa modulo lặp lại theo chu kỳ."
+flashcards:
+  - front: "State Fermat's little theorem."
+    back: "If p is prime and p ∤ a, then a^(p−1) ≡ 1 (mod p)."
+  - front: "How do you compute a^100 mod 7 quickly with Fermat?"
+    back: "Reduce the exponent mod 6 (= p − 1): 100 ≡ 4, so a^100 ≡ a^4."
+  - front: "Inverse of a mod p using Fermat?"
+    back: "a⁻¹ ≡ a^(p−2) (mod p)."
+  - front: "Square-and-multiply: how many multiplications for a k-bit exponent?"
+    back: "At most about 2k (one squaring per bit, one multiply per 1-bit)."
+  - front: "Is the converse of Fermat true (a^(n−1) ≡ 1 ⇒ n prime)?"
+    back: "No. 341 = 11·31 satisfies 2^340 ≡ 1 (mod 341). Carmichael numbers like 561 fool every coprime base."
+---
+
+<Why>
+
+Thử đoán nhanh: $3^{100} \bmod 7$ bằng bao nhiêu? Con số $3^{100}$ có 48 chữ số, nhưng đáp án có thể tính nhẩm trong 10 giây. Bí mật là: **lũy thừa modulo một số nguyên tố luôn chạy vòng tròn**, và chu kỳ của nó được Fermat tìm ra từ năm 1640.
+
+</Why>
+
+<Intuition>
+
+Viết lần lượt các lũy thừa của 3 modulo 7:
+
+| $k$ | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| $3^k \bmod 7$ | 3 | 2 | 6 | 4 | 5 | **1** | 3 | 2 |
+
+Tới $k = 6$ thì quay về 1, rồi lặp lại y hệt. Thử với 2: $2, 4, 1, 2, 4, 1, \dots$ — về 1 ở $k = 3$, và $3$ chia hết $6$. Với **mọi** $a$ không chia hết cho 7, ta luôn có $a^6 \equiv 1$. Số 6 không phải ngẫu nhiên: nó là $7 - 1$.
+
+Vậy $3^{100}$: vì cứ 6 bước là về 1, chỉ cần biết $100 \bmod 6 = 4$, nên $3^{100} \equiv 3^4 \equiv 4 \pmod 7$. Xong.
+
+</Intuition>
+
+<Theorem title="Fermat's little theorem">
+
+Let $p$ be prime and $a$ an integer with $p \nmid a$. Then
+$$
+a^{p-1} \equiv 1 \pmod{p}.
+$$
+
+</Theorem>
+
+<Proof>
+
+Xét $p - 1$ số $a \cdot 1, a \cdot 2, \dots, a \cdot (p-1)$ modulo $p$. Chúng khác 0 (vì $\mathbb{F}_p$ không có zero divisor) và đôi một khác nhau (nếu $ai \equiv aj$ thì nhân $a^{-1}$ được $i \equiv j$). Vậy đây chỉ là **xáo trộn** của $1, 2, \dots, p-1$. Nhân tất cả lại:
+$$
+a^{p-1} \cdot (p-1)! \equiv (p-1)! \pmod p.
+$$
+Vì $(p-1)!$ coprime với $p$, chia hai vế cho nó ta được $a^{p-1} \equiv 1$.
+
+</Proof>
+
+**Hai hệ quả dùng ngay được:**
+- **Rút gọn số mũ:** $a^e \equiv a^{e \bmod (p-1)} \pmod p$.
+- **Nghịch đảo không cần Euclid:** $a \cdot a^{p-2} = a^{p-1} \equiv 1$, nên $a^{-1} \equiv a^{p-2}$.
+
+### Square-and-multiply
+
+Nếu số mũ không rút gọn được (ví dụ modulo không nguyên tố, hoặc số mũ là bí mật), ta vẫn tính nhanh được. Ý tưởng: **bình phương liên tục** để có $a, a^2, a^4, a^8, \dots$, rồi nhân những cái ứng với bit 1 của số mũ. Số mũ 256 bit chỉ cần khoảng 512 phép nhân, thay vì $2^{256}$.
+
+<Example title="3¹³ mod 17 by square-and-multiply">
+
+**Step 1 — write the exponent in binary.** $13 = 8 + 4 + 1 = 1101_2$.
+
+**Step 2 — square repeatedly** (rút gọn mod 17 sau mỗi bước để số luôn nhỏ):
+$$
+3^1 = 3,\quad 3^2 = 9,\quad 3^4 = 81 \equiv 13,\quad 3^8 \equiv 13^2 = 169 \equiv 16.
+$$
+
+**Step 3 — multiply the powers for the 1-bits.**
+$$
+3^{13} = 3^8 \cdot 3^4 \cdot 3^1 \equiv 16 \cdot 13 \cdot 3 \pmod{17}.
+$$
+$13 \cdot 3 = 39 \equiv 5$, rồi $16 \cdot 5 = 80 \equiv 12$.
+
+**Check bằng Fermat:** $3^{16} \equiv 1$, nên $3^{13} \equiv 3^{-3}$. Mà $3^3 = 27 \equiv 10$ và $10 \cdot 12 = 120 = 7 \cdot 17 + 1$. Vậy $3^{-3} \equiv 12$. ✓
+
+</Example>
+
+Trong code, chỉ vài dòng:
+
+```rust
+fn pow_mod(mut base: u64, mut exp: u64, m: u64) -> u64 {
+    let mut result = 1;
+    base %= m;
+    while exp > 0 {
+        if exp & 1 == 1 { result = result * base % m; } // bit 1 → multiply
+        base = base * base % m;                          // always square
+        exp >>= 1;
+    }
+    result
+}
+```
+
+<Pitfalls>
+
+- **Rút gọn số mũ mod $p$ thay vì mod $p - 1$.** Chu kỳ là $p - 1$. Rút sai thì ra số sai mà trông vẫn hợp lý.
+- **Quên điều kiện.** Fermat cần $p$ nguyên tố **và** $p \nmid a$. Với $a = 7$, $7^6 \equiv 0 \pmod 7$, không phải 1.
+- **Nghĩ rằng chiều ngược lại đúng.** $2^{340} \equiv 1 \pmod{341}$ nhưng $341 = 11 \cdot 31$. Fermat test là bộ lọc nhanh, không phải bằng chứng nguyên tố.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Lũy thừa modulo $p$ chạy vòng tròn; Fermat: $a^{p-1} \equiv 1$ khi $p$ nguyên tố, $p \nmid a$.
+- Rút gọn số mũ theo mod $p - 1$; nghịch đảo $a^{-1} \equiv a^{p-2}$.
+- Square-and-multiply: khoảng $2k$ phép nhân cho số mũ $k$ bit — lý do crypto chạy nhanh.
+- Chiều ngược không đúng: có hợp số "giả nguyên tố" (341, 561).
+
+</Summary>

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "rust.basics.ownership.moved-string",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "What happens?\n\n`let s1 = String::from(\"hi\"); let s2 = s1; println!(\"{}\", s1);`",
+    "options": [
+      "Prints `hi`",
+      "Compile error: borrow of moved value `s1`",
+      "Prints an empty string",
+      "Crashes at runtime with a double free"
+    ],
+    "answer": 1,
+    "hints": [
+      "`String` sống trên heap. Gán nó cho biến khác là copy hay move?",
+      "Sau `let s2 = s1;` owner là `s2`. `s1` còn dùng được không?",
+      "Rust bắt lỗi này lúc **compile**, không đợi tới runtime."
+    ],
+    "solution": "`String` không phải `Copy`, nên `let s2 = s1;` là **move**. Dùng `s1` sau đó là compile error E0382. Nhờ vậy không bao giờ xảy ra double free lúc chạy."
+  },
+  {
+    "id": "rust.basics.ownership.copy-int",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "What happens?\n\n`let x = 5; let y = x; println!(\"{x} {y}\");`",
+    "options": ["Compile error: use of moved value `x`", "Prints `5 5`", "Prints `0 5`", "Prints `5` once"],
+    "answer": 1,
+    "hints": [
+      "So với bài trước, khác biệt duy nhất là kiểu dữ liệu.",
+      "`i32` có implement trait `Copy` không?",
+      "Kiểu nhỏ nằm trên stack được chép bit-by-bit."
+    ],
+    "solution": "`i32` là `Copy`, nên `let y = x;` chép giá trị và `x` vẫn dùng được. In ra `5 5`."
+  },
+  {
+    "id": "rust.basics.ownership.borrow-fn",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "`fn len(s: &String) -> usize { s.len() }`. After `let n = len(&s);`, can `main` still use `s`?",
+    "options": ["Yes — `len` only borrowed it", "No — `len` took ownership", "Only if `s` is `mut`", "Only after calling `s.clone()`"],
+    "answer": 0,
+    "hints": [
+      "Nhìn kiểu tham số: `&String` hay `String`?",
+      "`&` nghĩa là mượn. Người mượn có \"giữ luôn\" không?",
+      "Reference hết hạn khi hàm trả về."
+    ],
+    "solution": "Tham số là `&String`, nên `len` chỉ **mượn**. Khi hàm kết thúc, reference hết hạn và `s` vẫn thuộc về `main`."
+  },
+  {
+    "id": "rust.basics.ownership.how-many-mut",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "At most how many `&mut` references to the same value can be alive at the same time?",
+    "answer": "1",
+    "hints": [
+      "Nhớ quy tắc \"aliasing XOR mutation\".",
+      "Hai người cùng sửa một quyển sách cùng lúc thì chuyện gì xảy ra?",
+      "Hoặc nhiều `&`, hoặc ... `&mut`."
+    ],
+    "solution": "Đúng **1**. Hai `&mut` cùng lúc có thể ghi đè lên nhau (data race), nên compiler cấm."
+  },
+  {
+    "id": "rust.basics.ownership.fix-move",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "You want `s1` and `s2` to be two **independent** strings you can both modify. Which line replaces `let s2 = s1;`?",
+    "options": ["`let s2 = &s1;`", "`let s2 = s1.clone();`", "`let s2 = &mut s1;`", "`let s2 = *s1;`"],
+    "answer": 1,
+    "hints": [
+      "\"Độc lập\" nghĩa là sửa cái này không ảnh hưởng cái kia.",
+      "Reference (`&`, `&mut`) vẫn trỏ về cùng một chuỗi.",
+      "Cần một bản sao sâu (deep copy) trên heap."
+    ],
+    "solution": "`s1.clone()` tạo một chuỗi mới trên heap. Hai lựa chọn `&` và `&mut` chỉ là mượn cùng một chuỗi; `*s1` không hợp lệ với `String`."
+  },
+  {
+    "id": "rust.basics.ownership.mut-and-shared",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: you may hold one `&mut v` and one `&v` to the same vector at the same time, as long as you only read through `&v`.",
+    "answer": false,
+    "reasons": [
+      "While a `&mut` exists, no other reference may exist — the reader could see the vector change or even be reallocated under it.",
+      "It is allowed because reading is always safe.",
+      "It is false only for vectors, not for integers.",
+      "It is allowed if the vector is declared `mut`."
+    ],
+    "reason": 0,
+    "hints": [
+      "Quy tắc: hoặc nhiều `&`, hoặc một `&mut`. Có chữ \"hoặc\".",
+      "Nếu người cầm `&mut` gọi `push` và vector được cấp phát lại, người cầm `&` đang trỏ đi đâu?",
+      "Đây đúng là lý do quy tắc tồn tại."
+    ],
+    "solution": "**False.** Khi có `&mut`, không được có reference nào khác. Nếu không, `push` có thể chuyển dữ liệu sang chỗ mới và `&v` trở thành dangling pointer. `mut` trên biến không thay đổi quy tắc này."
+  },
+  {
+    "id": "rust.basics.ownership.which-copy",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Which of these types are `Copy`?",
+    "options": ["`i32`", "`bool`", "`String`", "`(i32, f64)`", "`Vec<u8>`"],
+    "answer": [0, 1, 3],
+    "hints": [
+      "Kiểu nào sở hữu dữ liệu trên heap thì không thể là `Copy`.",
+      "`String` và `Vec` giữ một con trỏ tới heap.",
+      "Tuple là `Copy` nếu mọi thành phần đều `Copy`."
+    ],
+    "solution": "`i32`, `bool`, `(i32, f64)` là `Copy`. `String` và `Vec<u8>` sở hữu bộ nhớ heap, nếu chép bit-by-bit sẽ có hai owner → double free, nên chúng chỉ move (hoặc `clone`)."
+  },
+  {
+    "id": "rust.basics.ownership.fill-signature",
+    "level": "B",
+    "type": "step-fill",
+    "prompt": "Fill in the blanks so `main` can still print `name` after calling `greet`.",
+    "template": [
+      "fn greet(n: {{&String|&str}}) { println!(\"hi {n}\"); }",
+      "let name = String::from(\"Ann\");",
+      "greet({{&name}});",
+      "println!(\"{name}\"); // still valid"
+    ],
+    "hints": [
+      "`greet` chỉ cần đọc tên, không cần giữ nó.",
+      "Kiểu tham số phải là một reference.",
+      "Khi gọi, truyền reference bằng dấu `&`."
+    ],
+    "solution": "`fn greet(n: &String)` (hoặc idiomatic hơn: `&str`) và gọi `greet(&name)`. Hàm chỉ mượn, nên `name` vẫn thuộc về `main`."
+  },
+  {
+    "id": "rust.basics.ownership.push-while-borrowed",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Explain why Rust rejects this code, and what could go wrong if C allowed the same thing:\n\n`let mut v = vec![1, 2, 3]; let first = &v[0]; v.push(4); println!(\"{first}\");`",
+    "rubric": [
+      "Says `first` is a shared borrow of `v`, still alive when `push` needs `&mut v` — this breaks aliasing XOR mutation.",
+      "Explains that `push` may reallocate: copy the elements to a bigger buffer and free the old one.",
+      "Concludes `first` would then point to freed memory (dangling pointer / use-after-free).",
+      "Mentions a fix: use `first` before the push, or copy the value: `let first = v[0];`."
+    ],
+    "hints": [
+      "`push` cần loại reference nào tới `v`? Lúc đó `first` còn sống không?",
+      "Khi vector hết chỗ, `push` làm gì với bộ nhớ cũ?",
+      "Nếu bộ nhớ cũ bị giải phóng, `first` trỏ vào đâu?"
+    ],
+    "solution": "`first` là `&v` còn được dùng ở dòng cuối, trong khi `v.push(4)` cần `&mut v` → vi phạm quy tắc. Lý do thật: nếu capacity đầy, `push` cấp phát buffer mới, chép phần tử sang, rồi **free** buffer cũ. `first` khi đó trỏ vào vùng đã free — trong C đây là use-after-free, có thể in rác hoặc bị khai thác. Sửa: in `first` trước khi push, hoặc lấy bản sao `let first = v[0];` (`i32` là `Copy`)."
+  }
+]

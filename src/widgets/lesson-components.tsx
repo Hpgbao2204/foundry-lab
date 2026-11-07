@@ -24,7 +24,7 @@ export function Why({ children }: P) {
       {children}
       {lesson?.researchBridge && (
         <p className="border-l-2 border-accent pl-3 text-[0.95em] text-neutral-600 dark:text-neutral-400">
-          <span className="font-sans text-xs uppercase tracking-wider">Research bridge · </span>
+          <span className="font-sans text-xs uppercase tracking-wider">Where it shows up · </span>
           {lesson.researchBridge}
         </p>
       )}

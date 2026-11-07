@@ -1,5 +1,16 @@
 {
   "math.logic.proof-techniques": [],
-  "math.nt.gcd-euclid": ["math.logic.proof-techniques"],
-  "math.nt.mod-arith": ["math.nt.gcd-euclid"]
+  "math.nt.gcd-euclid": [
+    "math.logic.proof-techniques"
+  ],
+  "math.nt.mod-arith": [
+    "math.nt.gcd-euclid"
+  ],
+  "math.nt.fermat": [
+    "math.nt.mod-arith"
+  ],
+  "math.algebra.groups": [
+    "math.nt.fermat"
+  ],
+  "rust.basics.ownership": []
 }

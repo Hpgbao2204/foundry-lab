@@ -20,6 +20,17 @@ export function modPow(base: bigint, e: bigint, n: bigint): bigint {
   return r;
 }
 
+/** Multiplicative order of a mod n (gcd(a, n) must be 1), or 0 if none. */
+export function elementOrder(a: number, n: number): number {
+  if (gcd(B(a), B(n)) !== 1n) return 0;
+  let x = a % n;
+  for (let k = 1; k <= n; k++) {
+    if (x === 1 % n) return k;
+    x = (x * a) % n;
+  }
+  return 0;
+}
+
 export function phi(n: number): number {
   let count = 0;
   for (let a = 1; a <= n; a++) if (gcd(B(a), B(n)) === 1n) count++;
@@ -54,6 +65,12 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
   mulAddMod: (a, b, c, n) => mod(B(a) * B(b) + B(c), B(n)),
   solveLinear: (a, b, c, p) => solveLinear(a, b, c, p),
   sumTo: (n) => (n * (n + 1)) / 2,
+  order: (a, n) => elementOrder(a, n),
+  countGenerators: (p) => {
+    let c = 0;
+    for (let a = 1; a < p; a++) if (elementOrder(a, p) === p - 1) c++;
+    return c;
+  },
   phi: (n) => phi(n),
   euclidSteps: (a, b) => euclidSteps(a, b),
   /** smallest prime p with 2^p − 1 composite */

@@ -1,5 +1,5 @@
 import { egcd, gcd, mod, modInverse } from '../lib/nt';
-import { isPrime } from '../exercises/registry';
+import { elementOrder, isPrime, modPow } from '../exercises/registry';
 import type { Exercise, NumericExercise } from '../exercises/types';
 import { int, mulberry32, pick, type Rng } from './rng';
 
@@ -37,6 +37,43 @@ function gcdPair(rng: Rng, max: number): [number, number] {
 }
 
 export const GENERATORS: Record<string, Gen> = {
+  fermatPow: (rng) => {
+    const p = primeBetween(rng, 5, 31);
+    const a = int(rng, 2, p - 1);
+    const e = int(rng, 50, 9999);
+    const r = e % (p - 1);
+    const ans = modPow(BigInt(a), BigInt(e), BigInt(p));
+    return {
+      prompt: `Compute $${a}^{${e}} \\bmod ${p}$.`,
+      answer: String(ans),
+      hints: [
+        `${p} là số nguyên tố. Lũy thừa mod ${p} lặp lại với chu kỳ chia hết bao nhiêu?`,
+        `Fermat: $${a}^{${p - 1}} \\equiv 1$, nên rút gọn số mũ theo mod ${p - 1}.`,
+        `$${e} = ${Math.floor(e / (p - 1))} \\cdot ${p - 1} + ${r}$, nên chỉ cần tính $${a}^{${r}} \\bmod ${p}$.`,
+      ],
+      solution: `$${e} \\equiv ${r} \\pmod{${p - 1}}$, nên $${a}^{${e}} \\equiv ${a}^{${r}} \\equiv ${ans} \\pmod{${p}}$.`,
+      verify: { fn: 'modPow', args: [a, e, p] },
+    };
+  },
+
+  elementOrder: (rng) => {
+    const p = primeBetween(rng, 5, 23);
+    const a = int(rng, 2, p - 1);
+    const k = elementOrder(a, p);
+    const powers: number[] = [];
+    for (let i = 1, x = a; i <= k; i++, x = (x * a) % p) powers.push(x);
+    return {
+      prompt: `What is the order of $${a}$ in $\\mathbb{Z}_{${p}}^*$?`,
+      answer: String(k),
+      hints: [
+        `Order là số $k \\ge 1$ nhỏ nhất với $${a}^k \\equiv 1 \\pmod{${p}}$.`,
+        `Lagrange: order phải chia hết $${p - 1}$. Chỉ cần thử các ước của ${p - 1}.`,
+        `$${a}^1 = ${a}$, $${a}^2 \\equiv ${(a * a) % p}$, ...`,
+      ],
+      solution: `Các lũy thừa: $${powers.join(', ')}$. Lần đầu về 1 ở bước ${k}, nên order là ${k} (và $${k} \\mid ${p - 1}$).`,
+      verify: { fn: 'order', args: [a, p] },
+    };
+  },
   gcd: (rng, p) => {
     const [a, b] = gcdPair(rng, p.max ?? 600);
     const g = Number(gcd(BigInt(a), BigInt(b)));

@@ -1,0 +1,107 @@
+---
+id: math.algebra.groups
+track: math
+chapter: abstract-algebra
+title: "Groups — the rules behind clocks, Rubik's cubes and crypto"
+minutes: 10
+prerequisites: [math.nt.fermat]
+researchBridge: "Rubik's cube có khoảng 4.3 × 10¹⁹ trạng thái — tất cả là một group. Diffie–Hellman (cách hai máy lạ thỏa thuận khóa bí mật qua mạng công khai) chạy trong một cyclic group. Group là ngôn ngữ chung của cả hai."
+flashcards:
+  - front: "The four group axioms?"
+    back: "Closure, associativity, identity, inverse."
+  - front: "Is (ℤ, ·) a group? Why?"
+    back: "No — 2 has no multiplicative inverse in ℤ."
+  - front: "Order of an element g?"
+    back: "The smallest k ≥ 1 with g^k = e (the identity)."
+  - front: "What is a cyclic group / a generator?"
+    back: "A group where some g produces every element as a power g, g², g³, …; that g is a generator."
+  - front: "Lagrange's theorem (for element orders)?"
+    back: "In a finite group, the order of every element divides the group order |G|."
+  - front: "What is an abelian group?"
+    back: "A group where the operation is commutative: a·b = b·a."
+---
+
+<Why>
+
+Phép cộng trên mặt đồng hồ, phép nhân modulo 7, và việc xoay các mặt của Rubik's cube trông chẳng liên quan gì đến nhau. Nhưng chúng tuân theo **đúng cùng bốn luật chơi**. Nhận ra điều đó cho bạn một phần thưởng lớn: định lý nào chứng minh cho một cái thì đúng cho tất cả. Ví dụ, Fermat's little theorem ở lesson trước sẽ rơi ra gần như miễn phí.
+
+</Why>
+
+<Intuition>
+
+Một <Term en="group">group</Term> giống một trò chơi có một tập "nước đi" và một cách **ghép** hai nước đi thành một:
+
+- **Đồng hồ 12 giờ, phép cộng.** Cộng 2 giờ rồi cộng 5 giờ = cộng 7 giờ. "Không làm gì" là $+0$. Mọi nước đi đều hoàn tác được: $+5$ thì quay lại bằng $+7$.
+- **Rubik's cube.** Nước đi là một chuỗi xoay. Ghép hai chuỗi = làm lần lượt. "Không làm gì" là chuỗi rỗng. Mọi chuỗi đều hoàn tác được bằng cách làm ngược lại theo thứ tự đảo. Nhưng ở đây **thứ tự quan trọng**: xoay R rồi U khác với U rồi R.
+- **Nhân modulo 7** trên $\{1, 2, 3, 4, 5, 6\}$. Tích luôn nằm trong tập đó, "không làm gì" là nhân 1, và mọi số đều có nghịch đảo (lesson modular arithmetic).
+
+Còn $\{1, 2, 3, 4, 5\}$ với phép nhân mod 6 thì **hỏng**: $2 \cdot 3 \equiv 0$, văng ra ngoài tập.
+
+</Intuition>
+
+<Definition title="Group">
+
+A **group** is a set $G$ with an operation $\cdot$ such that:
+1. **Closure:** $a \cdot b \in G$ for all $a, b \in G$.
+2. **Associativity:** $(a \cdot b) \cdot c = a \cdot (b \cdot c)$.
+3. **Identity:** there is $e \in G$ with $e \cdot a = a \cdot e = a$ for all $a$.
+4. **Inverse:** every $a$ has some $a^{-1} \in G$ with $a \cdot a^{-1} = a^{-1} \cdot a = e$.
+
+If also $a \cdot b = b \cdot a$ for all $a, b$, the group is <Term en="abelian group">abelian</Term>.
+
+</Definition>
+
+Nói đơn giản: ghép không văng ra ngoài, ghép theo nhóm nào trước cũng được, có nước "đứng im", và nước nào cũng hoàn tác được. Ta viết $\mathbb{Z}_p^*$ cho $\{1, \dots, p-1\}$ với phép nhân mod $p$.
+
+<Definition title="Order of an element, cyclic group">
+
+The <Term en="order of an element">order</Term> of $g \in G$ is the smallest $k \ge 1$ with $g^k = e$.
+$G$ is <Term en="cyclic group">cyclic</Term> if some $g$ gives every element as a power of $g$; such $g$ is a <Term en="generator">generator</Term>.
+
+</Definition>
+
+<Example title="powers in ℤ₇*">
+
+Liệt kê lũy thừa của từng phần tử cho tới khi gặp 1:
+
+| $g$ | $g, g^2, g^3, \dots$ | order |
+|---|---|---|
+| 1 | 1 | 1 |
+| 2 | 2, 4, 1 | 3 |
+| 3 | 3, 2, 6, 4, 5, 1 | 6 |
+| 6 | 6, 1 | 2 |
+
+**What do we see?**
+1. 3 đi qua **mọi** phần tử, nên 3 là generator và $\mathbb{Z}_7^*$ là cyclic. *(Thử 5: $5, 4, 6, 2, 3, 1$ — cũng là generator.)*
+2. Mọi order (1, 2, 3, 6) đều **chia hết 6** $= |\mathbb{Z}_7^*|$. Không có phần tử nào có order 4 hay 5.
+
+Quan sát thứ hai không phải trùng hợp. Đó là định lý quan trọng nhất của lý thuyết group hữu hạn.
+
+</Example>
+
+<Theorem title="Lagrange, for element orders">
+
+If $G$ is a finite group and $g \in G$, then the order of $g$ divides $|G|$. Hence $g^{|G|} = e$.
+
+</Theorem>
+
+**Aha:** áp dụng cho $G = \mathbb{Z}_p^*$, có $|G| = p - 1$, ta được ngay $a^{p-1} \equiv 1 \pmod p$ — chính là Fermat's little theorem! Một định lý về group tổng quát chứa luôn định lý số học của lesson trước. (Chứng minh đầy đủ của Lagrange dùng coset — sẽ có ở lesson sau.)
+
+<Pitfalls>
+
+- **Quên kiểm tra closure.** $\{1, \dots, 5\}$ với nhân mod 6 thất bại ngay ở closure: $2 \cdot 3 \equiv 0$.
+- **Nhầm identity.** Với phép cộng, identity là $0$ và inverse của $a$ là $-a$. Với phép nhân, identity là $1$. Cùng một tập có thể là group với phép này mà không với phép khác.
+- **Mặc định $ab = ba$.** Nhiều group không abelian: Rubik's cube, phép nhân matrix. Khi đó $(ab)^{-1} = b^{-1}a^{-1}$ — cởi giày trước, rồi mới cởi tất.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Group = tập + phép toán thỏa closure, associativity, identity, inverse. Abelian nếu giao hoán.
+- Order của $g$: số bước nhỏ nhất để $g^k = e$. Cyclic: có generator sinh ra mọi phần tử.
+- Lagrange: order của phần tử chia hết $|G|$ — và Fermat chỉ là trường hợp đặc biệt.
+- Đồng hồ, Rubik's cube, $\mathbb{Z}_p^*$, các elliptic curve sau này: cùng một khung.
+
+</Summary>

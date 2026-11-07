@@ -4,14 +4,73 @@
     "title": "Math Foundations",
     "description": "Logic, number theory, algebra, polynomials, elliptic curves, probability, linear algebra.",
     "chapters": [
-      { "id": "logic", "title": "Logic & proof techniques", "lessons": ["math.logic.proof-techniques"] },
-      { "id": "number-theory", "title": "Number theory", "lessons": ["math.nt.gcd-euclid", "math.nt.mod-arith"] }
+      {
+        "id": "logic",
+        "title": "Logic & proof techniques",
+        "lessons": [
+          "math.logic.proof-techniques"
+        ]
+      },
+      {
+        "id": "number-theory",
+        "title": "Number theory",
+        "lessons": [
+          "math.nt.gcd-euclid",
+          "math.nt.mod-arith",
+          "math.nt.fermat"
+        ]
+      },
+      {
+        "id": "abstract-algebra",
+        "title": "Abstract algebra",
+        "lessons": [
+          "math.algebra.groups"
+        ]
+      }
     ]
   },
-  { "id": "crypto-zk", "title": "Crypto & Zero-Knowledge", "description": "Provable security, commitments, interactive proofs, SNARKs.", "chapters": [] },
-  { "id": "syssec", "title": "Systems Security", "description": "Kiến thức nền để đọc paper USENIX Security.", "chapters": [] },
-  { "id": "rust", "title": "Rust", "description": "Ownership, traits, katas: FieldElement → Schnorr → sumcheck.", "chapters": [] },
-  { "id": "ml", "title": "ML / Deep Learning", "description": "Từ linear regression tới Transformer, numpy from scratch.", "chapters": [] },
-  { "id": "quantum", "title": "Quantum Computing", "description": "Qubit, gates, Grover, Shor, post-quantum crypto.", "chapters": [] },
-  { "id": "trends", "title": "AI Trends", "description": "Các hướng AI đang nóng và liên hệ với security/blockchain.", "chapters": [] }
+  {
+    "id": "crypto-zk",
+    "title": "Crypto & Zero-Knowledge",
+    "description": "Provable security, commitments, interactive proofs, SNARKs.",
+    "chapters": []
+  },
+  {
+    "id": "syssec",
+    "title": "Systems Security",
+    "description": "Kiến thức nền để đọc paper USENIX Security.",
+    "chapters": []
+  },
+  {
+    "id": "rust",
+    "title": "Rust",
+    "description": "Ownership, borrowing, traits — learn Rust by building field and curve arithmetic.",
+    "chapters": [
+      {
+        "id": "basics",
+        "title": "Basics",
+        "lessons": [
+          "rust.basics.ownership"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ml",
+    "title": "ML / Deep Learning",
+    "description": "Từ linear regression tới Transformer, numpy from scratch.",
+    "chapters": []
+  },
+  {
+    "id": "quantum",
+    "title": "Quantum Computing",
+    "description": "Qubit, gates, Grover, Shor, post-quantum crypto.",
+    "chapters": []
+  },
+  {
+    "id": "trends",
+    "title": "AI Trends",
+    "description": "Các hướng AI đang nóng và liên hệ với security/blockchain.",
+    "chapters": []
+  }
 ]

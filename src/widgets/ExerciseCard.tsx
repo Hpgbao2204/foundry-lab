@@ -99,7 +99,7 @@ function ExerciseInner({ exercise, seed, index, onReroll }: { exercise: Exercise
         )}
       </div>
 
-      <MathText block text={ex.prompt} className="font-serif text-[1.05rem] leading-relaxed" />
+      <MathText block text={ex.prompt} className="whitespace-pre-line font-serif text-[1.05rem] leading-relaxed" />
 
       <div className="mt-4">
         <Inputs ex={ex} response={response} setResponse={setResponse} result={result} />

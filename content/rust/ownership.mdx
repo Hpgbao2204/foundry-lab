@@ -1,0 +1,112 @@
+---
+id: rust.basics.ownership
+track: rust
+chapter: basics
+title: "Ownership — Rust's one big idea"
+minutes: 10
+prerequisites: []
+researchBridge: "Khoảng 70% lỗ hổng bảo mật nghiêm trọng của Chrome và Windows là lỗi bộ nhớ (use-after-free, double free...). Rust chặn cả lớp lỗi này ngay lúc compile — đó là lý do Linux kernel, Android và Cloudflare đều đang viết code mới bằng Rust."
+flashcards:
+  - front: "The three ownership rules?"
+    back: "Each value has one owner; there is one owner at a time; when the owner goes out of scope, the value is dropped."
+  - front: "What happens on `let s2 = s1;` when s1 is a String?"
+    back: "The value is MOVED to s2; s1 can no longer be used."
+  - front: "Why does `let y = x;` keep x usable when x is an i32?"
+    back: "i32 is Copy: small, stack-only types are copied bit by bit, not moved."
+  - front: "The borrowing rule (aliasing XOR mutation)?"
+    back: "At any time: either any number of &T, or exactly one &mut T — never both."
+  - front: "How do you pass a String to a function without giving it away?"
+    back: "Pass a reference: fn f(s: &String) or better &str, call f(&s)."
+---
+
+<Why>
+
+Trong C, bạn tự `malloc` và tự `free`. Quên `free` thì rò bộ nhớ; `free` hai lần hoặc dùng sau khi `free` thì chương trình có thể bị chiếm quyền. Trong Java hay Python, garbage collector dọn giùm, đổi lại tốn thời gian chạy. Rust chọn đường thứ ba: **compiler kiểm tra ai "sở hữu" mỗi giá trị**, và tự chèn lệnh giải phóng đúng chỗ. Không GC, không `free` tay, không use-after-free. Toàn bộ phép màu đó dựa trên một ý tưởng: <Term en="ownership">ownership</Term>.
+
+</Why>
+
+<Intuition>
+
+Hãy nghĩ một giá trị trên heap (ví dụ một `String`) như **một quyển sách thư viện chỉ có một bản**:
+
+- Tại mỗi thời điểm, sách nằm trong tay **đúng một người** — người đó là *owner*.
+- Đưa sách cho bạn khác (`let s2 = s1;`) là **chuyển** luôn quyền sở hữu: bạn không còn cầm sách nữa. Đó là <Term en="move semantics">move</Term>.
+- Khi người đang cầm sách rời đi (ra khỏi scope `{ }`), sách được trả lại thư viện — Rust tự gọi `drop`, tức là `free`.
+- Muốn cho người khác **đọc ké** mà không đưa luôn sách? Cho mượn: `&s`. Đó là <Term en="borrowing">borrowing</Term>. Nhiều người có thể cùng đọc, nhưng nếu một người đang **viết** vào sách (`&mut s`), thì không ai khác được đọc hay viết cùng lúc.
+
+Còn số nguyên `i32`, `bool`, `f64`? Chúng nhỏ và nằm trên stack, nên Rust cứ **photo một bản** (`Copy`) — không cần chuyển quyền.
+
+</Intuition>
+
+<Definition title="Ownership rules">
+
+1. Each value in Rust has an **owner** (a variable).
+2. There can be only **one owner at a time**.
+3. When the owner goes **out of scope**, the value is **dropped** (its memory is freed).
+
+</Definition>
+
+<Definition title="Borrowing rules">
+
+At any given time, you can have **either** any number of shared references `&T`, **or** exactly one mutable reference `&mut T` — not both. References must always point to a value that is still alive.
+
+</Definition>
+
+Nói ngắn gọn: **aliasing XOR mutation** — hoặc nhiều người cùng nhìn, hoặc một người được sửa. Đây chính là điều kiện để không có data race và không có con trỏ treo (dangling pointer).
+
+<Example title="reading the compiler's error">
+
+```rust
+fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1;              // move: ownership goes to s2
+    println!("{}", s1);       // ❌ error[E0382]: borrow of moved value: `s1`
+}
+```
+
+**Step 1 — who owns the string?** Sau dòng 2, `s1` là owner. Sau dòng 3, owner là `s2`.
+
+**Step 2 — why is that an error, not just a copy?** Nếu cả `s1` và `s2` cùng trỏ tới một vùng heap, khi `main` kết thúc cả hai sẽ cùng `drop` → **double free**. Rust tránh bằng cách vô hiệu hóa `s1`.
+
+**Step 3 — three ways to fix it**, tùy bạn muốn gì:
+
+```rust
+let s2 = s1.clone();          // (a) want two independent strings → deep copy
+let s2 = &s1;                 // (b) just want to look → borrow
+println!("{}", s2);           // (c) or simply use s2 instead of s1
+```
+
+**Step 4 — functions follow the same rules.**
+
+```rust
+fn length(s: &String) -> usize { s.len() }   // borrows, does not take ownership
+
+fn main() {
+    let s = String::from("forge");
+    let n = length(&s);       // lend it
+    println!("{s} has {n} bytes");  // ✅ s is still ours
+}
+```
+
+Nếu viết `fn length(s: String)`, hàm sẽ **nhận luôn** chuỗi và `drop` nó khi kết thúc — `s` ở `main` không dùng được nữa.
+
+</Example>
+
+<Pitfalls>
+
+- **`.clone()` ở mọi nơi cho hết lỗi.** Chạy được, nhưng mỗi lần là một bản copy trên heap. Thường điều bạn thật sự muốn là mượn (`&`).
+- **Giữ một reference rồi sửa collection.** `let first = &v[0]; v.push(4);` bị từ chối: `push` có thể cấp phát lại bộ nhớ, làm `first` trỏ vào vùng đã giải phóng. Trong C, đây là một use-after-free thật.
+- **Nghĩ rằng move là copy chậm.** Move chỉ chép 3 con số (pointer, length, capacity) trên stack — dữ liệu trên heap không bị chép.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Mỗi giá trị có một owner; owner ra khỏi scope thì giá trị bị `drop`.
+- Gán hoặc truyền một `String`/`Vec` là **move**; kiểu nhỏ như `i32` là **Copy**.
+- Mượn bằng `&T` (nhiều người đọc) hoặc `&mut T` (một người sửa) — aliasing XOR mutation.
+- Compiler error về ownership là đang chặn một bug bộ nhớ thật: double free, use-after-free, data race.
+
+</Summary>

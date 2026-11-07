@@ -1,0 +1,157 @@
+[
+  {
+    "id": "math.poly.lagrange-interpolation.shamir-2",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "A secret $s = f(0)$ is shared with a polynomial $f$ of degree 1 over $\\mathbb{F}_{11}$. You get the shares $f(1) = 10$, $f(2) = 2$. Recover $s$.",
+    "answer": "7",
+    "modulus": 11,
+    "verify": { "fn": "lagrangeMod", "args": [11, 0, 1, 10, 2, 2] },
+    "generator": "shamir",
+    "hints": [
+      "2 điểm xác định một đường thẳng. Dùng Lagrange tại $x = 0$.",
+      "$L_1(0) = \\frac{0 - 2}{1 - 2}$, $L_2(0) = \\frac{0 - 1}{2 - 1}$.",
+      "$L_1(0) = 2$, $L_2(0) = -1$."
+    ],
+    "solution": "$s = 10 \\cdot 2 + 2 \\cdot (-1) = 18 \\equiv 7 \\pmod{11}$. (Đường thẳng là $f(x) = 7 + 3x$.)"
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.basis-value",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "With nodes $x_1 = 1, x_2 = 2, x_3 = 3$, compute $L_2(0) = \\frac{(0 - 1)(0 - 3)}{(2 - 1)(2 - 3)}$.",
+    "answer": "-3",
+    "hints": [
+      "Tính tử số và mẫu số riêng.",
+      "Tử: $(-1)(-3)$. Mẫu: $(1)(-1)$.",
+      "$3 / (-1)$."
+    ],
+    "solution": "$\\frac{3}{-1} = -3$."
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.predict",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "The parabola through $(1, 2), (2, 3), (3, 6)$ is $f(x) = x^2 - 2x + 3$. What is $f(4)$?",
+    "answer": "11",
+    "hints": [
+      "Thay $x = 4$.",
+      "$16 - 8 + 3$.",
+      "Hoặc nhìn hiệu: $2, 3, 6$ tăng $1, 3$ — hiệu kế tiếp là $5$."
+    ],
+    "solution": "$f(4) = 16 - 8 + 3 = 11$. Cách khác: hiệu bậc một $1, 3, 5$ tăng đều 2 (parabola), nên $6 + 5 = 11$."
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.line-intercept",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "A line passes through $(1, 5)$ and $(3, 9)$. What is its value at $x = 0$?",
+    "answer": "3",
+    "hints": [
+      "Hệ số góc = (thay đổi $y$) / (thay đổi $x$).",
+      "$(9 - 5)/(3 - 1) = 2$.",
+      "Từ $(1, 5)$ lùi một bước $x$: trừ 2."
+    ],
+    "solution": "Hệ số góc $2$, nên $f(x) = 2x + 3$ và $f(0) = 3$. Lagrange: $5 \\cdot \\frac{0 - 3}{1 - 3} + 9 \\cdot \\frac{0 - 1}{3 - 1} = 7.5 - 4.5 = 3$."
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.points-needed",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "In a Shamir scheme the polynomial has degree 4. At least how many shares are needed to recover the secret?",
+    "answer": "5",
+    "hints": [
+      "Bao nhiêu điểm xác định một đường thẳng (bậc 1)? Một parabola (bậc 2)?",
+      "Quy luật: bậc $d$ cần $d + 1$ điểm.",
+      "$4 + 1$."
+    ],
+    "solution": "Đa thức bậc 4 có 5 hệ số, cần $5$ điểm. Với 4 mảnh, mọi bí mật đều còn khả dĩ như nhau."
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.half-in-f11",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Lagrange over $\\mathbb{F}_{11}$ needs $\\frac{1}{2}$. Which element of $\\mathbb{F}_{11}$ is it?",
+    "answer": "6",
+    "modulus": 11,
+    "verify": { "fn": "modInverse", "args": [2, 11] },
+    "hints": [
+      "\"Chia cho 2\" trong $\\mathbb{F}_p$ = nhân với $2^{-1}$.",
+      "Tìm $x$ với $2x \\equiv 1 \\pmod{11}$.",
+      "$12 = 11 + 1$."
+    ],
+    "solution": "$2 \\cdot 6 = 12 \\equiv 1$, nên $\\frac{1}{2} = 6$ trong $\\mathbb{F}_{11}$."
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.shamir-3",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "A (3, 5) Shamir scheme over $\\mathbb{F}_{13}$ gives shares $f(1) = 8$, $f(2) = 0$, $f(3) = 7$. Recover the secret $f(0)$.",
+    "answer": "5",
+    "modulus": 13,
+    "verify": { "fn": "lagrangeMod", "args": [13, 0, 1, 8, 2, 0, 3, 7] },
+    "hints": [
+      "Với nodes $1, 2, 3$, worked example đã tính $L_1(0), L_2(0), L_3(0)$.",
+      "$L_1(0) = 3$, $L_2(0) = -3$, $L_3(0) = 1$.",
+      "$s = 8 \\cdot 3 + 0 \\cdot (-3) + 7 \\cdot 1$, rồi mod 13."
+    ],
+    "solution": "$s = 24 + 0 + 7 = 31 \\equiv 5 \\pmod{13}$. (Đa thức là $f(x) = 5 + 2x + x^2$: $f(1) = 8$, $f(2) = 13 \\equiv 0$, $f(3) = 20 \\equiv 7$ ✓.)"
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.two-shares-leak",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: in a (3, n) Shamir scheme over $\\mathbb{F}_p$, two shares let you rule out at least some values of the secret.",
+    "answer": false,
+    "reasons": [
+      "For every candidate secret $s$, exactly one degree-2 polynomial passes through the two shares and $(0, s)$, so all secrets stay possible.",
+      "Two shares always reveal the secret mod 2.",
+      "It is true because two points determine a line.",
+      "It is false only when $p = 2$."
+    ],
+    "reason": 0,
+    "hints": [
+      "Thử đặt mình vào vị trí kẻ tấn công: đoán $s$, có mâu thuẫn gì không?",
+      "Hai mảnh + điểm $(0, s)$ = 3 điểm. 3 điểm xác định bao nhiêu parabola?",
+      "Đúng một — với **mỗi** $s$."
+    ],
+    "solution": "**False.** Với mọi $s$, ba điểm (hai mảnh và $(0, s)$) xác định đúng một đa thức bậc $\\le 2$. Vì hệ số được chọn ngẫu nhiên đều, mọi $s$ đều khả dĩ như nhau — hai mảnh không tiết lộ gì."
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.uniqueness",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Why is the interpolating polynomial of degree $< n$ through $n$ points unique?",
+    "options": [
+      "If $f$ and $g$ both work, $f - g$ has degree $< n$ but $n$ roots, so $f - g = 0$.",
+      "Because the Lagrange formula always gives the same answer.",
+      "Because polynomials of the same degree are equal.",
+      "It is not unique; any polynomial through the points works."
+    ],
+    "answer": 0,
+    "hints": [
+      "Giả sử có hai đa thức $f, g$ cùng đi qua các điểm. Xét hiệu của chúng.",
+      "$f - g$ bằng 0 tại bao nhiêu điểm?",
+      "Lesson trước: đa thức bậc $d$ khác 0 có tối đa $d$ nghiệm."
+    ],
+    "solution": "$f - g$ có bậc $< n$ nhưng bằng 0 tại $n$ điểm $x_i$. Đa thức khác 0 bậc $< n$ có ít hơn $n$ nghiệm, nên $f - g = 0$. (\"Công thức cho cùng kết quả\" chỉ nói về một cách xây, không loại trừ cách khác.)"
+  },
+  {
+    "id": "math.poly.lagrange-interpolation.basis-proof",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove that $f(x) = \\sum_i y_i L_i(x)$ passes through every point $(x_k, y_k)$ and has degree $< n$.",
+    "rubric": [
+      "Shows $L_i(x_k) = 0$ for $k \\neq i$, because the numerator contains the factor $(x_k - x_k)$.",
+      "Shows $L_i(x_i) = 1$, because numerator and denominator are the same product.",
+      "Concludes $f(x_k) = \\sum_i y_i L_i(x_k) = y_k$.",
+      "Notes each $L_i$ is a product of $n - 1$ linear factors, so $\\deg f \\le n - 1$; denominators are nonzero since the $x_i$ are distinct."
+    ],
+    "hints": [
+      "Tính $L_i(x_k)$ trong hai trường hợp: $k = i$ và $k \\neq i$.",
+      "Khi $k \\neq i$, tử số có một thừa số $(x - x_k)$. Thay $x = x_k$.",
+      "Bậc của $L_i$: đếm số thừa số $(x - x_j)$."
+    ],
+    "solution": "Nếu $k \\neq i$, tử số của $L_i$ chứa $(x - x_k)$, nên $L_i(x_k) = 0$. Nếu $k = i$, tử và mẫu đều là $\\prod_{j \\neq i}(x_i - x_j) \\neq 0$ (vì các $x_j$ khác nhau), nên $L_i(x_i) = 1$. Do đó $f(x_k) = y_k \\cdot 1 + \\sum_{i \\neq k} y_i \\cdot 0 = y_k$. Mỗi $L_i$ là tích $n - 1$ thừa số bậc 1, nên $\\deg f \\le n - 1 < n$. ∎"
+  }
+]

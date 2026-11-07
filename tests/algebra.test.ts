@@ -1,6 +1,7 @@
 /** Re-derives the hand-computed numbers in the abstract-algebra lessons. */
 import { describe, expect, it } from 'vitest';
-import { elementOrder, gf2Mul, phi } from '../src/exercises/registry';
+import { elementOrder, gf2Mul, lagrangeMod, phi, polyEvalMod } from '../src/exercises/registry';
+import { lagrangeCoeffs, lagrangeEval, polyString } from '../src/lib/poly';
 
 describe('subgroups & cosets lesson', () => {
   it('cosets of ⟨2⟩ = {1,2,4} in Z_7^* are {1,2,4} and {3,5,6}; 5H = 3H', () => {
@@ -64,5 +65,37 @@ describe('finite fields lesson', () => {
   it('AES example: {57} + {83} = {d4}, {57} · {83} = {c1}', () => {
     expect(0x57 ^ 0x83).toBe(0xd4);
     expect(gf2Mul(0x57, 0x83, 0x11b)).toBe(0xc1);
+  });
+});
+
+describe('polynomial lessons', () => {
+  it('x³ + 2x + 1 ÷ (x − 2) over F_5: q = x² + 2x + 1, r = 3', () => {
+    expect(polyEvalMod([1, 0, 2, 1], 2, 5)).toBe(3);
+    // (x − 2)(x² + 2x + 1) + 3 = x³ − 3x + 1 ≡ x³ + 2x + 1
+    for (let x = 0; x < 5; x++) expect(((((x - 2) * (x * x + 2 * x + 1) + 3) % 5) + 5) % 5).toBe(polyEvalMod([1, 0, 2, 1], x, 5));
+  });
+
+  it('x^p − x = ∏ (x − a) over F_p (checked for p = 3, 5 by evaluating everywhere)', () => {
+    for (const p of [3, 5]) for (let x = 0; x < p; x++) {
+      let prod = 1;
+      for (let a = 0; a < p; a++) prod = (prod * (x - a + p)) % p;
+      expect(prod).toBe((x ** p - x) % p);
+    }
+  });
+
+  it('parabola through (1,2), (2,3), (3,6) is x² − 2x + 3 with f(0) = 3', () => {
+    const c = lagrangeCoeffs([1, 2, 3], [2, 3, 6]).map((v) => Math.round(v * 1e9) / 1e9);
+    expect(c).toEqual([3, -2, 1]);
+    expect(lagrangeEval([1, 2, 3], [2, 3, 6], 0)).toBeCloseTo(3);
+    expect(lagrangeEval([1, 2, 3], [2, 3, 6], 4)).toBeCloseTo(11);
+    expect(lagrangeEval([1, 2, 3], [0, 1, 0], 0)).toBeCloseTo(-3);
+    expect(lagrangeEval([1, 3], [5, 9], 0)).toBeCloseTo(3);
+    expect(polyString([3, -2, 1])).toBe('x² − 2x + 3');
+  });
+
+  it('Shamir examples: F_11 line and F_13 parabola', () => {
+    expect(lagrangeMod([1, 10, 2, 2], 0, 11)).toBe(7);
+    expect(lagrangeMod([1, 8, 2, 0, 3, 7], 0, 13)).toBe(5);
+    expect([1, 2, 3].map((x) => (5 + 2 * x + x * x) % 13)).toEqual([8, 0, 7]);
   });
 });

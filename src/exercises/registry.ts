@@ -77,6 +77,29 @@ export function gf2Mul(a: number, b: number, poly: number): number {
   return r;
 }
 
+/** Horner: f(x) mod n for coefficients [c_d, …, c_0]. */
+export function polyEvalMod(coeffs: number[], x: number, n: number): number {
+  let r = 0;
+  for (const c of coeffs) r = (((r * x + c) % n) + n) % n;
+  return r;
+}
+
+/** Lagrange interpolation over F_p: points as flat [x1, y1, x2, y2, …], evaluated at `at`. */
+export function lagrangeMod(pts: number[], at: number, p: number): number {
+  const P = B(p);
+  let sum = 0n;
+  for (let i = 0; i < pts.length; i += 2) {
+    let num = 1n, den = 1n;
+    for (let j = 0; j < pts.length; j += 2) {
+      if (j === i) continue;
+      num = mod(num * B(at - pts[j]!), P);
+      den = mod(den * B(pts[i]! - pts[j]!), P);
+    }
+    sum = mod(sum + B(pts[i + 1]!) * num * modInverse(den, P)!, P);
+  }
+  return Number(sum);
+}
+
 /** Solve a·x + b ≡ c (mod p); returns x in [0, p) or null. */
 export function solveLinear(a: number, b: number, c: number, p: number): bigint | null {
   const inv = modInverse(B(a), B(p));
@@ -125,6 +148,16 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
   },
   /** p^k */
   pow: (p, k) => p ** k,
+  /** polyEval(n, x, c_d, …, c_0) = f(x) mod n, coefficients from highest degree */
+  polyEval: (n, x, ...coeffs) => polyEvalMod(coeffs, x, n),
+  /** number of x in Z_n with f(x) ≡ 0, coefficients from highest degree */
+  polyRootCount: (n, ...coeffs) => {
+    let c = 0;
+    for (let x = 0; x < n; x++) if (polyEvalMod(coeffs, x, n) === 0) c++;
+    return c;
+  },
+  /** lagrangeMod(p, at, x1, y1, x2, y2, …) = value at `at` of the unique interpolating polynomial over F_p */
+  lagrangeMod: (p, at, ...pts) => lagrangeMod(pts, at, p),
   /** nonzero zero divisors of Z_n: nonzero a with gcd(a, n) > 1 */
   zeroDivisors: (n) => n - 1 - phi(n),
   /** a · b in F_2[x] / (poly), all as bit masks; returned as the bit string read in decimal (x²+1 → 101) */

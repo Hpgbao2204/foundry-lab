@@ -33,5 +33,11 @@
   ],
   "rust.basics.iterators-closures": [
     "rust.basics.error-handling"
+  ],
+  "math.poly.division-roots": [
+    "math.algebra.rings-fields"
+  ],
+  "math.poly.lagrange-interpolation": [
+    "math.poly.division-roots"
   ]
 }

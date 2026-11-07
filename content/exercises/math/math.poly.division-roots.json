@@ -1,0 +1,167 @@
+[
+  {
+    "id": "math.poly.division-roots.remainder",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Over $\\mathbb{F}_{5}$, what is the remainder when $f(x) = x^{3} + 2x + 1$ is divided by $x - 2$?",
+    "answer": "3",
+    "modulus": 5,
+    "verify": { "fn": "polyEval", "args": [5, 2, 1, 0, 2, 1] },
+    "generator": "polyRemainder",
+    "hints": [
+      "Remainder theorem: số dư khi chia cho $x - a$ chính là $f(a)$.",
+      "Tính $f(2) \\bmod 5$.",
+      "$2^3 + 2 \\cdot 2 + 1 = 13$."
+    ],
+    "solution": "$f(2) = 8 + 4 + 1 = 13 \\equiv 3 \\pmod 5$."
+  },
+  {
+    "id": "math.poly.division-roots.roots-z8",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many $x \\in \\mathbb{Z}_8$ satisfy $x^2 \\equiv 1 \\pmod 8$?",
+    "answer": "4",
+    "verify": { "fn": "polyRootCount", "args": [8, 1, 0, -1] },
+    "hints": [
+      "Chỉ có 8 giá trị — thử hết.",
+      "Số chẵn bình phương lên vẫn chẵn, nên không thể $\\equiv 1$. Chỉ cần thử 1, 3, 5, 7.",
+      "$3^2 = 9$, $5^2 = 25$, $7^2 = 49$."
+    ],
+    "solution": "$1, 9, 25, 49$ đều $\\equiv 1 \\pmod 8$. Vậy có **4** nghiệm: $1, 3, 5, 7$ — nhiều hơn bậc 2, vì $\\mathbb{Z}_8$ không phải field."
+  },
+  {
+    "id": "math.poly.division-roots.roots-x2-plus-1-f5",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many roots does $x^2 + 1$ have in $\\mathbb{F}_5$?",
+    "answer": "2",
+    "verify": { "fn": "polyRootCount", "args": [5, 1, 0, 1] },
+    "hints": [
+      "Tìm $x$ với $x^2 \\equiv -1 \\equiv 4 \\pmod 5$.",
+      "Bình phương mod 5 của $0, 1, 2, 3, 4$ là gì?",
+      "$2^2 = 4$, $3^2 = 9 \\equiv 4$."
+    ],
+    "solution": "$x = 2$ và $x = 3$ cho $x^2 \\equiv 4 \\equiv -1$. Hai nghiệm — đúng tối đa cho bậc 2. (Trong $\\mathbb{R}$ thì $x^2 + 1$ vô nghiệm!)"
+  },
+  {
+    "id": "math.poly.division-roots.horner-fill",
+    "level": "A",
+    "type": "step-fill",
+    "prompt": "Divide $f(x) = x^3 + 3x^2 + 4$ by $x - 1$ over $\\mathbb{F}_7$ with Horner's rule.",
+    "template": [
+      "Coefficients: $1, 3,$ {{0}} $, 4$.",
+      "Running values: $1$, then $1 \\cdot 1 + 3 =$ {{4}}, then $4 \\cdot 1 + 0 =$ {{4}}, then $4 \\cdot 1 + 4 = 8 \\equiv$ {{1}}.",
+      "Quotient $q(x) = x^2 +$ {{4}} $x + 4$, remainder $r =$ {{1}}."
+    ],
+    "hints": [
+      "Đừng quên hệ số của $x$ (bằng 0).",
+      "Mỗi bước: nhân giá trị hiện tại với $a = 1$ rồi cộng hệ số kế tiếp, mod 7.",
+      "Số cuối là số dư; các số trước là hệ số của thương."
+    ],
+    "solution": "Dãy $1, 4, 4, 1$. Thương $x^2 + 4x + 4$, dư $1$. Check: $f(1) = 1 + 3 + 4 = 8 \\equiv 1$ ✓."
+  },
+  {
+    "id": "math.poly.division-roots.which-roots",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Which elements of $\\mathbb{F}_7$ are roots of $x^2 - 5x + 6$?",
+    "options": ["$1$", "$2$", "$3$", "$4$", "$6$"],
+    "answer": [1, 2],
+    "hints": [
+      "Có thể thay từng giá trị, hoặc phân tích thành nhân tử.",
+      "Tìm hai số có tổng 5, tích 6.",
+      "$x^2 - 5x + 6 = (x - 2)(x - 3)$."
+    ],
+    "solution": "$(x - 2)(x - 3)$, nên nghiệm là $2$ và $3$. Bậc 2 trong field ⇒ không thể có nghiệm thứ ba (thật vậy $f(1) = 2$, $f(4) = 2$, $f(6) = 12 \\equiv 5$)."
+  },
+  {
+    "id": "math.poly.division-roots.z8-four-roots",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: since $x^2 - 1$ has 4 roots in $\\mathbb{Z}_8$, the theorem \"degree $d$ ⇒ at most $d$ roots\" is wrong.",
+    "answer": false,
+    "reasons": [
+      "The theorem is only for fields; $\\mathbb{Z}_8$ has zero divisors, e.g. $(3-1)(3+1) = 8 \\equiv 0$.",
+      "The theorem is wrong; it only holds over $\\mathbb{R}$.",
+      "$x^2 - 1$ really has only 2 roots in $\\mathbb{Z}_8$.",
+      "The degree of $x^2 - 1$ is 4 in $\\mathbb{Z}_8$."
+    ],
+    "reason": 0,
+    "hints": [
+      "Định lý giả thiết gì về tập hệ số?",
+      "Trong chứng minh, bước nào dùng tính chất của field?",
+      "Với $x = 3$: $(x - 1)(x + 1) = 2 \\cdot 4$."
+    ],
+    "solution": "**False.** Định lý cần field (không có zero divisor). Trong $\\mathbb{Z}_8$: $(3 - 1)(3 + 1) = 2 \\cdot 4 \\equiv 0$ dù cả hai thừa số khác 0, nên 3 là nghiệm mà không phải nghiệm của thừa số nào."
+  },
+  {
+    "id": "math.poly.division-roots.xp-minus-x",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "How many roots does $x^7 - x$ have in $\\mathbb{F}_7$?",
+    "answer": "7",
+    "verify": { "fn": "polyRootCount", "args": [7, 1, 0, 0, 0, 0, 0, -1, 0] },
+    "hints": [
+      "Fermat's little theorem nói gì về $a^7$ trong $\\mathbb{F}_7$?",
+      "$a^7 \\equiv a$ cho **mọi** $a$, kể cả $a = 0$.",
+      "Vậy mọi phần tử đều là nghiệm. Có bao nhiêu phần tử?"
+    ],
+    "solution": "$a^7 = a$ với mọi $a \\in \\mathbb{F}_7$, nên cả **7** phần tử đều là nghiệm — đúng bằng bậc. Do đó $x^7 - x = x(x-1)\\cdots(x-6)$."
+  },
+  {
+    "id": "math.poly.division-roots.build-from-roots",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Over $\\mathbb{F}_7$, $f$ has degree 3, leading coefficient 1, and roots $1, 2, 4$. What is $f$?",
+    "options": [
+      "$(x - 1)(x - 2)(x - 4)$",
+      "$(x + 1)(x + 2)(x + 4)$",
+      "$x^3 - 7$",
+      "There are infinitely many such $f$"
+    ],
+    "answer": 0,
+    "hints": [
+      "Factor theorem: mỗi nghiệm $a$ cho một thừa số $(x - a)$.",
+      "Ba nghiệm cho ba thừa số bậc 1 — đã đủ bậc 3.",
+      "Leading coefficient 1 cố định hằng số nhân phía trước."
+    ],
+    "solution": "$f = c(x - 1)(x - 2)(x - 4)$ và $c = 1$. (Thú vị: khai triển ra $x^3 - 7x^2 + 14x - 8 \\equiv x^3 - 1 \\pmod 7$ — vì $1, 2, 4$ chính là các căn bậc ba của 1 trong $\\mathbb{F}_7$.)"
+  },
+  {
+    "id": "math.poly.division-roots.at-most-d",
+    "level": "C",
+    "type": "proof-order",
+    "prompt": "Order the proof: a nonzero $f \\in F[x]$ of degree $d$ ($F$ a field) has at most $d$ roots.",
+    "steps": [
+      "Induct on $d$. A nonzero constant ($d = 0$) has no roots.",
+      "If $f$ has no root we are done; otherwise let $a$ be a root.",
+      "By the factor theorem, $f = (x - a)\\,q$ with $\\deg q = d - 1$.",
+      "For any root $b \\neq a$: $0 = (b - a)\\,q(b)$, and $b - a \\neq 0$, so $q(b) = 0$ (no zero divisors).",
+      "So the roots of $f$ are $a$ plus roots of $q$; by induction that is at most $1 + (d - 1) = d$."
+    ],
+    "hints": [
+      "Quy nạp theo bậc. Base case là gì?",
+      "Bẻ ra một thừa số $(x - a)$ từ một nghiệm.",
+      "Bước then chốt dùng việc field không có zero divisor."
+    ],
+    "solution": "Base case → lấy một nghiệm $a$ → factor theorem → mọi nghiệm khác là nghiệm của $q$ (nhờ không có zero divisor) → quy nạp. ∎"
+  },
+  {
+    "id": "math.poly.division-roots.factor-theorem",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove the factor theorem: if $f(a) = 0$ then $(x - a)$ divides $f$. You may use the division algorithm.",
+    "rubric": [
+      "Divides $f$ by $x - a$: $f = (x - a)\\,q + r$ with $\\deg r < 1$, so $r$ is a constant.",
+      "Substitutes $x = a$ to get $f(a) = 0 \\cdot q(a) + r = r$.",
+      "Uses $f(a) = 0$ to conclude $r = 0$.",
+      "Concludes $f = (x - a)\\,q$, i.e. $(x - a) \\mid f$."
+    ],
+    "hints": [
+      "Chia $f$ cho $x - a$. Số dư có bậc bao nhiêu?",
+      "Bậc $< 1$ nghĩa là số dư là một hằng số $r$.",
+      "Thay $x = a$ vào đẳng thức chia."
+    ],
+    "solution": "Theo division algorithm, $f = (x - a)q + r$ với $\\deg r < 1$, tức $r$ là hằng số. Thay $x = a$: $f(a) = 0 \\cdot q(a) + r = r$. Vì $f(a) = 0$ nên $r = 0$, và $f = (x - a)q$. ∎"
+  }
+]

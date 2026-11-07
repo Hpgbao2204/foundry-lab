@@ -223,5 +223,10 @@
     "en": "closure",
     "vi": "closure",
     "explain": "Hàm không tên |x| ..., có thể 'bắt' biến ở xung quanh nơi nó được viết."
+  },
+  {
+    "en": "Lagrange interpolation",
+    "vi": "nội suy Lagrange",
+    "explain": "Dựng đa thức bậc < n duy nhất đi qua n điểm cho trước: f(x) = Σ yᵢ·Lᵢ(x), với Lᵢ bằng 1 tại xᵢ và 0 tại các điểm khác."
   }
 ]

@@ -36,7 +36,71 @@ function gcdPair(rng: Rng, max: number): [number, number] {
   return [g * x, g * y];
 }
 
+/** LaTeX for c_d x^d + … + c_0 (coefficients from highest degree, all ≥ 0). */
+export function polyTex(coeffs: number[]): string {
+  const d = coeffs.length - 1;
+  const terms = coeffs.flatMap((c, i) => {
+    const e = d - i;
+    if (c === 0) return [];
+    const xs = e === 0 ? '' : e === 1 ? 'x' : `x^{${e}}`;
+    return [`${c === 1 && e > 0 ? '' : c}${xs}`];
+  });
+  return terms.length ? terms.join(' + ') : '0';
+}
+
 export const GENERATORS: Record<string, Gen> = {
+  polyRemainder: (rng) => {
+    const p = pick(rng, [5, 7, 11, 13]);
+    const coeffs = [1, int(rng, 0, p - 1), int(rng, 0, p - 1), int(rng, 1, p - 1)];
+    const a = int(rng, 1, p - 1);
+    const steps: number[] = [];
+    let r = 0;
+    for (const c of coeffs) {
+      r = (r * a + c) % p;
+      steps.push(r);
+    }
+    const q = steps.slice(0, -1);
+    return {
+      prompt: `Over $\\mathbb{F}_{${p}}$, what is the remainder when $f(x) = ${polyTex(coeffs)}$ is divided by $x - ${a}$?`,
+      answer: String(r),
+      modulus: p,
+      hints: [
+        `Remainder theorem: số dư khi chia cho $x - a$ chính là $f(a)$.`,
+        `Tính $f(${a}) \\bmod ${p}$, hoặc dùng synthetic division (Horner) với $a = ${a}$.`,
+        `Horner: bắt đầu với hệ số đầu $1$, rồi lặp "nhân ${a}, cộng hệ số tiếp theo" (mod ${p}).`,
+      ],
+      solution: `Horner với hệ số $${coeffs.join(', ')}$ và $a = ${a}$ cho dãy $${steps.join(', ')}$ (mod ${p}). Số cuối là số dư: $f(${a}) \\equiv ${r}$. Các số trước là thương: $q(x) = ${polyTex(q)}$.`,
+      verify: { fn: 'polyEval', args: [p, a, ...coeffs] },
+    };
+  },
+
+  shamir: (rng) => {
+    const p = pick(rng, [11, 13, 17, 19, 23]);
+    const k = pick(rng, [2, 2, 3]);
+    const coeffs = Array.from({ length: k }, (_, i) => int(rng, i === k - 1 ? 1 : 0, p - 1)); // c_0 … c_{k-1}
+    const secret = coeffs[0]!;
+    const xs = k === 2 ? [1, 2] : [1, 2, 3];
+    const shares = xs.map((x) => coeffs.reduce((acc, c, i) => (acc + c * x ** i) % p, 0));
+    const basis = xs.map((xi) => {
+      let num = 1, den = 1;
+      for (const xj of xs) if (xj !== xi) { num *= -xj; den *= xi - xj; }
+      return Number(mod(BigInt(num) * modInverse(mod(BigInt(den), BigInt(p)), BigInt(p))!, BigInt(p)));
+    });
+    const pts = xs.flatMap((x, i) => [x, shares[i]!]);
+    return {
+      prompt: `A secret $s = f(0)$ is shared with a polynomial $f$ of degree ${k - 1} over $\\mathbb{F}_{${p}}$. You get the shares ${xs.map((x, i) => `$f(${x}) = ${shares[i]}$`).join(', ')}. Recover $s$.`,
+      answer: String(secret),
+      modulus: p,
+      hints: [
+        `${k} điểm xác định duy nhất một đa thức bậc ${k - 1}. Dùng Lagrange interpolation tại $x = 0$.`,
+        `$s = \\sum_i y_i L_i(0)$ với $L_i(0) = \\prod_{j \\ne i} \\frac{0 - x_j}{x_i - x_j}$, tính mod ${p}.`,
+        `Các hệ số $L_i(0) \\bmod ${p}$ là $${basis.join(', ')}$.`,
+      ],
+      solution: `$L_i(0) \\equiv ${basis.join(', ')}$, nên $s \\equiv ${shares.map((y, i) => `${y} \\cdot ${basis[i]}`).join(' + ')} \\equiv ${secret} \\pmod{${p}}$.`,
+      verify: { fn: 'lagrangeMod', args: [p, 0, ...pts] },
+    };
+  },
+
   addSubgroup: (rng) => {
     const n = pick(rng, [12, 15, 18, 20, 24, 30, 36]);
     let a: number;

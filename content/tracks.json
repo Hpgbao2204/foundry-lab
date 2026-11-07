@@ -30,6 +30,14 @@
           "math.algebra.rings-fields",
           "math.algebra.finite-fields"
         ]
+      },
+      {
+        "id": "polynomials",
+        "title": "Polynomials",
+        "lessons": [
+          "math.poly.division-roots",
+          "math.poly.lagrange-interpolation"
+        ]
       }
     ]
   },

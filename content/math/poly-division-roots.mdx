@@ -1,0 +1,101 @@
+---
+id: math.poly.division-roots
+track: math
+chapter: polynomials
+title: "Polynomial division & roots — why degree d means at most d roots"
+minutes: 10
+prerequisites: [math.algebra.rings-fields]
+researchBridge: "'Một đa thức bậc d khác 0 có không quá d nghiệm' là viên gạch nền của Reed–Solomon (QR code đọc được dù bị bẩn), của Shamir secret sharing, và của gần như mọi zk-SNARK: prover chứng minh hàng triệu phương trình bằng cách chứng minh một đa thức chia hết cho một đa thức khác."
+flashcards:
+  - front: "Division algorithm for polynomials?"
+    back: "For g ≠ 0 over a field: f = q·g + r with deg r < deg g, and q, r are unique."
+  - front: "Remainder theorem?"
+    back: "The remainder of f divided by (x − a) is the number f(a)."
+  - front: "Factor theorem?"
+    back: "f(a) = 0 ⟺ (x − a) divides f."
+  - front: "Max number of roots of a nonzero polynomial of degree d over a field?"
+    back: "d. (Over ℤ₈, x² − 1 has 4 roots — ℤ₈ is not a field.)"
+  - front: "What polynomial has every element of 𝔽_p as a root?"
+    back: "x^p − x = ∏ (x − a) over all a ∈ 𝔽_p (by Fermat)."
+---
+
+<Why>
+
+**Puzzle.** Phương trình $x^2 = 1$ có bao nhiêu nghiệm?
+
+- Trong $\mathbb{R}$: hai nghiệm, $\pm 1$.
+- Trong $\mathbb{F}_7$: cũng hai, $1$ và $6$.
+- Trong $\mathbb{Z}_8$: thử hết — $1^2 = 1$, $3^2 = 9 \equiv 1$, $5^2 = 25 \equiv 1$, $7^2 = 49 \equiv 1$. **Bốn** nghiệm!
+
+Ở trường học, ta mặc nhiên "phương trình bậc 2 có tối đa 2 nghiệm". Lesson này cho thấy điều đó đúng **vì sao**, và đúng **ở đâu**: trong mọi field, nhưng không trong $\mathbb{Z}_8$. Lý do đi qua một công cụ quen thuộc từ tiểu học — phép chia có dư — nay áp dụng cho đa thức.
+
+</Why>
+
+<Intuition>
+
+Chia số: $17 = 3 \cdot 5 + 2$, số dư nhỏ hơn số chia. Chia đa thức y hệt, chỉ thay "nhỏ hơn" bằng "**bậc** thấp hơn":
+$$x^2 + 1 = (x - 1)(x + 1) + 2.$$
+
+Khi chia cho $x - a$ (bậc 1), số dư có bậc $< 1$, tức là **một hằng số**. Hằng số đó là gì? Thay $x = a$ vào hai vế: vế trái là $f(a)$, vế phải là $0 \cdot q(a) + r = r$. Vậy **số dư chính là $f(a)$**.
+
+Hệ quả: $a$ là nghiệm $\iff$ số dư bằng 0 $\iff$ $(x - a)$ là một thừa số của $f$. Mỗi nghiệm "bẻ ra" một thừa số bậc 1. Một đa thức bậc $d$ không thể bẻ ra hơn $d$ thừa số bậc 1 — nên có tối đa $d$ nghiệm.
+
+</Intuition>
+
+<Theorem title="Division, remainder and factor theorems">
+
+Let $F$ be a field and $f, g \in F[x]$ with $g \neq 0$. There are unique $q, r$ with $f = q g + r$ and $\deg r < \deg g$.
+In particular, dividing by $x - a$ leaves remainder $f(a)$, so $f(a) = 0$ if and only if $(x - a) \mid f$.
+
+</Theorem>
+
+<Theorem title="At most d roots">
+
+A nonzero polynomial of degree $d$ over a field has at most $d$ roots.
+
+</Theorem>
+
+Chứng minh bằng quy nạp: nếu $f(a) = 0$ thì $f = (x - a)\,q$ với $\deg q = d - 1$. Với nghiệm $b \neq a$ bất kỳ: $0 = (b - a)\,q(b)$, và vì field **không có zero divisor**, $b - a \neq 0$ buộc $q(b) = 0$. Vậy mọi nghiệm khác $a$ là nghiệm của $q$, mà $q$ có tối đa $d - 1$ nghiệm. Tổng cộng tối đa $d$.
+
+Trong $\mathbb{Z}_8$, bước "không có zero divisor" gãy: $x^2 - 1 = (x - 1)(x + 1)$, và với $x = 3$ ta có $2 \cdot 4 = 8 \equiv 0$ dù cả hai thừa số khác 0.
+
+<Example title="synthetic division over 𝔽₅">
+
+Chia $f(x) = x^3 + 2x + 1$ cho $x - 2$ trong $\mathbb{F}_5$.
+
+**Step 1 — write the coefficients**, kể cả hệ số 0: $1, 0, 2, 1$.
+
+**Step 2 — Horner's rule:** hạ hệ số đầu xuống, rồi lặp "nhân với $a = 2$, cộng hệ số kế tiếp" (mod 5):
+
+| coefficient | 1 | 0 | 2 | 1 |
+|---|---|---|---|---|
+| running value | 1 | $1 \cdot 2 + 0 = 2$ | $2 \cdot 2 + 2 = 6 \equiv 1$ | $1 \cdot 2 + 1 = 3$ |
+
+**Step 3 — read off.** Số cuối là số dư $r = 3$; các số trước là thương $q(x) = x^2 + 2x + 1$.
+
+**Check:** $f(2) = 8 + 4 + 1 = 13 \equiv 3$ ✓. Và $(x - 2)(x^2 + 2x + 1) + 3 = x^3 - 3x + 1 \equiv x^3 + 2x + 1 \pmod 5$ ✓.
+
+</Example>
+
+**Aha:** theo Fermat, $a^p = a$ với **mọi** $a \in \mathbb{F}_p$, nên $x^p - x$ có đủ $p$ nghiệm — tối đa mà bậc $p$ cho phép. Theo factor theorem:
+$$x^p - x = x(x - 1)(x - 2)\cdots(x - (p-1)) \quad \text{trong } \mathbb{F}_p[x].$$
+Ví dụ $p = 3$: $x(x - 1)(x - 2) = x^3 - 3x^2 + 2x \equiv x^3 - x$. Một định lý số học trở thành một phép phân tích đa thức.
+
+<Pitfalls>
+
+- **Quên hệ số 0 trong Horner.** $x^3 + 2x + 1$ có hệ số $x^2$ là 0; bỏ sót nó làm sai cả bảng.
+- **Áp dụng "tối đa $d$ nghiệm" ngoài field.** Trong $\mathbb{Z}_n$ với $n$ hợp số, đa thức bậc 2 có thể có 4 nghiệm (hoặc hơn).
+- **Nhầm dấu của $a$.** Chia cho $x + 3$ nghĩa là $a = -3$, không phải $3$.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Chia đa thức: $f = qg + r$, $\deg r < \deg g$. Chia cho $x - a$: số dư là $f(a)$ — tính nhanh bằng Horner.
+- Factor theorem: $f(a) = 0 \iff (x - a) \mid f$.
+- Trong field, đa thức bậc $d$ khác 0 có tối đa $d$ nghiệm (cần "không có zero divisor").
+- $x^p - x = \prod_{a \in \mathbb{F}_p} (x - a)$.
+
+</Summary>

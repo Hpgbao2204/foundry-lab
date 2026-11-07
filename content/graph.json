@@ -62,5 +62,8 @@
   ],
   "math.prob.birthday": [
     "math.logic.proof-techniques"
+  ],
+  "math.linalg.systems-fp": [
+    "math.poly.lagrange-interpolation"
   ]
 }

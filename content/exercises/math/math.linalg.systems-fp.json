@@ -1,0 +1,139 @@
+[
+  {
+    "id": "math.linalg.systems-fp.solve-y",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Solve over $\\mathbb{F}_{7}$: $\\; 2x + 3y = 1$, $\\; 4x + 1y = 5$. Enter $y$.",
+    "answer": "5",
+    "modulus": 7,
+    "verify": { "fn": "solve2Mod", "args": [2, 3, 1, 4, 1, 5, 7, 1] },
+    "generator": "linear2",
+    "hints": [
+      "Khử $x$: lấy phương trình 2 trừ 2 lần phương trình 1.",
+      "Được $-5y \\equiv 3$, tức $2y \\equiv 3 \\pmod 7$.",
+      "$2^{-1} \\equiv 4 \\pmod 7$."
+    ],
+    "solution": "$2y \\equiv 3$ nên $y \\equiv 3 \\cdot 4 = 12 \\equiv 5$. Thế lại được $x = 0$."
+  },
+  {
+    "id": "math.linalg.systems-fp.det",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Compute $\\det \\begin{pmatrix} 2 & 3 \\\\ 4 & 1 \\end{pmatrix}$ over $\\mathbb{F}_7$.",
+    "answer": "4",
+    "modulus": 7,
+    "verify": { "fn": "det2Mod", "args": [2, 3, 4, 1, 7] },
+    "hints": [
+      "$\\det \\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix} = ad - bc$.",
+      "$2 \\cdot 1 - 3 \\cdot 4$.",
+      "$-10 \\bmod 7$."
+    ],
+    "solution": "$2 - 12 = -10 \\equiv 4 \\pmod 7$. Khác 0, nên hệ có nghiệm duy nhất."
+  },
+  {
+    "id": "math.linalg.systems-fp.solve-x",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Solve over $\\mathbb{F}_{5}$: $\\; x + 2y = 4$, $\\; 3x + 4y = 2$. Enter $x$.",
+    "answer": "4",
+    "modulus": 5,
+    "verify": { "fn": "solve2Mod", "args": [1, 2, 4, 3, 4, 2, 5, 0] },
+    "hints": [
+      "Khử $x$: phương trình 2 trừ 3 lần phương trình 1.",
+      "$(4 - 6)y = 2 - 12$, tức $-2y \\equiv -10$, hay $3y \\equiv 0 \\pmod 5$.",
+      "$3y \\equiv 0$ trong một field buộc $y = 0$. Thế vào phương trình 1."
+    ],
+    "solution": "$3y \\equiv 0 \\Rightarrow y = 0$, rồi $x = 4 - 2 \\cdot 0 = 4$. Check: $3 \\cdot 4 + 4 \\cdot 0 = 12 \\equiv 2$ ✓. (Định thức $4 - 6 = -2 \\equiv 3 \\neq 0$.)"
+  },
+  {
+    "id": "math.linalg.systems-fp.count-singular",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many pairs $(x, y) \\in \\mathbb{F}_7^2$ satisfy both $x + 2y = 3$ and $3x + 6y = 2$?",
+    "answer": "7",
+    "hints": [
+      "Phương trình 2 có phải bội của phương trình 1 không? So sánh cả vế phải.",
+      "$3 \\cdot 3 = 9 \\equiv 2 \\pmod 7$.",
+      "Vậy chỉ còn một phương trình $x + 2y = 3$. Mỗi $y$ cho bao nhiêu $x$?"
+    ],
+    "solution": "Phương trình 2 $= 3 \\times$ phương trình 1 (vì $9 \\equiv 2$). Còn lại $x = 3 - 2y$: mỗi $y \\in \\mathbb{F}_7$ cho đúng một $x$, tổng cộng **7** nghiệm."
+  },
+  {
+    "id": "math.linalg.systems-fp.vandermonde",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is the determinant of the Vandermonde matrix for nodes $x = 1, 2, 4$? (Over the integers.)",
+    "answer": "6",
+    "hints": [
+      "$\\det V = \\prod_{i<j}(x_j - x_i)$.",
+      "Các cặp: $(1,2), (1,4), (2,4)$.",
+      "$(2-1)(4-1)(4-2)$."
+    ],
+    "solution": "$(2 - 1)(4 - 1)(4 - 2) = 1 \\cdot 3 \\cdot 2 = 6$. Khác 0 trong $\\mathbb{F}_p$ với mọi $p > 3$; trong $\\mathbb{F}_2$ hay $\\mathbb{F}_3$ thì các nút không còn khác nhau ($4 \\equiv 2$ hoặc $4 \\equiv 1$)."
+  },
+  {
+    "id": "math.linalg.systems-fp.zero-one-p",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: a system of 2 linear equations in 2 unknowns over $\\mathbb{F}_p$ always has $0$, $1$, $p$ or $p^2$ solutions.",
+    "answer": true,
+    "reasons": [
+      "The solution set is empty or a shifted subspace of dimension 0, 1 or 2, which has $p^0$, $p^1$ or $p^2$ points.",
+      "It is false: over a field, singular systems have infinitely many solutions.",
+      "It is true only when $p = 2$.",
+      "It is false: there could be exactly 2 solutions."
+    ],
+    "reason": 0,
+    "hints": [
+      "Nếu $\\mathbf{x}_0$ là một nghiệm, mọi nghiệm khác có dạng $\\mathbf{x}_0 + \\mathbf{v}$ với $A\\mathbf{v} = \\mathbf{0}$.",
+      "Tập $\\{\\mathbf{v} : A\\mathbf{v} = \\mathbf{0}\\}$ là một không gian con có chiều $k \\in \\{0, 1, 2\\}$.",
+      "Không gian con chiều $k$ trên $\\mathbb{F}_p$ có bao nhiêu phần tử?"
+    ],
+    "solution": "**True.** Tập nghiệm (nếu khác rỗng) là $\\mathbf{x}_0 + \\ker A$, và $\\ker A$ có chiều $k \\in \\{0,1,2\\}$, nên có $p^k$ phần tử. Không thể có đúng 2 nghiệm (trừ khi $p = 2$, khi đó $p^1 = 2$). $p^2$ xảy ra khi $A = 0$ và $\\mathbf{b} = 0$."
+  },
+  {
+    "id": "math.linalg.systems-fp.which-c",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Over $\\mathbb{F}_5$, for which $c$ does the system $x + 2y = 1$, $2x + 4y = c$ have a solution?",
+    "options": ["$c = 2$ only", "every $c$", "no $c$", "$c = 0$ only"],
+    "answer": 0,
+    "hints": [
+      "Định thức $1 \\cdot 4 - 2 \\cdot 2 = 0$: hệ suy biến.",
+      "Phương trình 2 trừ 2 lần phương trình 1.",
+      "Được $0 = c - 2$."
+    ],
+    "solution": "Trừ 2 lần phương trình 1: $0 = c - 2$. Có nghiệm khi và chỉ khi $c = 2$ (khi đó có 5 nghiệm)."
+  },
+  {
+    "id": "math.linalg.systems-fp.plane",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "How many triples $(x, y, z) \\in \\mathbb{F}_5^3$ satisfy $x + y + z = 0$?",
+    "answer": "25",
+    "hints": [
+      "Một phương trình, ba ẩn: bao nhiêu ẩn tự do?",
+      "Chọn $x, y$ tùy ý; $z$ được xác định.",
+      "$5 \\cdot 5$."
+    ],
+    "solution": "$x, y$ tự do (5 cách mỗi cái), $z = -x - y$ xác định duy nhất: $5^2 = 25$ nghiệm — đúng dạng $p^k$ với $k = 2$."
+  },
+  {
+    "id": "math.linalg.systems-fp.vandermonde-proof",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Let $x_1, \\dots, x_n$ be distinct elements of a field, and $V$ the matrix with rows $(1, x_i, x_i^2, \\dots, x_i^{n-1})$. Prove that $V\\mathbf{c} = \\mathbf{0}$ implies $\\mathbf{c} = \\mathbf{0}$ (so $V$ is invertible).",
+    "rubric": [
+      "Interprets row $i$ of $V\\mathbf{c}$ as $f(x_i)$ for the polynomial $f(x) = c_0 + c_1 x + \\dots + c_{n-1}x^{n-1}$.",
+      "Concludes $f$ has the $n$ distinct roots $x_1, \\dots, x_n$.",
+      "Uses: a nonzero polynomial of degree $< n$ over a field has fewer than $n$ roots.",
+      "Concludes $f = 0$, i.e. $\\mathbf{c} = \\mathbf{0}$, so the kernel is trivial and $V$ is invertible."
+    ],
+    "hints": [
+      "Hàng thứ $i$ của $V\\mathbf{c}$ là $c_0 + c_1 x_i + \\dots$ — đó là giá trị của đa thức nào tại đâu?",
+      "$V\\mathbf{c} = \\mathbf{0}$ nói gì về số nghiệm của đa thức đó?",
+      "Lesson division & roots."
+    ],
+    "solution": "Đặt $f(x) = \\sum_k c_k x^k$, bậc $< n$. Hàng $i$ của $V\\mathbf{c}$ bằng $f(x_i)$, nên $V\\mathbf{c} = \\mathbf{0}$ nghĩa là $f$ có $n$ nghiệm phân biệt $x_1, \\dots, x_n$. Đa thức khác 0 bậc $< n$ có ít hơn $n$ nghiệm, nên $f = 0$, tức $\\mathbf{c} = \\mathbf{0}$. Ma trận vuông có kernel tầm thường thì khả nghịch. ∎"
+  }
+]

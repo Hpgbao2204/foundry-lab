@@ -1,0 +1,86 @@
+---
+id: math.linalg.systems-fp
+track: math
+chapter: linear-algebra
+title: "Linear systems over 𝔽ₚ — Gaussian elimination without fractions"
+minutes: 10
+prerequisites: [math.poly.lagrange-interpolation]
+researchBridge: "Giải hệ tuyến tính trên finite field có mặt khắp nơi: giải mã Reed–Solomon, tấn công các mã khóa dòng tuyến tính (LFSR) bằng cách giải hệ trên 𝔽₂, các ràng buộc R1CS trong zk-SNARK (mỗi ràng buộc là tích của hai tổ hợp tuyến tính), và mật mã hậu lượng tử dựa trên lattice (Kyber/ML-KEM) — nơi bài toán khó là giải hệ tuyến tính 'có nhiễu'."
+flashcards:
+  - front: "Gaussian elimination over 𝔽_p — what replaces division?"
+    back: "Multiplying by a modular inverse; every nonzero pivot has one because 𝔽_p is a field."
+  - front: "When does a square system Ax = b over a field have exactly one solution?"
+    back: "Exactly when det(A) ≠ 0."
+  - front: "Number of solutions of a linear system over 𝔽_p?"
+    back: "0 or p^k for some k ≥ 0 — never 'infinitely many', because 𝔽_p is finite."
+  - front: "Vandermonde determinant for nodes x₁, …, xₙ?"
+    back: "∏_{i<j} (x_j − x_i) — nonzero iff the nodes are distinct."
+  - front: "Link between interpolation and linear algebra?"
+    back: "Finding the coefficients of f through n points = solving V·c = y with the Vandermonde matrix V."
+---
+
+<Why>
+
+**Puzzle.** Lesson Lagrange interpolation dựng đa thức $f(x) = c_0 + c_1 x + c_2 x^2$ qua 3 điểm bằng một công thức khéo léo. Nhưng có cách "thô" hơn: viết ra ba phương trình
+$$
+f(1) = y_1, \quad f(2) = y_2, \quad f(3) = y_3,
+$$
+mỗi phương trình **tuyến tính** theo $c_0, c_1, c_2$, rồi giải hệ như ở lớp 9. Liệu cách này có luôn chạy được trong $\mathbb{F}_p$, nơi không có phân số? Và vì sao hai cách luôn cho cùng kết quả?
+
+Lesson này đưa phương pháp khử Gauss quen thuộc vào finite field, và cho thấy nó gắn với mọi thứ ta đã học: field (để chia được), số nghiệm của đa thức, và interpolation.
+
+</Why>
+
+<Intuition>
+
+Khử Gauss chỉ dùng ba thao tác: đổi chỗ hai phương trình, nhân một phương trình với số khác 0, cộng bội của phương trình này vào phương trình kia. Mọi thao tác chỉ cần **cộng, trừ, nhân, và chia cho số khác 0** — đúng bốn phép mà một field cho phép. Vậy khử Gauss chạy nguyên vẹn trong $\mathbb{F}_p$; "chia cho 3" chỉ là "nhân với $3^{-1}$".
+
+Thậm chí còn dễ chịu hơn số thực: **không có làm tròn**. Mọi số luôn là số nguyên trong $\{0, \dots, p-1\}$, kết quả chính xác tuyệt đối. (Trong $\mathbb{Z}_n$ với $n$ hợp số thì khác: chia cho một zero divisor là không thể — khử Gauss có thể kẹt.)
+
+</Intuition>
+
+<Theorem title="Square systems over a field">
+
+For an $n \times n$ matrix $A$ over a field $F$, the system $A\mathbf{x} = \mathbf{b}$ has exactly one solution for every $\mathbf{b}$ if and only if $\det A \neq 0$. If $\det A = 0$, it has either no solution or many; over $\mathbb{F}_p$ the number of solutions is then $0$ or $p^k$ with $k \ge 1$.
+
+</Theorem>
+
+<Example title="a 2×2 system over 𝔽₇">
+
+Giải $\;2x + 3y = 1,\; 4x + y = 5\;$ trong $\mathbb{F}_7$.
+
+**Step 1 — eliminate $x$.** Lấy phương trình 2 trừ **2 lần** phương trình 1: $(4 - 4)x + (1 - 6)y = 5 - 2$, tức $-5y = 3$, hay $2y \equiv 3 \pmod 7$.
+
+**Step 2 — divide = multiply by the inverse.** $2^{-1} = 4$ trong $\mathbb{F}_7$ (vì $2 \cdot 4 = 8 \equiv 1$). Vậy $y = 3 \cdot 4 = 12 \equiv 5$.
+
+**Step 3 — back-substitute.** $2x = 1 - 3 \cdot 5 = -14 \equiv 0$, nên $x = 0$.
+
+**Check:** $2 \cdot 0 + 3 \cdot 5 = 15 \equiv 1$ ✓, $4 \cdot 0 + 5 = 5$ ✓. Định thức $2 \cdot 1 - 3 \cdot 4 = -10 \equiv 4 \neq 0$ — đúng là nghiệm duy nhất.
+
+**Step 4 — a singular system.** $x + 2y = 3,\; 3x + 6y = c$. Định thức $6 - 6 = 0$. Phương trình 2 trừ 3 lần phương trình 1 cho $0 = c - 9$. Nếu $c \equiv 2$ (vì $9 \equiv 2$): phương trình 2 là bản sao của phương trình 1, mỗi $y \in \mathbb{F}_7$ cho một $x$ — **đúng 7 nghiệm**. Nếu $c \not\equiv 2$: **vô nghiệm**.
+
+</Example>
+
+**Aha — Vandermonde.** Hệ tìm $c_0, c_1, c_2$ qua các điểm $x = 1, 2, 3$ có ma trận
+$$
+V = \begin{pmatrix} 1 & 1 & 1 \\ 1 & 2 & 4 \\ 1 & 3 & 9 \end{pmatrix}, \qquad \det V = (2-1)(3-1)(3-2) = 2.
+$$
+Tổng quát, $\det V = \prod_{i<j}(x_j - x_i)$, khác 0 khi và chỉ khi các $x_i$ khác nhau — đúng điều kiện của Lagrange. Ngược lại, "$V$ khả nghịch" chính là "đa thức bậc $< n$ khác 0 không thể có $n$ nghiệm": nếu $V\mathbf{c} = \mathbf{0}$ thì đa thức với hệ số $\mathbf{c}$ có $n$ nghiệm $x_1, \dots, x_n$, nên $\mathbf{c} = \mathbf{0}$. Ba lesson, một sự thật.
+
+<Pitfalls>
+
+- **Chia kiểu số thực.** $-5y = 3$ không cho $y = -0.6$; trong $\mathbb{F}_7$, $-5 \equiv 2$ và $y = 3 \cdot 2^{-1}$.
+- **Khử Gauss trong $\mathbb{Z}_n$ hợp số.** Pivot có thể là zero divisor (ví dụ 2 trong $\mathbb{Z}_6$), không có nghịch đảo. Kết quả lý thuyết ở trên chỉ đúng cho field.
+- **Nói "vô số nghiệm".** Trong $\mathbb{F}_p$ không có vô số — có đúng $p^k$ nghiệm. Đếm được, và đôi khi đếm chính là câu hỏi.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Khử Gauss chạy nguyên vẹn trong mọi field; chia = nhân nghịch đảo, không làm tròn.
+- Hệ vuông có nghiệm duy nhất $\iff \det A \neq 0$; nếu không, có $0$ hoặc $p^k$ nghiệm trong $\mathbb{F}_p$.
+- Interpolation = giải hệ Vandermonde; $\det V = \prod_{i<j}(x_j - x_i) \neq 0$ khi các nút khác nhau.
+
+</Summary>

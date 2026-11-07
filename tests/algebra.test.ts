@@ -167,3 +167,21 @@ describe('scalar multiplication lesson', () => {
     expect(years).toBeLessThan(1.2e13);
   });
 });
+
+describe('linear systems lesson', () => {
+  const det3 = (m: number[][]) =>
+    m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) -
+    m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +
+    m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
+  it('worked examples over F_7 and F_5', () => {
+    expect([(2 * 0 + 3 * 5) % 7, (4 * 0 + 5) % 7]).toEqual([1, 5]);
+    expect([(4 + 2 * 0) % 5, (3 * 4 + 4 * 0) % 5]).toEqual([4, 2]);
+    let n = 0;
+    for (let x = 0; x < 7; x++) for (let y = 0; y < 7; y++) if ((x + 2 * y) % 7 === 3 && (3 * x + 6 * y) % 7 === 2) n++;
+    expect(n).toBe(7);
+  });
+  it('Vandermonde determinants: nodes 1,2,3 → 2; nodes 1,2,4 → 6', () => {
+    expect(det3([[1, 1, 1], [1, 2, 4], [1, 3, 9]])).toBe(2);
+    expect(det3([[1, 1, 1], [1, 2, 4], [1, 4, 16]])).toBe(6);
+  });
+});

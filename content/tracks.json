@@ -55,6 +55,13 @@
         "lessons": [
           "math.prob.birthday"
         ]
+      },
+      {
+        "id": "linear-algebra",
+        "title": "Linear algebra",
+        "lessons": [
+          "math.linalg.systems-fp"
+        ]
       }
     ]
   },

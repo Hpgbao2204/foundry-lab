@@ -149,6 +149,15 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
   },
   /** p^k */
   pow: (p, k) => p ** k,
+  /** det [[a, b], [c, d]] mod p */
+  det2Mod: (a, b, c, d, p) => mod(B(a * d - b * c), B(p)),
+  /** solve a x + b y = e, c x + d y = f over F_p (det ≠ 0); which = 0 → x, 1 → y */
+  solve2Mod: (a, b, e, c, d, f, p, which) => {
+    const P = B(p);
+    const inv = modInverse(mod(B(a * d - b * c), P), P);
+    if (inv === null) return null;
+    return which === 0 ? mod(B(e * d - b * f) * inv, P) : mod(B(a * f - e * c) * inv, P);
+  },
   /** x (resp. y) of P + Q on y² = x³ + a x + b over F_p; null if P + Q = O */
   ecAddX: (a, p, x1, y1, x2, y2) => addMod(a, p, [x1!, y1!], [x2!, y2!])?.[0] ?? null,
   ecAddY: (a, p, x1, y1, x2, y2) => addMod(a, p, [x1!, y1!], [x2!, y2!])?.[1] ?? null,

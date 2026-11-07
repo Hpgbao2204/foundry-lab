@@ -50,6 +50,31 @@ export function polyTex(coeffs: number[]): string {
 }
 
 export const GENERATORS: Record<string, Gen> = {
+  linear2: (rng) => {
+    const p = pick(rng, [5, 7, 11, 13]);
+    let a: number, b: number, c: number, d: number, det: number;
+    do {
+      [a, b, c, d] = [int(rng, 1, p - 1), int(rng, 1, p - 1), int(rng, 1, p - 1), int(rng, 1, p - 1)];
+      det = (((a * d - b * c) % p) + p) % p;
+    } while (det === 0);
+    const x = int(rng, 0, p - 1), y = int(rng, 0, p - 1);
+    const e = (a * x + b * y) % p, f = (c * x + d * y) % p;
+    const m = Number(mod(BigInt(c) * modInverse(BigInt(a), BigInt(p))!, BigInt(p))); // R2 − m·R1
+    const d2 = (((d - m * b) % p) + p) % p, f2 = (((f - m * e) % p) + p) % p;
+    return {
+      prompt: `Solve over $\\mathbb{F}_{${p}}$: $\\; ${a}x + ${b}y = ${e}$, $\\; ${c}x + ${d}y = ${f}$. Enter $y$.`,
+      answer: String(y),
+      modulus: p,
+      hints: [
+        `Khử $x$: lấy phương trình 2 trừ $m$ lần phương trình 1, với $m = ${c} \\cdot ${a}^{-1} \\bmod ${p}$.`,
+        `$m = ${m}$. Phương trình mới chỉ còn $y$: hệ số $${d} - ${m} \\cdot ${b}$, vế phải $${f} - ${m} \\cdot ${e}$ (mod ${p}).`,
+        `Được $${d2} y \\equiv ${f2} \\pmod{${p}}$. Nhân hai vế với $${d2}^{-1}$.`,
+      ],
+      solution: `$${d2}y \\equiv ${f2}$ nên $y \\equiv ${y}$. Thế lại: $${a}x \\equiv ${e} - ${b} \\cdot ${y}$, được $x = ${x}$. Check: $${a} \\cdot ${x} + ${b} \\cdot ${y} = ${a * x + b * y} \\equiv ${e}$ và $${c} \\cdot ${x} + ${d} \\cdot ${y} = ${c * x + d * y} \\equiv ${f} \\pmod{${p}}$ ✓.`,
+      verify: { fn: 'solve2Mod', args: [a, b, e, c, d, f, p, 1] },
+    };
+  },
+
   ecAdd: (rng) => {
     let p: number, a: number, b: number, pts: [number, number][];
     do {

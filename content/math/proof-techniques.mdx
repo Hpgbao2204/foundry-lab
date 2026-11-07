@@ -1,0 +1,143 @@
+---
+id: math.logic.proof-techniques
+track: math
+chapter: logic
+title: "Logic & proof techniques — propositions, quantifiers, proofs"
+minutes: 10
+prerequisites: []
+researchBridge: "Mọi security proof (IND-CPA, soundness của Schnorr, PLONK) đều là phản đảo: “nếu phá được scheme thì giải được bài toán khó”. Đọc theorem trong paper là đọc implication và quantifier."
+flashcards:
+  - front: "When is P ⇒ Q false?"
+    back: "Only when P is true and Q is false."
+  - front: "Contrapositive of P ⇒ Q? Is it equivalent?"
+    back: "¬Q ⇒ ¬P. Always equivalent to P ⇒ Q."
+  - front: "Is the converse Q ⇒ P equivalent to P ⇒ Q?"
+    back: "No. Q ⇒ P is a different statement and can be false."
+  - front: "Negation of ∀x ∃y: P(x, y)?"
+    back: "∃x ∀y: ¬P(x, y)."
+  - front: "Induction: which two parts must you prove?"
+    back: "Base case P(n₀), and inductive step P(k) ⇒ P(k+1) for every k ≥ n₀."
+  - front: "What do you need to disprove a “for all x” statement?"
+    back: "One counterexample is enough."
+---
+
+<Why>
+
+Khi đọc một paper crypto, phần khó nhất thường không phải công thức mà là **cấu trúc logic** của theorem: cái gì là giả thiết, cái gì là kết luận, "for all adversaries" đứng ở đâu. Một <Term en="security reduction">security reduction</Term> thực chất là một phép chứng minh bằng phản đảo. Lesson này cho bạn bộ công cụ để đọc và viết những câu đó.
+
+</Why>
+
+<Intuition>
+
+Một <Term en="proposition">proposition</Term> là câu có giá trị đúng/sai. "7 là số nguyên tố" là mệnh đề (đúng). "x > 3" chưa phải mệnh đề vì còn phụ thuộc x.
+
+**Implication.** <Term en="implication">Implication</Term> $P \Rightarrow Q$ giống một lời hứa: "Nếu trời mưa thì tôi mang ô". Lời hứa chỉ bị phá khi trời mưa **mà** tôi không mang ô. Trời không mưa thì tôi làm gì cũng không phá lời hứa.
+
+| $P$ | $Q$ | $P \Rightarrow Q$ |
+|---|---|---|
+| T | T | T |
+| T | F | **F** |
+| F | T | T |
+| F | F | T |
+
+**Contrapositive vs converse.** Từ "Nếu $n$ chia hết cho 4 thì $n$ chẵn":
+- <Term en="contrapositive">Contrapositive</Term>: "Nếu $n$ lẻ thì $n$ không chia hết cho 4" — **đúng**, luôn tương đương.
+- <Term en="converse">Converse</Term>: "Nếu $n$ chẵn thì $n$ chia hết cho 4" — **sai** ($n = 6$).
+
+**Quantifiers.** <Term en="quantifier">Quantifier</Term> $\forall$ (với mọi) và $\exists$ (tồn tại). Thứ tự rất quan trọng:
+- $\forall x \, \exists y: y > x$ — với mỗi số, có số lớn hơn nó. **Đúng.**
+- $\exists y \, \forall x: y > x$ — có một số lớn hơn mọi số. **Sai.**
+
+Trong crypto: "for every PPT adversary $\mathcal{A}$, there exists a negligible function $\varepsilon$..." — đổi thứ tự là đổi nghĩa.
+
+</Intuition>
+
+<Definition title="Negation of quantifiers">
+
+For any predicate $P$:
+
+$$
+\neg\big(\forall x : P(x)\big) \;\equiv\; \exists x : \neg P(x),
+\qquad
+\neg\big(\exists x : P(x)\big) \;\equiv\; \forall x : \neg P(x).
+$$
+
+</Definition>
+
+Nói đơn giản: phủ định thì **đổi** $\forall \leftrightarrow \exists$ và đẩy dấu $\neg$ vào trong. Ví dụ: phủ định của "mọi adversary đều thắng với xác suất nhỏ" là "**có một** adversary thắng với xác suất không nhỏ".
+
+<Theorem title="Contrapositive">
+
+$(P \Rightarrow Q) \equiv (\neg Q \Rightarrow \neg P)$.
+
+</Theorem>
+
+<Proof>
+
+Cả hai vế chỉ sai trong đúng một trường hợp: $P$ đúng và $Q$ sai. (Vế phải sai khi $\neg Q$ đúng và $\neg P$ sai, tức là $Q$ sai và $P$ đúng.) Hai mệnh đề có cùng bảng chân trị nên tương đương.
+
+</Proof>
+
+### Five proof techniques
+
+1. **Direct proof.** Giả sử $P$, biến đổi từng bước tới $Q$.
+2. **Contrapositive.** Muốn chứng minh $P \Rightarrow Q$, chứng minh $\neg Q \Rightarrow \neg P$. Dùng khi $\neg Q$ cho bạn nhiều thông tin hơn $P$.
+3. <Term en="proof by contradiction">Proof by contradiction</Term>. Giả sử điều cần chứng minh **sai**, suy ra điều vô lý.
+4. <Term en="induction">Induction</Term>. Cho mệnh đề về mọi số tự nhiên $n \ge n_0$: chứng minh base case $P(n_0)$, rồi chứng minh $P(k) \Rightarrow P(k+1)$.
+5. <Term en="counterexample">Counterexample</Term>. Để **bác bỏ** "với mọi $x$, $P(x)$", chỉ cần một $x$ làm $P(x)$ sai.
+
+<Example title="contrapositive">
+
+**Claim.** For every integer $n$: if $n^2$ is even, then $n$ is even.
+
+Chứng minh trực tiếp khó, vì "$n^2$ chẵn" không cho ta dạng của $n$. Dùng phản đảo: **nếu $n$ lẻ thì $n^2$ lẻ**.
+
+1. Giả sử $n$ lẻ, tức là $n = 2k + 1$ với $k$ nguyên. *(Viết định nghĩa "lẻ" ra dạng phương trình — luôn là bước đầu tốt.)*
+2. $n^2 = 4k^2 + 4k + 1 = 2(2k^2 + 2k) + 1$. *(Khai triển, rồi gom thành dạng $2m + 1$.)*
+3. Đặt $m = 2k^2 + 2k$ là số nguyên, nên $n^2 = 2m + 1$ là số lẻ. *(Khớp đúng định nghĩa "lẻ".)*
+
+Vậy $\neg(n \text{ chẵn}) \Rightarrow \neg(n^2 \text{ chẵn})$, theo phản đảo ta có điều cần chứng minh.
+
+</Example>
+
+<Example title="induction">
+
+**Claim.** For all $n \ge 1$: $\;1 + 2 + \dots + n = \dfrac{n(n+1)}{2}$.
+
+1. **Base case** $n = 1$: vế trái $= 1$, vế phải $= \frac{1 \cdot 2}{2} = 1$. Đúng.
+2. **Inductive hypothesis**: giả sử đúng với $n = k$, tức là $1 + \dots + k = \frac{k(k+1)}{2}$.
+3. **Inductive step**: xét $n = k + 1$.
+$$
+1 + \dots + k + (k+1) = \frac{k(k+1)}{2} + (k+1) = \frac{(k+1)(k+2)}{2}.
+$$
+*(Dùng giả thiết quy nạp cho phần $1 + \dots + k$, rồi đặt nhân tử chung $(k+1)$.)*
+4. Đây đúng là công thức với $n = k + 1$. Theo nguyên lý quy nạp, công thức đúng với mọi $n \ge 1$.
+
+</Example>
+
+<Example title="counterexample">
+
+**Claim (sai).** "Nếu $p$ nguyên tố thì $2^p - 1$ nguyên tố."
+
+Try: $p = 2, 3, 5, 7$ cho $3, 7, 31, 127$ — đều nguyên tố. Nhưng $p = 11$: $2^{11} - 1 = 2047 = 23 \cdot 89$. Một phản ví dụ là đủ để bác bỏ. Lesson: **checking a few small cases is not a proof.**
+
+</Example>
+
+<Pitfalls>
+
+- **Proving the converse by mistake.** Đề bảo chứng minh $P \Rightarrow Q$, bạn lại bắt đầu từ $Q$ và đi tới $P$. Đó là converse, không phải điều cần chứng minh.
+- **Negating quantifiers wrongly.** Phủ định của "mọi số nguyên tố đều lẻ" là "**có** một số nguyên tố chẵn" (đúng: 2), **không phải** "mọi số nguyên tố đều chẵn".
+- **Induction without a base case**, hoặc inductive step không thực sự dùng giả thiết $P(k)$. Thiếu base case thì "chứng minh" được cả những điều sai, ví dụ "$n = n + 1$ với mọi $n$".
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- $P \Rightarrow Q$ chỉ sai khi $P$ đúng, $Q$ sai. Phản đảo $\neg Q \Rightarrow \neg P$ tương đương; mệnh đề đảo $Q \Rightarrow P$ thì không.
+- Phủ định: đổi $\forall \leftrightarrow \exists$, đẩy $\neg$ vào trong. Thứ tự lượng từ quyết định nghĩa.
+- 5 kỹ thuật: direct, contrapositive, contradiction, induction, counterexample.
+- Security reduction = chứng minh bằng phản đảo: "scheme bị phá ⇒ bài toán khó bị giải".
+
+</Summary>

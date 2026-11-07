@@ -1,0 +1,190 @@
+[
+  {
+    "id": "math.logic.proof-techniques.implication-row",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Which row makes $P \\Rightarrow Q$ **false**?",
+    "options": ["$P$ = T, $Q$ = T", "$P$ = T, $Q$ = F", "$P$ = F, $Q$ = T", "$P$ = F, $Q$ = F"],
+    "answer": 1,
+    "hints": [
+      "Nghĩ tới implication như một lời hứa: khi nào lời hứa bị phá?",
+      "\"Nếu trời mưa thì tôi mang ô\" — chỉ sai khi điều kiện xảy ra mà kết quả không xảy ra.",
+      "Nếu $P$ sai thì lời hứa không bị phá dù $Q$ thế nào. Vậy chỉ cần xét các dòng có $P$ = T."
+    ],
+    "solution": "$P \\Rightarrow Q$ chỉ sai khi $P$ đúng và $Q$ sai, tức dòng $P$ = T, $Q$ = F. Hai dòng $P$ = F đều cho T (vacuously true)."
+  },
+  {
+    "id": "math.logic.proof-techniques.contrapositive-6",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "What is the **contrapositive** of: “If $n$ is divisible by 6, then $n$ is even.”?",
+    "options": [
+      "If $n$ is even, then $n$ is divisible by 6.",
+      "If $n$ is odd, then $n$ is not divisible by 6.",
+      "If $n$ is not divisible by 6, then $n$ is odd.",
+      "$n$ is divisible by 6 and $n$ is odd."
+    ],
+    "answer": 1,
+    "hints": [
+      "Contrapositive của $P \\Rightarrow Q$ có dạng $\\neg Q \\Rightarrow \\neg P$.",
+      "Ở đây $P$ = \"$n$ chia hết cho 6\", $Q$ = \"$n$ chẵn\". Phủ định cả hai và đổi chiều.",
+      "$\\neg Q$ = \"$n$ lẻ\". Câu nào bắt đầu bằng \"If $n$ is odd\"?"
+    ],
+    "solution": "$\\neg Q \\Rightarrow \\neg P$: \"If $n$ is odd, then $n$ is not divisible by 6.\" Đáp án 1 là converse ($Q \\Rightarrow P$, sai: $n=4$), đáp án 3 là inverse ($\\neg P \\Rightarrow \\neg Q$, cũng sai), đáp án 4 là phủ định của mệnh đề gốc."
+  },
+  {
+    "id": "math.logic.proof-techniques.negate-quantifiers",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Negate: $\\forall x \\in \\mathbb{Z} \\; \\exists y \\in \\mathbb{Z} : x + y = 0$.",
+    "options": [
+      "$\\forall x \\; \\exists y : x + y \\neq 0$",
+      "$\\exists x \\; \\forall y : x + y \\neq 0$",
+      "$\\exists x \\; \\exists y : x + y \\neq 0$",
+      "$\\forall x \\; \\forall y : x + y \\neq 0$"
+    ],
+    "answer": 1,
+    "hints": [
+      "Phủ định thì đổi $\\forall \\leftrightarrow \\exists$ và đẩy $\\neg$ vào trong.",
+      "Làm từng lượng từ từ trái sang phải: $\\neg \\forall x \\ldots = \\exists x \\, \\neg \\ldots$",
+      "$\\neg(\\exists y : x + y = 0) = \\forall y : x + y \\neq 0$."
+    ],
+    "solution": "$\\neg \\forall x \\exists y \\, (x+y=0) \\equiv \\exists x \\, \\neg \\exists y \\, (x+y=0) \\equiv \\exists x \\forall y \\, (x + y \\neq 0)$. (Mệnh đề gốc đúng với $y = -x$, nên phủ định của nó sai.)"
+  },
+  {
+    "id": "math.logic.proof-techniques.sum-100",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Use the formula proved by induction to compute $1 + 2 + \\dots + 100$.",
+    "answer": "5050",
+    "verify": { "fn": "sumTo", "args": [100] },
+    "hints": [
+      "Không cộng tay — dùng công thức đã chứng minh trong worked example.",
+      "$1 + \\dots + n = \\dfrac{n(n+1)}{2}$.",
+      "Thay $n = 100$: $\\dfrac{100 \\cdot 101}{2}$."
+    ],
+    "solution": "$\\dfrac{100 \\cdot 101}{2} = \\dfrac{10100}{2} = 5050$."
+  },
+  {
+    "id": "math.logic.proof-techniques.mersenne",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Find the **smallest prime** $p$ such that $2^p - 1$ is **not** prime.",
+    "answer": "11",
+    "verify": { "fn": "minCompositeMersenneExponent", "args": [] },
+    "hints": [
+      "Đây là đi tìm counterexample cho claim \"$p$ nguyên tố ⇒ $2^p - 1$ nguyên tố\".",
+      "Thử lần lượt $p = 2, 3, 5, 7, 11, \\dots$ và kiểm tra $2^p - 1$ có ước nhỏ không.",
+      "$2^2-1=3$, $2^3-1=7$, $2^5-1=31$, $2^7-1=127$ đều nguyên tố. Thử $p = 11$: $2047$ chia hết cho 23?"
+    ],
+    "solution": "$p = 2, 3, 5, 7$ cho $3, 7, 31, 127$ (nguyên tố). $p = 11$: $2^{11} - 1 = 2047 = 23 \\cdot 89$. Vậy $p = 11$."
+  },
+  {
+    "id": "math.logic.proof-techniques.vacuous",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: “If $P$ is false, then $P \\Rightarrow Q$ is true, no matter what $Q$ is.”",
+    "answer": true,
+    "reasons": [
+      "An implication only fails when the premise is true and the conclusion is false.",
+      "Because then $Q$ must also be false.",
+      "Because $P \\Rightarrow Q$ is equivalent to $\\neg P \\Rightarrow \\neg Q$.",
+      "It is false: $P \\Rightarrow Q$ needs $Q$ to be true."
+    ],
+    "reason": 0,
+    "hints": [
+      "Nhìn lại truth table của $P \\Rightarrow Q$, hai dòng có $P$ = F.",
+      "Lời hứa \"nếu mưa thì mang ô\" có bị phá khi trời không mưa không?",
+      "Lý do 3 sai vì $\\neg P \\Rightarrow \\neg Q$ là inverse, không tương đương với mệnh đề gốc."
+    ],
+    "solution": "**True.** $P \\Rightarrow Q$ chỉ sai ở dòng $P$ = T, $Q$ = F. Khi $P$ sai, implication đúng (\"vacuously true\"). Trong crypto: \"nếu adversary phá được scheme thì ...\" vẫn đúng khi không có adversary nào phá được."
+  },
+  {
+    "id": "math.logic.proof-techniques.euler-poly",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "Claim: “$n^2 + n + 41$ is prime for every integer $n \\ge 0$.” It holds for $n = 0, 1, \\dots$ for a long time. Find the **smallest** $n \\ge 0$ that is a counterexample.",
+    "answer": "40",
+    "verify": { "fn": "eulerPolyFirstComposite", "args": [] },
+    "hints": [
+      "Không cần thử từng số: tìm $n$ làm biểu thức có một ước hiển nhiên.",
+      "Thử chọn $n$ sao cho mọi số hạng đều chia hết cho 41.",
+      "Với $n = 40$: $n^2 + n = n(n+1) = 40 \\cdot 41$."
+    ],
+    "solution": "Với $n = 40$: $40^2 + 40 + 41 = 40 \\cdot 41 + 41 = 41 \\cdot 41 = 1681$, không nguyên tố. Với mọi $0 \\le n \\le 39$ biểu thức đều nguyên tố (kiểm bằng code). Bài học: 40 trường hợp đúng vẫn không phải chứng minh."
+  },
+  {
+    "id": "math.logic.proof-techniques.odd-squares-order",
+    "level": "B",
+    "type": "proof-order",
+    "prompt": "Order the steps of an induction proof of: for all $n \\ge 1$, $\\; 1 + 3 + 5 + \\dots + (2n - 1) = n^2$.",
+    "steps": [
+      "**Base case** $n = 1$: the left side is $1$ and the right side is $1^2 = 1$.",
+      "**Inductive hypothesis:** assume $1 + 3 + \\dots + (2k - 1) = k^2$ for some $k \\ge 1$.",
+      "**Inductive step:** add the next odd number $2(k+1) - 1 = 2k + 1$ to both sides.",
+      "Then $1 + \\dots + (2k-1) + (2k+1) = k^2 + 2k + 1$.",
+      "And $k^2 + 2k + 1 = (k+1)^2$, which is the claim for $n = k + 1$.",
+      "By the principle of induction, the claim holds for all $n \\ge 1$."
+    ],
+    "hints": [
+      "Mọi chứng minh quy nạp có khung: base case → giả thiết → bước $k \\to k+1$ → kết luận.",
+      "Bước $k \\to k+1$ luôn bắt đầu bằng việc dùng giả thiết quy nạp cho phần đầu tổng.",
+      "Bước đầu tiên là kiểm tra $n = 1$; bước cuối là câu \"By the principle of induction\"."
+    ],
+    "solution": "Base case → inductive hypothesis → cộng số lẻ kế tiếp $2k+1$ → được $k^2 + 2k + 1$ → nhận ra $(k+1)^2$ → kết luận bằng nguyên lý quy nạp."
+  },
+  {
+    "id": "math.logic.proof-techniques.contrapositive-fill",
+    "level": "B",
+    "type": "step-fill",
+    "prompt": "Prove by **contrapositive**: if $3n + 2$ is odd, then $n$ is odd. Fill in the blanks.",
+    "template": [
+      "Contrapositive: if $n$ is even, then $3n + 2$ is {{even}}.",
+      "Assume $n$ is even, so $n = $ {{2k|2*k}} for some integer $k$.",
+      "Then $3n + 2 = $ {{6}} $k + 2 = 2($ {{3}} $k + $ {{1}} $)$.",
+      "So $3n + 2$ is a multiple of 2, i.e. even. This proves the contrapositive, hence the claim."
+    ],
+    "hints": [
+      "Contrapositive của \"$3n+2$ lẻ ⇒ $n$ lẻ\" là \"$n$ chẵn ⇒ $3n+2$ chẵn\".",
+      "Viết định nghĩa \"chẵn\" thành phương trình: $n = 2k$.",
+      "Thay vào: $3 \\cdot 2k + 2 = 6k + 2$, rồi đặt nhân tử chung 2."
+    ],
+    "solution": "Contrapositive: $n$ chẵn ⇒ $3n+2$ chẵn. Giả sử $n = 2k$. Khi đó $3n + 2 = 6k + 2 = 2(3k + 1)$, là số chẵn. Vì contrapositive đúng nên mệnh đề gốc đúng."
+  },
+  {
+    "id": "math.logic.proof-techniques.n2-plus-n",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove: for every integer $n$, the number $n^2 + n$ is even.",
+    "rubric": [
+      "Rewrites $n^2 + n = n(n+1)$, **or** splits into the cases $n$ even / $n$ odd.",
+      "Explains why one of $n$, $n+1$ is even (consecutive integers), or handles **both** cases.",
+      "Writes the even case with an explicit form like $2m$ ($m$ an integer).",
+      "Concludes clearly that $n^2 + n$ is even for **every** integer $n$ (including negatives)."
+    ],
+    "hints": [
+      "Muốn chứng minh \"chẵn\" thì cần viết ra dạng $2m$ với $m$ nguyên.",
+      "Đặt nhân tử chung: $n^2 + n = n(n+1)$ — tích của hai số nguyên liên tiếp. Hoặc chia hai trường hợp.",
+      "Case $n = 2k$: $n(n+1) = 2k(2k+1) = 2 \\cdot [k(2k+1)]$. Còn case $n = 2k+1$?"
+    ],
+    "solution": "$n^2 + n = n(n+1)$. **Case 1:** $n = 2k$, thì $n(n+1) = 2\\,[k(2k+1)]$. **Case 2:** $n = 2k + 1$, thì $n + 1 = 2(k+1)$ và $n(n+1) = 2\\,[(2k+1)(k+1)]$. Trong cả hai trường hợp $n^2 + n = 2m$ với $m$ nguyên, nên luôn chẵn. (Hai case phủ mọi số nguyên, kể cả số âm.) ∎"
+  },
+  {
+    "id": "math.logic.proof-techniques.sqrt2",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove by **contradiction** that $\\sqrt{2}$ is irrational. You may use: if $n^2$ is even then $n$ is even (proved in the lesson).",
+    "rubric": [
+      "Assumes the opposite: $\\sqrt{2} = a/b$ with integers $a, b$, $b \\neq 0$, and the fraction in **lowest terms** ($\\gcd(a, b) = 1$).",
+      "Derives $a^2 = 2b^2$, so $a^2$ is even, so $a$ is even (cites the lemma).",
+      "Writes $a = 2c$ and gets $b^2 = 2c^2$, so $b$ is even too.",
+      "Points out the contradiction: $a$ and $b$ both even contradicts lowest terms. Concludes $\\sqrt 2$ is irrational."
+    ],
+    "hints": [
+      "Phản chứng: giả sử $\\sqrt 2$ hữu tỉ, rồi tìm điều vô lý.",
+      "Viết $\\sqrt 2 = a/b$ ở dạng **tối giản**. Bình phương hai vế.",
+      "$a^2 = 2b^2$ ⇒ $a$ chẵn ⇒ $a = 2c$ ⇒ $4c^2 = 2b^2$ ⇒ ... ?"
+    ],
+    "solution": "Giả sử $\\sqrt 2 = a/b$ với $a, b$ nguyên, $b \\neq 0$, $\\gcd(a,b) = 1$. Bình phương: $a^2 = 2b^2$, nên $a^2$ chẵn, theo lemma $a$ chẵn: $a = 2c$. Khi đó $4c^2 = 2b^2$, tức $b^2 = 2c^2$, nên $b$ cũng chẵn. Vậy 2 là ước chung của $a$ và $b$, mâu thuẫn với $\\gcd(a, b) = 1$. Do đó $\\sqrt 2$ là số vô tỉ. ∎"
+  }
+]

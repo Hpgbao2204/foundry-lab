@@ -1,0 +1,151 @@
+---
+id: math.nt.gcd-euclid
+track: math
+chapter: number-theory
+title: "gcd & Extended Euclid"
+minutes: 9
+prerequisites: [math.logic.proof-techniques]
+researchBridge: "Extended Euclid là cách tính nghịch đảo trong F_p (mọi phép chia trong circuit Groth16/PLONK), và tính private key RSA d = e⁻¹ mod φ(n)."
+flashcards:
+  - front: "What does a | b mean?"
+    back: "There is an integer k with b = k·a."
+  - front: "The main step of the Euclidean algorithm?"
+    back: "gcd(a, b) = gcd(b, a mod b); stop when the second number is 0: gcd(a, 0) = a."
+  - front: "State Bézout's identity."
+    back: "For integers a, b (not both 0) there exist integers x, y with a·x + b·y = gcd(a, b)."
+  - front: "What does Extended Euclid return?"
+    back: "A triple (g, x, y) with g = gcd(a, b) and a·x + b·y = g."
+  - front: "How many steps does Euclid take?"
+    back: "O(log min(a, b)) — fast even for 256-bit numbers."
+---
+
+<Why>
+
+Trong crypto, ta liên tục cần **chia** trong thế giới modulo: tính $3^{-1} \bmod 7$, tính $d = e^{-1} \bmod \varphi(n)$ cho RSA, hay chia hai field element trong một circuit. Không có phép chia "thường" ở đó. Công cụ để làm việc này là <Term en="Extended Euclidean algorithm">Extended Euclid</Term>. Lesson sau (modular arithmetic) dùng nó liên tục.
+
+</Why>
+
+<Intuition>
+
+**Divisibility.** Ta viết $a \mid b$ (đọc: "$a$ chia hết $b$", hay "$a$ là ước của $b$") nếu $b = k \cdot a$ với $k$ nguyên. Ví dụ $3 \mid 12$, nhưng $5 \nmid 12$.
+
+**Euclid's idea.** Muốn tìm <Term en="gcd">gcd</Term>(48, 18). Mọi số chia hết cả 48 và 18 thì cũng chia hết $48 - 2 \cdot 18 = 12$. Ngược lại, chia hết 18 và 12 thì chia hết $48 = 2 \cdot 18 + 12$. Vậy **cặp (48, 18) và cặp (18, 12) có cùng tập ước chung**, nên cùng gcd. Lặp lại:
+
+$$
+\begin{aligned}
+48 &= 2 \cdot 18 + 12 \\
+18 &= 1 \cdot 12 + 6 \\
+12 &= 2 \cdot 6 + 0
+\end{aligned}
+$$
+
+Số dư bằng 0 thì dừng. Số dư khác 0 cuối cùng là $\gcd(48, 18) = 6$.
+
+Mỗi bước, các số nhỏ đi rất nhanh (ít nhất giảm một nửa sau hai bước), nên thuật toán chỉ cần $O(\log \min(a, b))$ bước.
+
+</Intuition>
+
+<Definition title="Divisibility, gcd">
+
+Let $a, b \in \mathbb{Z}$. We say $a$ **divides** $b$, written $a \mid b$, if $b = ka$ for some $k \in \mathbb{Z}$.
+For $a, b$ not both zero, $\gcd(a, b)$ is the largest integer $d$ such that $d \mid a$ and $d \mid b$.
+We say $a$ and $b$ are **coprime** if $\gcd(a, b) = 1$.
+
+</Definition>
+
+<Theorem title="Euclid's step">
+
+For $b \neq 0$: $\;\gcd(a, b) = \gcd(b,\; a \bmod b)$. Also $\gcd(a, 0) = |a|$.
+
+</Theorem>
+
+<Proof>
+
+Viết $a = qb + r$ với $r = a \bmod b$. Nếu $d \mid a$ và $d \mid b$ thì $d \mid a - qb = r$. Ngược lại, nếu $d \mid b$ và $d \mid r$ thì $d \mid qb + r = a$. Vậy hai cặp $(a, b)$ và $(b, r)$ có **cùng tập ước chung**, nên ước chung lớn nhất cũng bằng nhau.
+
+</Proof>
+
+<Theorem title="Bézout's identity">
+
+For all $a, b \in \mathbb{Z}$, not both zero, there exist $x, y \in \mathbb{Z}$ such that
+$$
+a x + b y = \gcd(a, b).
+$$
+
+</Theorem>
+
+Nói đơn giản: gcd luôn viết được thành "tổ hợp nguyên" của $a$ và $b$. <Term en="Extended Euclidean algorithm">Extended Euclid</Term> chính là cách **tìm** $x, y$: chạy Euclid như thường, rồi **thế ngược** từ dưới lên.
+
+<Example title="Extended Euclid for 240 and 46">
+
+Tìm $g = \gcd(240, 46)$ và $x, y$ với $240x + 46y = g$.
+
+**Step 1 — run Euclid, write down every line.**
+$$
+\begin{aligned}
+240 &= 5 \cdot 46 + 10 \\
+46 &= 4 \cdot 10 + 6 \\
+10 &= 1 \cdot 6 + 4 \\
+6 &= 1 \cdot 4 + 2 \\
+4 &= 2 \cdot 2 + 0
+\end{aligned}
+$$
+Số dư khác 0 cuối cùng là $2$, nên $g = 2$.
+
+**Step 2 — rewrite each remainder as "previous − quotient · middle".**
+$2 = 6 - 1 \cdot 4$, $\;4 = 10 - 1 \cdot 6$, $\;6 = 46 - 4 \cdot 10$, $\;10 = 240 - 5 \cdot 46$.
+
+**Step 3 — back-substitute, removing the next larger remainder each time.**
+$$
+\begin{aligned}
+2 &= 6 - 4 \\
+  &= 6 - (10 - 6) = 2 \cdot 6 - 10 &&\text{(substitute 4)}\\
+  &= 2(46 - 4 \cdot 10) - 10 = 2 \cdot 46 - 9 \cdot 10 &&\text{(substitute 6)}\\
+  &= 2 \cdot 46 - 9(240 - 5 \cdot 46) = 47 \cdot 46 - 9 \cdot 240 &&\text{(substitute 10)}
+\end{aligned}
+$$
+
+Vậy $x = -9$, $y = 47$. **Check:** $240 \cdot (-9) + 46 \cdot 47 = -2160 + 2162 = 2$. ✓
+
+*Tip:* ở mỗi dòng chỉ giữ **hai** số dư liên tiếp, và luôn thế số dư lớn hơn. Như vậy không bị rối.
+
+</Example>
+
+Khi lập trình, không ai thế ngược bằng tay. Bản lặp giữ luôn hệ số $(x, y)$ cho mỗi số dư:
+
+```ts
+// returns [g, x, y] with a*x + b*y = g
+function egcd(a: bigint, b: bigint): [bigint, bigint, bigint] {
+  let [r0, r1] = [a, b];
+  let [x0, x1] = [1n, 0n];
+  let [y0, y1] = [0n, 1n];
+  while (r1 !== 0n) {
+    const q = r0 / r1;            // integer division (bigint)
+    [r0, r1] = [r1, r0 - q * r1];
+    [x0, x1] = [x1, x0 - q * x1];
+    [y0, y1] = [y1, y0 - q * y1];
+  }
+  return [r0, x0, y0];
+}
+```
+
+Bất biến (invariant) của vòng lặp: $r_0 = a x_0 + b y_0$ và $r_1 = a x_1 + b y_1$. Khi $r_1 = 0$ thì $r_0 = g$ và $(x_0, y_0)$ là đáp án. Chạy với $(240, 46)$ sẽ ra đúng $(2, -9, 47)$.
+
+<Pitfalls>
+
+- **Being scared of a negative $x$.** $x = -9$ hoàn toàn hợp lệ. Khi dùng để tính nghịch đảo mod $n$, chỉ cần cộng thêm $n$ cho về khoảng $[0, n)$.
+- **Back-substituting in the wrong order.** Nếu thế số dư nhỏ trước, biểu thức phình to và dễ sai. Luôn đi từ dòng cuối lên, mỗi lần khử đúng một số dư.
+- **Bézout coefficients are not unique.** $(x, y) = (-9, 47)$ là một nghiệm; $(-9 + 23, 47 - 120) = (14, -73)$ cũng là nghiệm. Đừng chấm sai một đáp án khác mà vẫn đúng.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- $a \mid b \iff b = ka$. gcd là ước chung lớn nhất; coprime nghĩa là gcd $= 1$.
+- Euclid: $\gcd(a, b) = \gcd(b, a \bmod b)$, dừng khi số dư bằng 0. Chỉ cần $O(\log)$ bước.
+- Bézout: luôn có $x, y$ với $ax + by = \gcd(a, b)$; Extended Euclid tìm ra chúng.
+- Luôn **kiểm tra lại** bằng cách nhân ra — một phép nhân là đủ để bắt lỗi.
+
+</Summary>

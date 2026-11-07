@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --accent: 180 83 9; /* amber-700 — readable on white */
+  --paper: 251 250 247;
+}
+html.dark {
+  color-scheme: dark;
+  --accent: 212 162 76;
+  --paper: 12 12 12;
+}
+
+html[data-size='sm'] { font-size: 15px; }
+html[data-size='md'] { font-size: 17px; }
+html[data-size='lg'] { font-size: 18.5px; }
+html[data-size='xl'] { font-size: 20.5px; }
+
+body {
+  @apply bg-paper text-neutral-900 antialiased dark:text-neutral-200;
+  font-optical-sizing: auto;
+}
+
+.prose {
+  line-height: 1.72;
+}
+
+.katex { font-size: 1.06em; }
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.25rem 0; }
+
+kbd {
+  @apply rounded border border-neutral-300 px-1.5 py-0.5 font-mono text-xs dark:border-neutral-600;
+}
+
+.btn {
+  @apply rounded-md border border-neutral-300 bg-white px-3 py-1.5 font-sans text-sm hover:border-neutral-500 disabled:opacity-40 dark:border-neutral-700 dark:bg-transparent dark:hover:border-neutral-400;
+}
+.btn-accent {
+  @apply rounded-md bg-accent px-3 py-1.5 font-sans text-sm font-medium text-white hover:brightness-110 disabled:opacity-40 dark:text-neutral-950;
+}
+.field {
+  @apply rounded-md border border-neutral-300 bg-white px-3 py-1.5 font-mono text-sm outline-none focus:border-accent dark:border-neutral-700 dark:bg-neutral-900;
+}
+.label {
+  @apply font-sans text-xs uppercase tracking-widest text-neutral-500;
+}

@@ -1,0 +1,5 @@
+{
+  "math.logic.proof-techniques": [],
+  "math.nt.gcd-euclid": ["math.logic.proof-techniques"],
+  "math.nt.mod-arith": ["math.nt.gcd-euclid"]
+}

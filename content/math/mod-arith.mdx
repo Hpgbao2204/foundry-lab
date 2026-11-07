@@ -1,0 +1,144 @@
+---
+id: math.nt.mod-arith
+track: math
+chapter: number-theory
+title: "Modular arithmetic"
+minutes: 10
+prerequisites: [math.nt.gcd-euclid]
+researchBridge: "Mọi phép tính trong Groth16/PLONK đều chạy trong F_p. Nhiều bug under-constrained circuit đến từ việc quên rằng a·b = c trong F_p không có nghĩa là a·b = c trên số nguyên (wrap-around)."
+flashcards:
+  - front: "What does a ≡ b (mod n) mean?"
+    back: "n divides (a − b)."
+  - front: "When does a have an inverse modulo n?"
+    back: "If and only if gcd(a, n) = 1."
+  - front: "How do you compute a⁻¹ mod n?"
+    back: "Extended Euclid: find x, y with a·x + n·y = 1; then a⁻¹ ≡ x (mod n)."
+  - front: "Why is Z_p (p prime) a field?"
+    back: "Every a ∈ {1, …, p−1} has gcd(a, p) = 1, so every nonzero element has an inverse."
+  - front: "Give a zero divisor in Z_6."
+    back: "2·3 ≡ 0 (mod 6), mà 2 ≢ 0 và 3 ≢ 0."
+  - front: "-7 % 3 in JavaScript/Rust? And the mathematical -7 mod 3?"
+    back: "JS/Rust: -1. Math: 2. Use ((a % n) + n) % n or rem_euclid."
+---
+
+<Why>
+
+Field $\mathbb{F}_p$ là "sân chơi" của gần như toàn bộ ZK: witness, constraint, polynomial đều là số modulo một số nguyên tố $p$ (ví dụ $p$ khoảng 254 bit cho BN254). Hiểu <Term en="modular arithmetic">modular arithmetic</Term> là hiểu những gì một circuit **thực sự** kiểm tra — và những gì nó **không** kiểm tra.
+
+</Why>
+
+<Intuition>
+
+Nghĩ tới **đồng hồ 12 giờ**. Bây giờ 9 giờ, thêm 5 tiếng là 2 giờ, không phải 14 giờ. Ta viết $9 + 5 = 14 \equiv 2 \pmod{12}$. Chỉ có 12 "vị trí" $0, 1, \dots, 11$, và cứ đi hết vòng thì quay lại.
+
+Hai số **đồng dư** mod $n$ khi chúng nằm cùng vị trí trên đồng hồ $n$ giờ, tức là hiệu của chúng là bội của $n$:
+- $17 \equiv 2 \pmod{5}$ vì $17 - 2 = 15 = 3 \cdot 5$.
+- $-1 \equiv 4 \pmod{5}$ vì $-1 - 4 = -5$.
+
+Điều đẹp nhất: có thể **rút gọn bất kỳ lúc nào**. Muốn tính $(1234 \cdot 5678) \bmod 10$? Chỉ cần $4 \cdot 8 = 32 \equiv 2$. Không cần nhân số lớn.
+
+Nhưng **chia** thì cẩn thận. Trong mod 6: $2 \cdot 1 \equiv 2$ và $2 \cdot 4 = 8 \equiv 2$. Nếu "chia hai vế cho 2" ta được $1 \equiv 4$ — sai! Lý do: 2 không có nghịch đảo mod 6.
+
+</Intuition>
+
+<Definition title="Congruence, Z_n">
+
+Let $n \ge 2$. For $a, b \in \mathbb{Z}$, we write $a \equiv b \pmod{n}$ if $n \mid (a - b)$.
+$\mathbb{Z}_n = \{0, 1, \dots, n-1\}$ is the set of residues, with addition and multiplication done mod $n$.
+We write $a \bmod n$ for the unique $r \in \mathbb{Z}_n$ with $a \equiv r \pmod{n}$.
+
+</Definition>
+
+<Theorem title="Compatibility">
+
+If $a \equiv a'$ and $b \equiv b' \pmod{n}$, then $a + b \equiv a' + b'$ and $a b \equiv a' b' \pmod{n}$.
+
+</Theorem>
+
+<Proof>
+
+Viết $a' = a + kn$, $b' = b + ln$. Khi đó $a' + b' = a + b + (k + l)n$, và
+$a'b' = ab + n(al + bk + kln)$. Cả hai hiệu đều là bội của $n$.
+
+</Proof>
+
+Định lý này là lý do ta được rút gọn giữa chừng. Còn phép chia thì cần một khái niệm mới.
+
+<Definition title="Modular inverse">
+
+An integer $x$ is an **inverse of $a$ modulo $n$** if $a x \equiv 1 \pmod{n}$. We write $x = a^{-1} \bmod n$.
+
+</Definition>
+
+<Theorem title="When does an inverse exist?">
+
+$a$ has an inverse modulo $n$ if and only if $\gcd(a, n) = 1$.
+
+</Theorem>
+
+<Proof>
+
+($\Leftarrow$) Nếu $\gcd(a, n) = 1$, theo Bézout có $x, y$ với $ax + ny = 1$. Lấy mod $n$: $ax \equiv 1$. Vậy $x$ là nghịch đảo.
+
+($\Rightarrow$) Nếu $ax \equiv 1$ thì $ax - 1 = kn$, tức $ax - kn = 1$. Mọi ước chung $d$ của $a$ và $n$ đều chia hết vế trái, nên $d \mid 1$. Vậy $\gcd(a, n) = 1$.
+
+</Proof>
+
+**Key consequence.** Nếu $p$ nguyên tố thì mọi $a \in \{1, \dots, p-1\}$ đều coprime với $p$, nên đều có nghịch đảo. Ta có thể cộng, trừ, nhân, **chia** (trừ chia cho 0). Đó là một <Term en="finite field">finite field</Term>, ký hiệu $\mathbb{F}_p$. Còn khi $n$ không nguyên tố, $\mathbb{Z}_n$ có <Term en="zero divisor">zero divisor</Term> như $2 \cdot 3 \equiv 0 \pmod 6$.
+
+<Example title="computing 17⁻¹ mod 43">
+
+**Step 1 — Euclid** (43 nguyên tố nên chắc chắn có nghịch đảo, nhưng cứ kiểm tra).
+$$
+\begin{aligned}
+43 &= 2 \cdot 17 + 9 \\
+17 &= 1 \cdot 9 + 8 \\
+9 &= 1 \cdot 8 + 1
+\end{aligned}
+$$
+Số dư cuối là 1, nên $\gcd = 1$ và nghịch đảo tồn tại.
+
+**Step 2 — back-substitute** để viết $1 = 43y + 17x$.
+$$
+\begin{aligned}
+1 &= 9 - 8 \\
+  &= 9 - (17 - 9) = 2 \cdot 9 - 17 \\
+  &= 2(43 - 2 \cdot 17) - 17 = 2 \cdot 43 - 5 \cdot 17
+\end{aligned}
+$$
+
+**Step 3 — reduce mod 43.** $-5 \cdot 17 \equiv 1$, nên $17^{-1} \equiv -5 \equiv 38 \pmod{43}$. *(Đưa về $[0, 43)$ bằng cách cộng 43.)*
+
+**Check:** $17 \cdot 38 = 646 = 15 \cdot 43 + 1$. ✓
+
+</Example>
+
+<Example title="solving a linear congruence">
+
+Giải $5x + 3 \equiv 7 \pmod{11}$.
+
+1. Chuyển vế: $5x \equiv 4 \pmod{11}$. *(Trừ 3 hai vế — phép trừ luôn an toàn.)*
+2. Tìm $5^{-1} \bmod 11$: $5 \cdot 9 = 45 = 4 \cdot 11 + 1$, nên $5^{-1} = 9$. *(Số nhỏ thì thử là nhanh nhất.)*
+3. Nhân hai vế với 9: $x \equiv 36 \equiv 3 \pmod{11}$. *("Chia cho 5" chính là "nhân với $5^{-1}$".)*
+4. **Check:** $5 \cdot 3 + 3 = 18 = 11 + 7 \equiv 7$. ✓
+
+</Example>
+
+<Pitfalls>
+
+- **The `%` operator on negative numbers.** Trong JavaScript, Rust, C: `-7 % 3 === -1`. Toán học: $-7 \bmod 3 = 2$. Viết `((a % n) + n) % n`, hoặc `rem_euclid` trong Rust.
+- **Dividing like real numbers.** "$x \equiv 4/5 \pmod{11}$" không có nghĩa là $0.8$. Chia luôn là nhân với nghịch đảo, và chỉ làm được khi gcd bằng 1.
+- **Forgetting wrap-around in circuits.** Constraint $a \cdot b = c$ trong $\mathbb{F}_p$ chỉ nói $ab \equiv c \pmod p$. Nếu muốn $a, b$ là số 8-bit thật, phải thêm **range check**; không thì prover có thể dùng $a$ cực lớn. Đây là gốc của nhiều <Term en="under-constrained circuit">under-constrained</Term> bug.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- $a \equiv b \pmod n \iff n \mid (a - b)$. Cộng và nhân tương thích với đồng dư, nên rút gọn lúc nào cũng được.
+- $a^{-1} \bmod n$ tồn tại $\iff \gcd(a, n) = 1$; tính bằng Extended Euclid.
+- $p$ nguyên tố ⇒ $\mathbb{Z}_p = \mathbb{F}_p$ là field. $n$ hợp số ⇒ có zero divisor, không chia tùy ý được.
+- Trong code: cẩn thận `%` với số âm. Trong circuit: đồng dư không phải bằng nhau trên số nguyên.
+
+</Summary>

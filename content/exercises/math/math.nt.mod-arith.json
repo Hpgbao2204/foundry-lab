@@ -1,0 +1,203 @@
+[
+  {
+    "id": "math.nt.mod-arith.inverse-3-7",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Find the inverse of $3$ in $\\mathbb{F}_7$.",
+    "answer": "5",
+    "modulus": 7,
+    "verify": { "fn": "modInverse", "args": [3, 7] },
+    "generator": "modInverse",
+    "params": { "minP": 7, "maxP": 61 },
+    "hints": [
+      "Nghịch đảo $x$ thỏa $3 \\cdot x \\equiv 1 \\pmod 7$.",
+      "Dùng Extended Euclid, hoặc với số nhỏ thì thử $x = 1, \\dots, 6$.",
+      "Viết $7 = 2 \\cdot 3 + 1$, suy ra $1 = 7 - 2 \\cdot 3$."
+    ],
+    "solution": "$1 = 7 - 2 \\cdot 3$ ⇒ $-2 \\cdot 3 \\equiv 1$ ⇒ $x \\equiv -2 \\equiv 5 \\pmod 7$. Check: $3 \\cdot 5 = 15 = 2 \\cdot 7 + 1$."
+  },
+  {
+    "id": "math.nt.mod-arith.neg-17-5",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Compute $-17 \\bmod 5$ (the result must be in $\\{0, \\dots, 4\\}$).",
+    "answer": "3",
+    "verify": { "fn": "mod", "args": [-17, 5] },
+    "generator": "negMod",
+    "hints": [
+      "Kết quả của mod luôn nằm trong $[0, n)$, kể cả khi số ban đầu âm.",
+      "Tìm bội của 5 nhỏ hơn hoặc bằng $-17$ gần nhất.",
+      "$-17 = -4 \\cdot 5 + r$. Tìm $r$."
+    ],
+    "solution": "$-17 = (-4) \\cdot 5 + 3$ với $0 \\le 3 < 5$, nên $-17 \\bmod 5 = 3$. (JS/Rust: `-17 % 5` cho $-2$; $-2 \\equiv 3$ nhưng không phải dạng chuẩn.)"
+  },
+  {
+    "id": "math.nt.mod-arith.reduce-first",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Compute $(123 \\cdot 456 + 789) \\bmod 10$ without a calculator.",
+    "answer": "7",
+    "verify": { "fn": "mulAddMod", "args": [123, 456, 789, 10] },
+    "generator": "mulAddMod",
+    "hints": [
+      "Đồng dư tương thích với cộng và nhân — rút gọn trước khi tính.",
+      "Mod 10 chính là lấy chữ số hàng đơn vị.",
+      "$123 \\equiv 3$, $456 \\equiv 6$, $789 \\equiv 9 \\pmod{10}$."
+    ],
+    "solution": "$3 \\cdot 6 + 9 = 27 \\equiv 7 \\pmod{10}$. (Check: $123 \\cdot 456 + 789 = 56877$.)"
+  },
+  {
+    "id": "math.nt.mod-arith.linear-13",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Solve $4x + 5 \\equiv 2 \\pmod{13}$.",
+    "answer": "9",
+    "modulus": 13,
+    "verify": { "fn": "solveLinear", "args": [4, 5, 2, 13] },
+    "generator": "linearCongruence",
+    "hints": [
+      "Như giải phương trình bậc nhất, nhưng \"chia cho 4\" nghĩa là nhân với $4^{-1}$.",
+      "Chuyển vế: $4x \\equiv 2 - 5 \\equiv -3 \\equiv 10 \\pmod{13}$. Rồi tìm $4^{-1} \\bmod 13$.",
+      "$4 \\cdot 10 = 40 = 3 \\cdot 13 + 1$, nên $4^{-1} = 10$."
+    ],
+    "solution": "$4x \\equiv 10$. Với $4^{-1} \\equiv 10$: $x \\equiv 100 \\equiv 9 \\pmod{13}$. Check: $4 \\cdot 9 + 5 = 41 = 3 \\cdot 13 + 2$."
+  },
+  {
+    "id": "math.nt.mod-arith.inverse-17-101",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Find $17^{-1} \\bmod 101$.",
+    "answer": "6",
+    "modulus": 101,
+    "verify": { "fn": "modInverse", "args": [17, 101] },
+    "hints": [
+      "Cần $x$ với $17x \\equiv 1 \\pmod{101}$. Thử từng số thì quá lâu.",
+      "Extended Euclid cho $(101, 17)$, rồi thế ngược.",
+      "$101 = 5 \\cdot 17 + 16$ và $17 = 1 \\cdot 16 + 1$."
+    ],
+    "solution": "$1 = 17 - 16 = 17 - (101 - 5 \\cdot 17) = 6 \\cdot 17 - 101$. Vậy $17^{-1} \\equiv 6$. Check: $17 \\cdot 6 = 102 = 101 + 1$."
+  },
+  {
+    "id": "math.nt.mod-arith.fill-11-26",
+    "level": "A",
+    "type": "step-fill",
+    "prompt": "Fill in the computation of $11^{-1} \\bmod 26$ (used in the affine cipher).",
+    "template": [
+      "Euclid: $26 = 2 \\cdot 11 +$ {{4}}, $\\; 11 = 2 \\cdot 4 +$ {{3}}, $\\; 4 = 1 \\cdot 3 + 1$.",
+      "Back-substitute: $1 = 4 - 3 = 4 - (11 - 2 \\cdot 4) =$ {{3}} $\\cdot 4 - 11$.",
+      "$= 3(26 - 2 \\cdot 11) - 11 = 3 \\cdot 26 -$ {{7}} $\\cdot 11$.",
+      "So $11^{-1} \\equiv -7 \\equiv$ {{19}} $\\pmod{26}$."
+    ],
+    "hints": [
+      "Hai dòng Euclid đầu: chia lấy dư như bình thường.",
+      "Khi thế ngược, gom các hệ số của 4 lại: $4 + 2 \\cdot 4 = 3 \\cdot 4$.",
+      "Cuối cùng đưa $-7$ về $[0, 26)$ bằng cách cộng 26."
+    ],
+    "solution": "$26 = 2 \\cdot 11 + 4$, $11 = 2 \\cdot 4 + 3$, $4 = 3 + 1$. $1 = 4 - 3 = 3 \\cdot 4 - 11 = 3 \\cdot 26 - 7 \\cdot 11$. Vậy $11^{-1} \\equiv -7 \\equiv 19$. Check: $11 \\cdot 19 = 209 = 8 \\cdot 26 + 1$."
+  },
+  {
+    "id": "math.nt.mod-arith.no-inverse-2-6",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: $2$ has a multiplicative inverse modulo $6$.",
+    "answer": false,
+    "reasons": [
+      "$\\gcd(2, 6) = 2 \\neq 1$, and an inverse exists only when the gcd is 1.",
+      "Because 6 is even.",
+      "Because $2 \\cdot 3 = 6 > 1$.",
+      "It does: $2 \\cdot 4 = 8 \\equiv 2$."
+    ],
+    "reason": 0,
+    "hints": [
+      "Định lý trong lesson: $a$ có nghịch đảo mod $n$ khi và chỉ khi ...?",
+      "Tính $\\gcd(2, 6)$.",
+      "Thử hết: $2 \\cdot x \\bmod 6$ với $x = 0..5$ chỉ cho các giá trị $0, 2, 4$."
+    ],
+    "solution": "**False.** $\\gcd(2, 6) = 2$, nên không có nghịch đảo. Kiểm tra trực tiếp: $2x \\bmod 6 \\in \\{0, 2, 4\\}$, không bao giờ bằng 1. Lý do \"6 chẵn\" không đủ: $5$ có nghịch đảo mod 6 ($5 \\cdot 5 = 25 \\equiv 1$)."
+  },
+  {
+    "id": "math.nt.mod-arith.units-12",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Which of these have an inverse modulo $12$?",
+    "options": ["$2$", "$5$", "$7$", "$9$", "$11$"],
+    "answer": [1, 2, 4],
+    "hints": [
+      "Chỉ cần kiểm tra $\\gcd(a, 12) = 1$ cho từng số.",
+      "$12 = 2^2 \\cdot 3$: số nào không chia hết cho 2 và không chia hết cho 3?",
+      "$\\gcd(9, 12) = 3$, nên 9 không có nghịch đảo."
+    ],
+    "solution": "$\\gcd(a, 12) = 1$ với $a = 5, 7, 11$. Thật vậy: $5 \\cdot 5 = 25 \\equiv 1$, $7 \\cdot 7 = 49 \\equiv 1$, $11 \\cdot 11 = 121 \\equiv 1 \\pmod{12}$. Còn $\\gcd(2, 12) = 2$, $\\gcd(9, 12) = 3$."
+  },
+  {
+    "id": "math.nt.mod-arith.count-units-15",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "How many elements of $\\mathbb{Z}_{15} = \\{0, 1, \\dots, 14\\}$ have a multiplicative inverse?",
+    "answer": "8",
+    "verify": { "fn": "phi", "args": [15] },
+    "hints": [
+      "Đếm các $a$ với $\\gcd(a, 15) = 1$.",
+      "$15 = 3 \\cdot 5$: loại các số chia hết cho 3 hoặc cho 5 (và số 0).",
+      "Bội của 3: 0, 3, 6, 9, 12. Bội của 5: 0, 5, 10. Còn lại bao nhiêu?"
+    ],
+    "solution": "Các số coprime với 15: $1, 2, 4, 7, 8, 11, 13, 14$ — có **8** số. Đây là Euler's totient $\\varphi(15) = (3-1)(5-1) = 8$, sẽ gặp lại ở lesson Euler/RSA."
+  },
+  {
+    "id": "math.nt.mod-arith.circuit-ab-6",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "A circuit over $\\mathbb{F}_p$ ($p \\approx 2^{254}$) has the single constraint $a \\cdot b = 6$. True or false: this forces $(a, b)$ to be one of $(1,6), (2,3), (3,2), (6,1)$.",
+    "answer": false,
+    "reasons": [
+      "In $\\mathbb{F}_p$, every $a \\neq 0$ works with $b = 6 \\cdot a^{-1}$, so there are $p - 1$ solutions.",
+      "Because negative numbers like $(-2, -3)$ also work, so there are 8 solutions.",
+      "Because $6$ is not prime.",
+      "It is true: the factorizations of 6 are unique."
+    ],
+    "reason": 0,
+    "hints": [
+      "Trong $\\mathbb{F}_p$ có phép chia. Với một $a$ bất kỳ khác 0, có tìm được $b$ không?",
+      "$b = 6 \\cdot a^{-1}$. Có bao nhiêu lựa chọn cho $a$?",
+      "Lý do 2 chưa đủ: không chỉ $(-2, -3)$ mà còn những $a$ cực lớn kiểu $a = 2^{200}$."
+    ],
+    "solution": "**False.** $\\mathbb{F}_p$ là field nên với mọi $a \\neq 0$, chọn $b = 6a^{-1}$ thì $ab \\equiv 6$. Có $p - 1$ nghiệm. Muốn ép $a, b$ là \"số nhỏ thật\" phải thêm **range check**. Đây đúng là dạng under-constrained bug."
+  },
+  {
+    "id": "math.nt.mod-arith.no-zero-divisors",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove: if $p$ is prime and $ab \\equiv 0 \\pmod p$, then $a \\equiv 0$ or $b \\equiv 0 \\pmod p$. (So $\\mathbb{F}_p$ has no zero divisors.)",
+    "rubric": [
+      "Sets up the case split: if $a \\equiv 0$ we are done; otherwise assume $a \\not\\equiv 0 \\pmod p$.",
+      "Argues $\\gcd(a, p) = 1$ because $p$ is prime and $p \\nmid a$.",
+      "Uses the existence of $a^{-1} \\bmod p$ (Bézout / the inverse theorem).",
+      "Multiplies $ab \\equiv 0$ by $a^{-1}$ to get $b \\equiv 0$, and concludes."
+    ],
+    "hints": [
+      "\"$A$ hoặc $B$\": giả sử $A$ sai, rồi chứng minh $B$ đúng.",
+      "Nếu $a \\not\\equiv 0$ thì $a$ có nghịch đảo mod $p$ — vì sao?",
+      "Nhân hai vế của $ab \\equiv 0$ với $a^{-1}$."
+    ],
+    "solution": "Nếu $a \\equiv 0$ thì xong. Giả sử $a \\not\\equiv 0$, tức $p \\nmid a$. Vì ước dương của $p$ chỉ có $1$ và $p$, nên $\\gcd(a, p) = 1$, và $a^{-1} \\bmod p$ tồn tại. Nhân $ab \\equiv 0$ với $a^{-1}$: $b \\equiv a^{-1} \\cdot 0 \\equiv 0$. ∎ (Với $n = 6$ không prime, kết quả sai: $2 \\cdot 3 \\equiv 0$.)"
+  },
+  {
+    "id": "math.nt.mod-arith.inverse-unique",
+    "level": "C",
+    "type": "proof-order",
+    "prompt": "Order the proof that a modular inverse is **unique** mod $n$: if $ax \\equiv 1$ and $ay \\equiv 1 \\pmod n$, then $x \\equiv y$.",
+    "steps": [
+      "Start from $x \\equiv x \\cdot 1$.",
+      "Replace $1$ by $ay$: $\\; x \\equiv x(ay)$.",
+      "Regroup (associativity): $x(ay) \\equiv (xa)y$.",
+      "Since $xa = ax \\equiv 1$, we get $(xa)y \\equiv 1 \\cdot y \\equiv y$.",
+      "Therefore $x \\equiv y \\pmod n$."
+    ],
+    "hints": [
+      "Mẹo chuẩn: nhân thêm \"1\" một cách khéo léo.",
+      "Viết $1$ thành $ay$ ở cạnh $x$, rồi gom lại theo cách khác.",
+      "Bước đầu là $x \\equiv x \\cdot 1$; bước cuối là kết luận $x \\equiv y$."
+    ],
+    "solution": "$x \\equiv x \\cdot 1 \\equiv x(ay) \\equiv (xa)y \\equiv 1 \\cdot y \\equiv y$. Lập luận này chỉ dùng associativity và commutativity — nó đúng trong mọi group, nên inverse trong group luôn duy nhất."
+  }
+]

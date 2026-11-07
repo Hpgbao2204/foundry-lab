@@ -42,5 +42,13 @@
   ],
   "math.poly.schwartz-zippel": [
     "math.poly.lagrange-interpolation"
+  ],
+  "math.ec.reals": [
+    "math.algebra.groups",
+    "math.poly.division-roots"
+  ],
+  "math.ec.finite-fields": [
+    "math.ec.reals",
+    "math.algebra.subgroups-cosets"
   ]
 }

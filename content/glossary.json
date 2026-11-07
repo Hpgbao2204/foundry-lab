@@ -228,5 +228,15 @@
     "en": "Lagrange interpolation",
     "vi": "nội suy Lagrange",
     "explain": "Dựng đa thức bậc < n duy nhất đi qua n điểm cho trước: f(x) = Σ yᵢ·Lᵢ(x), với Lᵢ bằng 1 tại xᵢ và 0 tại các điểm khác."
+  },
+  {
+    "en": "elliptic curve",
+    "vi": "đường cong elliptic",
+    "explain": "Tập điểm thỏa y² = x³ + ax + b (cộng điểm vô cực O). Các điểm tạo thành một group với phép cộng 'kẻ đường thẳng rồi lật'."
+  },
+  {
+    "en": "point at infinity",
+    "vi": "điểm vô cực",
+    "explain": "Điểm O thêm vào elliptic curve, nằm 'ở cuối' mọi đường thẳng đứng; là identity của group: P + O = P."
   }
 ]

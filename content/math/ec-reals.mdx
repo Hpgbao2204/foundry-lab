@@ -1,0 +1,93 @@
+---
+id: math.ec.reals
+track: math
+chapter: elliptic-curves
+title: "Elliptic curves over the reals — adding points with a ruler"
+minutes: 10
+prerequisites: [math.algebra.groups, math.poly.division-roots]
+researchBridge: "Mỗi lần trình duyệt mở một trang HTTPS, rất có thể nó vừa thực hiện phép 'cộng điểm' trên curve P-256 hoặc Curve25519 (ECDHE). Bitcoin và Ethereum ký giao dịch trên secp256k1: y² = x³ + 7. Lesson này vẽ phép cộng đó bằng thước kẻ; lesson sau chuyển nó sang finite field, nơi crypto thật sự sống."
+flashcards:
+  - front: "Short Weierstrass form of an elliptic curve?"
+    back: "y² = x³ + a·x + b, with 4a³ + 27b² ≠ 0 (no cusps or self-crossings)."
+  - front: "Geometric rule for P + Q?"
+    back: "Draw the line through P and Q, find the third intersection with the curve, reflect it over the x-axis."
+  - front: "Slope λ for P + Q (P ≠ Q) and for 2P?"
+    back: "λ = (y₂ − y₁)/(x₂ − x₁); for doubling λ = (3x₁² + a)/(2y₁)."
+  - front: "Coordinates of P + Q from λ?"
+    back: "x₃ = λ² − x₁ − x₂, y₃ = λ(x₁ − x₃) − y₁."
+  - front: "What is the identity of the curve group, and what is −P?"
+    back: "The point at infinity O; −(x, y) = (x, −y)."
+---
+
+<Why>
+
+**Puzzle.** Cho đường cong $y^2 = x^3 - x + 1$ và hai điểm trên nó, $P = (0, 1)$ và $Q = (1, 1)$. Kẻ đường thẳng qua $P$ và $Q$ — nó là $y = 1$. Đường thẳng này cắt curve ở đâu nữa không?
+
+Thay vào: $1 = x^3 - x + 1$, tức $x^3 - x = 0$, nghiệm $x = 0, 1, -1$. Có **đúng một** giao điểm thứ ba, $(-1, 1)$. Không phải trùng hợp: phương trình bậc 3 có tổng ba nghiệm cố định, biết hai thì ra cái thứ ba.
+
+Từ quan sát nhỏ này, các nhà toán học dựng được một **group** trên các điểm của curve. Và group đó là nền móng của phần lớn crypto public-key hiện đại.
+
+</Why>
+
+<Intuition>
+
+Một <Term en="elliptic curve">elliptic curve</Term> (không phải hình ellipse!) là tập điểm thỏa $y^2 = x^3 + ax + b$. Nó đối xứng qua trục $x$ (vì chỉ có $y^2$).
+
+**Quy tắc cộng:** để tính $P + Q$,
+1. kẻ đường thẳng qua $P$ và $Q$;
+2. nó cắt curve tại đúng một điểm thứ ba;
+3. **lật** điểm đó qua trục $x$. Đó là $P + Q$.
+
+Vì sao phải lật? Để có một group: với quy tắc "ba điểm thẳng hàng có tổng bằng 0", ta cần $P + Q + R = 0$, nên $P + Q = -R$ — và $-R$ chính là ảnh đối xứng của $R$.
+
+Thêm một điểm đặc biệt $O$ — "điểm ở vô cực", nằm ở cuối mọi đường thẳng đứng — làm identity. Đường thẳng đứng qua $P = (x, y)$ và $(x, -y)$ "cắt nhau ở vô cực", nên $P + (-P) = O$.
+
+<EcAddPlot />
+
+Kéo $P$ và $Q$, thử cả trường hợp $P = Q$ (đường thẳng trở thành **tiếp tuyến**) và $Q = -P$.
+
+</Intuition>
+
+<Definition title="Point addition on y² = x³ + ax + b">
+
+Let $P = (x_1, y_1)$, $Q = (x_2, y_2)$. If $x_1 = x_2$ and $y_1 = -y_2$, then $P + Q = O$. Otherwise let
+$$\lambda = \frac{y_2 - y_1}{x_2 - x_1} \;(P \neq Q), \qquad \lambda = \frac{3x_1^2 + a}{2y_1} \;(P = Q),$$
+and set $x_3 = \lambda^2 - x_1 - x_2$, $\;y_3 = \lambda(x_1 - x_3) - y_1$. Then $P + Q = (x_3, y_3)$. With $O$ as identity and $-(x, y) = (x, -y)$, the points form an **abelian group**.
+
+</Definition>
+
+Công thức $x_3 = \lambda^2 - x_1 - x_2$ đến từ chính câu đố: thay $y = \lambda x + c$ vào curve được phương trình bậc 3 có hệ số $x^2$ là $-\lambda^2$, nên **tổng ba nghiệm** bằng $\lambda^2$ (Viète).
+
+<Example title="three additions on y² = x³ − x + 1">
+
+Ở đây $a = -1$.
+
+**Step 1 — $P + Q$ with $P = (0, 1)$, $Q = (1, 1)$.** $\lambda = \frac{1 - 1}{1 - 0} = 0$. $x_3 = 0 - 0 - 1 = -1$, $y_3 = 0 \cdot (0 - (-1)) - 1 = -1$. Vậy $P + Q = (-1, -1)$ — lật của giao điểm $(-1, 1)$ trong câu đố ✓.
+
+**Step 2 — doubling $2P$.** $\lambda = \frac{3 \cdot 0^2 + (-1)}{2 \cdot 1} = -\frac{1}{2}$. $x_3 = \frac{1}{4} - 0 - 0 = \frac{1}{4}$, $y_3 = -\frac{1}{2}\left(0 - \frac{1}{4}\right) - 1 = -\frac{7}{8}$.
+**Check:** $\left(-\frac{7}{8}\right)^2 = \frac{49}{64}$ và $\frac{1}{64} - \frac{16}{64} + \frac{64}{64} = \frac{49}{64}$ ✓.
+
+**Step 3 — $(1, 1) + (3, 5)$.** $\lambda = \frac{5 - 1}{3 - 1} = 2$. $x_3 = 4 - 1 - 3 = 0$, $y_3 = 2(1 - 0) - 1 = 1$. Kết quả $(0, 1) = P$. (Đường thẳng $y = 2x - 1$ cắt curve tại $(0, -1)$; lật lên được $(0, 1)$.)
+
+</Example>
+
+**Aha:** phép cộng này **giao hoán** (đường qua $P, Q$ cũng là đường qua $Q, P$) và — điều khó chứng minh hơn nhiều — **kết hợp**. Vậy mọi thứ ta học về group đều áp dụng: order của điểm, cyclic subgroup, Lagrange. Lesson sau thay $\mathbb{R}$ bằng $\mathbb{F}_p$: hình vẽ biến mất, nhưng công thức giữ nguyên.
+
+<Pitfalls>
+
+- **Quên lật.** Giao điểm thứ ba là $-(P + Q)$, không phải $P + Q$.
+- **Dùng công thức chord khi $P = Q$.** $\frac{y_2 - y_1}{x_2 - x_1} = \frac{0}{0}$; phải dùng tiếp tuyến $\lambda = \frac{3x_1^2 + a}{2y_1}$.
+- **Curve "suy biến".** Nếu $4a^3 + 27b^2 = 0$ (ví dụ $y^2 = x^3$), curve có điểm nhọn và phép cộng hỏng. Curve chuẩn luôn kiểm tra điều kiện này.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Elliptic curve: $y^2 = x^3 + ax + b$, đối xứng qua trục $x$, thêm điểm vô cực $O$.
+- $P + Q$: kẻ đường thẳng (tiếp tuyến nếu $P = Q$), tìm giao điểm thứ ba, lật qua trục $x$.
+- $\lambda$ = hệ số góc; $x_3 = \lambda^2 - x_1 - x_2$, $y_3 = \lambda(x_1 - x_3) - y_1$.
+- Các điểm tạo abelian group với identity $O$ và $-(x, y) = (x, -y)$.
+
+</Summary>

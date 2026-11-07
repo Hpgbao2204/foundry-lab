@@ -1,5 +1,6 @@
 import { egcd, gcd, mod, modInverse } from '../lib/nt';
 import { crt, elementOrder, isPrime, modPow } from '../exercises/registry';
+import { addMod, pointsMod } from '../lib/ec';
 import type { Exercise, NumericExercise } from '../exercises/types';
 import { int, mulberry32, pick, type Rng } from './rng';
 
@@ -49,6 +50,42 @@ export function polyTex(coeffs: number[]): string {
 }
 
 export const GENERATORS: Record<string, Gen> = {
+  ecAdd: (rng) => {
+    let p: number, a: number, b: number, pts: [number, number][];
+    do {
+      p = pick(rng, [11, 13, 17, 19, 23]);
+      a = int(rng, 0, p - 1);
+      b = int(rng, 1, p - 1);
+      pts = pointsMod(a, b, p);
+    } while ((4 * a ** 3 + 27 * b ** 2) % p === 0 || pts.length < 4);
+    let P: [number, number], Q: [number, number], R: [number, number] | null;
+    do {
+      P = pick(rng, pts);
+      Q = rng() < 0.25 ? P : pick(rng, pts);
+      R = addMod(a, p, P, Q);
+    } while (!R || (P[0] === Q[0] && P[1] !== Q[1]));
+    const dbl = P[0] === Q[0];
+    const n = BigInt(p);
+    const num = dbl ? 3 * P[0] * P[0] + a : Q[1] - P[1];
+    const den = dbl ? 2 * P[1] : Q[0] - P[0];
+    const denR = Number(mod(BigInt(den), n));
+    const inv = Number(modInverse(BigInt(denR), n)!);
+    const lam = Number(mod(BigInt(num) * BigInt(inv), n));
+    const curve = `y^2 = x^3${a ? ` + ${a === 1 ? '' : a}x` : ''} + ${b}`;
+    return {
+      prompt: `On $${curve}$ over $\\mathbb{F}_{${p}}$, let $P = (${P[0]}, ${P[1]})$ and $Q = (${Q[0]}, ${Q[1]})$. What is the $x$-coordinate of $P + Q$?`,
+      answer: String(R[0]),
+      modulus: p,
+      hints: [
+        dbl ? `$P = Q$, nên dùng tiếp tuyến: $\\lambda = (3x_1^2 + a) / (2y_1)$, tính mod ${p}.` : `Dùng chord: $\\lambda = (y_2 - y_1)/(x_2 - x_1)$, "chia" = nhân nghịch đảo mod ${p}.`,
+        `Mẫu số là $${den} \\equiv ${denR}$, nghịch đảo của nó mod ${p} là $${inv}$.`,
+        `$\\lambda \\equiv ${num} \\cdot ${inv} \\equiv ${lam}$. Rồi $x_3 = \\lambda^2 - x_1 - x_2$.`,
+      ],
+      solution: `$\\lambda \\equiv ${lam}$, nên $x_3 = ${lam}^2 - ${P[0]} - ${Q[0]} \\equiv ${R[0]} \\pmod{${p}}$, và $y_3 = \\lambda(x_1 - x_3) - y_1 \\equiv ${R[1]}$. $P + Q = (${R[0]}, ${R[1]})$. Check: $${R[1]}^2 \\equiv ${(R[1] * R[1]) % p}$ và $${R[0]}^3 + ${a} \\cdot ${R[0]} + ${b} \\equiv ${(R[0] ** 3 + a * R[0] + b) % p} \\pmod{${p}}$ ✓.`,
+      verify: { fn: 'ecAddX', args: [a, p, P[0], P[1], Q[0], Q[1]] },
+    };
+  },
+
   polyRemainder: (rng) => {
     const p = pick(rng, [5, 7, 11, 13]);
     const coeffs = [1, int(rng, 0, p - 1), int(rng, 0, p - 1), int(rng, 1, p - 1)];

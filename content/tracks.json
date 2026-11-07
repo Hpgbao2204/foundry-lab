@@ -39,6 +39,14 @@
           "math.poly.lagrange-interpolation",
           "math.poly.schwartz-zippel"
         ]
+      },
+      {
+        "id": "elliptic-curves",
+        "title": "Elliptic curves",
+        "lessons": [
+          "math.ec.reals",
+          "math.ec.finite-fields"
+        ]
       }
     ]
   },

@@ -4,6 +4,7 @@ import type { LessonMeta } from '../content-types';
 import { exercisesFor } from '../engine/exercises';
 import { ExerciseCard } from './ExerciseCard';
 import { InterpolationPlot } from './InterpolationPlot';
+import { EcAddPlot } from './EcAddPlot';
 
 export const LessonContext = createContext<LessonMeta | null>(null);
 
@@ -146,4 +147,4 @@ export function Term({ en, children }: P & { en: string }) {
   );
 }
 
-export const mdxComponents = { Why, Intuition, Definition, Theorem, Proof, Example, Pitfalls, Exercises, Summary, Term, InterpolationPlot };
+export const mdxComponents = { Why, Intuition, Definition, Theorem, Proof, Example, Pitfalls, Exercises, Summary, Term, InterpolationPlot, EcAddPlot };

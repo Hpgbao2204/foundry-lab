@@ -1,0 +1,134 @@
+[
+  {
+    "id": "math.ec.reals.slope",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 - x + 1$, what is the slope $\\lambda$ of the line through $(1, 1)$ and $(3, 5)$?",
+    "answer": "2",
+    "hints": [
+      "Hai điểm khác nhau: dùng công thức chord.",
+      "$\\lambda = \\frac{y_2 - y_1}{x_2 - x_1}$.",
+      "$\\frac{5 - 1}{3 - 1}$."
+    ],
+    "solution": "$\\lambda = \\frac{4}{2} = 2$."
+  },
+  {
+    "id": "math.ec.reals.sum-x",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 - x + 1$, let $P = (0, 1)$, $Q = (1, 1)$. What is the $x$-coordinate of $P + Q$?",
+    "answer": "-1",
+    "hints": [
+      "Tính $\\lambda$ trước.",
+      "$\\lambda = 0$ (đường nằm ngang). Rồi $x_3 = \\lambda^2 - x_1 - x_2$.",
+      "$0 - 0 - 1$."
+    ],
+    "solution": "$\\lambda = 0$, $x_3 = 0 - 0 - 1 = -1$. (Và $y_3 = -1$: $P + Q = (-1, -1)$.)"
+  },
+  {
+    "id": "math.ec.reals.double-x",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 - x + 1$ (so $a = -1$), what is the $x$-coordinate of $2P$ for $P = (0, 1)$?",
+    "answer": "1/4",
+    "hints": [
+      "$P = Q$ nên dùng tiếp tuyến: $\\lambda = \\frac{3x_1^2 + a}{2y_1}$.",
+      "$\\lambda = \\frac{0 - 1}{2} = -\\frac{1}{2}$.",
+      "$x_3 = \\lambda^2 - 2x_1$."
+    ],
+    "solution": "$\\lambda = -\\frac{1}{2}$, $x_3 = \\frac{1}{4} - 0 - 0 = \\frac{1}{4}$."
+  },
+  {
+    "id": "math.ec.reals.negate",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "On any curve $y^2 = x^3 + ax + b$, what is $-(3, 5)$?",
+    "options": ["$(3, -5)$", "$(-3, -5)$", "$(-3, 5)$", "$(5, 3)$"],
+    "answer": 0,
+    "hints": [
+      "Curve đối xứng qua trục nào?",
+      "$-P$ là điểm sao cho $P + (-P) = O$ — đường thẳng qua chúng phải thẳng đứng.",
+      "Giữ nguyên $x$, đổi dấu $y$."
+    ],
+    "solution": "$-(x, y) = (x, -y)$, nên $-(3, 5) = (3, -5)$. Đường thẳng đứng $x = 3$ nối hai điểm và \"gặp\" $O$ ở vô cực."
+  },
+  {
+    "id": "math.ec.reals.sum-y",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 - x + 1$, compute the $y$-coordinate of $(-1, -1) + (3, 5)$.",
+    "answer": "-7/8",
+    "hints": [
+      "$\\lambda = \\frac{5 - (-1)}{3 - (-1)}$.",
+      "$\\lambda = \\frac{3}{2}$, $x_3 = \\frac{9}{4} + 1 - 3 = \\frac{1}{4}$.",
+      "$y_3 = \\lambda(x_1 - x_3) - y_1 = \\frac{3}{2}\\left(-1 - \\frac{1}{4}\\right) + 1$."
+    ],
+    "solution": "$\\lambda = \\frac{6}{4} = \\frac{3}{2}$, $x_3 = \\frac{1}{4}$, $y_3 = \\frac{3}{2} \\cdot \\left(-\\frac{5}{4}\\right) + 1 = -\\frac{15}{8} + 1 = -\\frac{7}{8}$. Kết quả $\\left(\\frac{1}{4}, -\\frac{7}{8}\\right)$ — chính là $2P$ với $P = (0, 1)$! (Vì $(-1, -1) = P + Q$ và $(3, 5) = P - Q$.)"
+  },
+  {
+    "id": "math.ec.reals.third-point",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: $P + Q$ is the third point where the line through $P$ and $Q$ meets the curve.",
+    "answer": false,
+    "reasons": [
+      "The third point is $R$ with $P + Q + R = O$, so $P + Q = -R$: reflect $R$ over the $x$-axis.",
+      "The line meets the curve in only two points.",
+      "It is true; reflection is only needed when $P = Q$.",
+      "$P + Q$ is the midpoint of $P$ and $Q$."
+    ],
+    "reason": 0,
+    "hints": [
+      "Nhớ quy tắc \"ba điểm thẳng hàng có tổng bằng $O$\".",
+      "Nếu $P + Q + R = O$ thì $P + Q = ?$",
+      "$-R$ nằm ở đâu so với $R$?"
+    ],
+    "solution": "**False.** Giao điểm thứ ba $R$ thỏa $P + Q + R = O$, nên $P + Q = -R$ — ảnh của $R$ qua trục $x$."
+  },
+  {
+    "id": "math.ec.reals.collinear-sum",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "On $y^2 = x^3 - x + 1$, the points $(0, 1), (1, 1), (-1, 1)$ all lie on the line $y = 1$. What is $(0, 1) + (1, 1) + (-1, 1)$?",
+    "options": ["$O$", "$(0, 3)$", "$(-1, -1)$", "$(0, 1)$"],
+    "answer": 0,
+    "hints": [
+      "Quy tắc cơ bản: ba điểm thẳng hàng trên curve có tổng bằng ...",
+      "Kiểm tra bằng tính toán: $(0, 1) + (1, 1) = (-1, -1)$.",
+      "$(-1, -1) + (-1, 1)$: hai điểm đối xứng qua trục $x$."
+    ],
+    "solution": "$O$. Ba điểm thẳng hàng có tổng $O$. Kiểm tra: $(0,1) + (1,1) = (-1,-1) = -(-1, 1)$, cộng thêm $(-1, 1)$ được $O$."
+  },
+  {
+    "id": "math.ec.reals.two-torsion",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "On $y^2 = x^3 - x$, let $P = (1, 0)$. What is $2P$?",
+    "options": ["$O$", "$(1, 0)$", "$(-1, 0)$", "$(2, 0)$"],
+    "answer": 0,
+    "hints": [
+      "Doubling dùng tiếp tuyến tại $P$. Mẫu số của $\\lambda$ là $2y_1$.",
+      "$y_1 = 0$: tiếp tuyến tại $P$ có dạng gì?",
+      "Tiếp tuyến thẳng đứng — và $P = (1, 0) = -P$."
+    ],
+    "solution": "$O$. Vì $y = 0$, ta có $-P = (1, -0) = P$, nên $2P = P + (-P) = O$. Hình học: tiếp tuyến tại $P$ thẳng đứng, \"cắt\" curve ở vô cực. $P$ có order 2."
+  },
+  {
+    "id": "math.ec.reals.vieta",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Derive $x_3 = \\lambda^2 - x_1 - x_2$: substitute the line $y = \\lambda x + c$ into $y^2 = x^3 + ax + b$ and use the sum of the roots.",
+    "rubric": [
+      "Substitutes and gets $x^3 - \\lambda^2 x^2 + (a - 2\\lambda c)x + (b - c^2) = 0$ (or an equivalent cubic).",
+      "Notes the three roots are $x_1, x_2, x_3$, the $x$-coordinates of the three intersection points.",
+      "Uses Viète: sum of roots of a monic cubic $x^3 + px^2 + \\dots$ is $-p$, so $x_1 + x_2 + x_3 = \\lambda^2$.",
+      "Concludes $x_3 = \\lambda^2 - x_1 - x_2$, and notes reflecting does not change $x$."
+    ],
+    "hints": [
+      "Thay $y = \\lambda x + c$ và đưa mọi thứ về một vế.",
+      "Hệ số của $x^2$ là $-\\lambda^2$.",
+      "Viète: với $x^3 + px^2 + qx + r = (x - x_1)(x - x_2)(x - x_3)$, khai triển để so sánh hệ số $x^2$."
+    ],
+    "solution": "$(\\lambda x + c)^2 = x^3 + ax + b \\Rightarrow x^3 - \\lambda^2 x^2 + (a - 2\\lambda c)x + (b - c^2) = 0$. Ba nghiệm là hoành độ ba giao điểm $x_1, x_2, x_3$, nên vế trái bằng $(x - x_1)(x - x_2)(x - x_3)$; so sánh hệ số $x^2$: $-(x_1 + x_2 + x_3) = -\\lambda^2$. Vậy $x_3 = \\lambda^2 - x_1 - x_2$. Phép lật chỉ đổi dấu $y$, nên đó cũng là hoành độ của $P + Q$. ∎"
+  }
+]

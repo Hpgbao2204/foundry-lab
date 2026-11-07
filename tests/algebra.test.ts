@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { elementOrder, gf2Mul, lagrangeMod, phi, polyEvalMod } from '../src/exercises/registry';
 import { lagrangeCoeffs, lagrangeEval, polyString } from '../src/lib/poly';
+import { addMod, addReal, mulMod, onCurveMod, pointsMod, type RealPoint } from '../src/lib/ec';
 
 describe('subgroups & cosets lesson', () => {
   it('cosets of ⟨2⟩ = {1,2,4} in Z_7^* are {1,2,4} and {3,5,6}; 5H = 3H', () => {
@@ -116,5 +117,28 @@ describe('Schwartz–Zippel lesson', () => {
     for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) if ((x * y) % 5 === 1) z++;
     expect(z).toBe(4);
     expect(2 ** 30 / 2 ** 61).toBeCloseTo(4.66e-10, 11);
+  });
+});
+
+describe('elliptic curve lessons', () => {
+  it('over ℝ: (0,1)+(1,1) = (−1,−1); 2(0,1) = (1/4, −7/8); (1,1)+(3,5) = (0,1); (−1,−1)+(3,5) = 2P', () => {
+    const close = (P: RealPoint, x: number, y: number) => {
+      expect(P!.x).toBeCloseTo(x, 12);
+      expect(P!.y).toBeCloseTo(y, 12);
+    };
+    close(addReal(-1, { x: 0, y: 1 }, { x: 1, y: 1 }), -1, -1);
+    close(addReal(-1, { x: 0, y: 1 }, { x: 0, y: 1 }), 0.25, -0.875);
+    close(addReal(-1, { x: 1, y: 1 }, { x: 3, y: 5 }), 0, 1);
+    close(addReal(-1, { x: -1, y: -1 }, { x: 3, y: 5 }), 0.25, -0.875);
+    expect(addReal(-1, { x: 1, y: 0 }, { x: 1, y: 0 })).toBeNull(); // y² = x³ − x, 2-torsion
+  });
+
+  it('over F_5: y² = x³ + x + 1 has 9 points and (0,1) runs through all of them', () => {
+    expect(pointsMod(1, 1, 5)).toEqual([[0, 1], [0, 4], [2, 1], [2, 4], [3, 1], [3, 4], [4, 2], [4, 3]]);
+    const table = Array.from({ length: 9 }, (_, i) => mulMod(1, 5, i + 1, [0, 1]));
+    expect(table).toEqual([[0, 1], [4, 2], [2, 1], [3, 4], [3, 1], [2, 4], [4, 3], [0, 4], null]);
+    expect(addMod(1, 5, [2, 1], [3, 4])).toEqual([4, 3]);
+    expect(pointsMod(2, 3, 7).length + 1).toBe(6);
+    for (const P of pointsMod(1, 1, 5)) expect(onCurveMod(1, 1, 5, mulMod(1, 5, 4, P))).toBe(true);
   });
 });

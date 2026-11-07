@@ -1,4 +1,5 @@
 import { egcd, gcd, mod, modInverse } from '../lib/nt';
+import { addMod, mulMod, pointOrder, pointsMod } from '../lib/ec';
 import type { Rational } from './parse';
 
 const B = (n: number) => BigInt(n);
@@ -148,6 +149,25 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
   },
   /** p^k */
   pow: (p, k) => p ** k,
+  /** x (resp. y) of P + Q on y² = x³ + a x + b over F_p; null if P + Q = O */
+  ecAddX: (a, p, x1, y1, x2, y2) => addMod(a, p, [x1!, y1!], [x2!, y2!])?.[0] ?? null,
+  ecAddY: (a, p, x1, y1, x2, y2) => addMod(a, p, [x1!, y1!], [x2!, y2!])?.[1] ?? null,
+  /** x (resp. y) of k·P */
+  ecMulX: (a, p, k, x, y) => mulMod(a, p, k, [x, y])?.[0] ?? null,
+  ecMulY: (a, p, k, x, y) => mulMod(a, p, k, [x, y])?.[1] ?? null,
+  /** number of points of y² = x³ + a x + b over F_p, including O */
+  ecCount: (a, b, p) => pointsMod(a, b, p).length + 1,
+  /** order of the point (x, y) */
+  ecOrder: (a, p, x, y) => pointOrder(a, p, [x, y]),
+  /** smallest k ≥ 1 with k·(x, y) = (qx, qy) — a tiny discrete log */
+  ecLog: (a, p, x, y, qx, qy) => {
+    const n = pointOrder(a, p, [x, y]);
+    for (let k = 1; k < n; k++) {
+      const R = mulMod(a, p, k, [x, y]);
+      if (R && R[0] === qx && R[1] === qy) return k;
+    }
+    return null;
+  },
   /** polyEval(n, x, c_d, …, c_0) = f(x) mod n, coefficients from highest degree */
   polyEval: (n, x, ...coeffs) => polyEvalMod(coeffs, x, n),
   /** number of x in Z_n with f(x) ≡ 0, coefficients from highest degree */

@@ -1,0 +1,155 @@
+[
+  {
+    "id": "math.ec.finite-fields.add",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 + x + 1$ over $\\mathbb{F}_{5}$, let $P = (2, 1)$ and $Q = (3, 4)$. What is the $x$-coordinate of $P + Q$?",
+    "answer": "4",
+    "modulus": 5,
+    "verify": { "fn": "ecAddX", "args": [1, 5, 2, 1, 3, 4] },
+    "generator": "ecAdd",
+    "hints": [
+      "Dùng chord: $\\lambda = (y_2 - y_1)/(x_2 - x_1)$ mod 5.",
+      "Mẫu số $3 - 2 = 1$, nên không cần nghịch đảo: $\\lambda = 3$.",
+      "$x_3 = \\lambda^2 - x_1 - x_2 = 9 - 2 - 3$."
+    ],
+    "solution": "$\\lambda = 3$, $x_3 = 9 - 5 = 4$, $y_3 = 3(2 - 4) - 1 = -7 \\equiv 3$. $P + Q = (4, 3)$ — có trong bảng điểm ✓."
+  },
+  {
+    "id": "math.ec.finite-fields.count-f7",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many points (including $O$) does $y^2 = x^3 + 2x + 3$ have over $\\mathbb{F}_7$?",
+    "answer": "6",
+    "verify": { "fn": "ecCount", "args": [2, 3, 7] },
+    "hints": [
+      "Bình phương mod 7: $\\{0, 1, 2, 4\\}$. Với mỗi $x$, tính vế phải và xem có phải bình phương không.",
+      "Vế phải khác 0 và là bình phương → 2 điểm; bằng 0 → 1 điểm; không phải bình phương → 0.",
+      "Vế phải với $x = 0..6$: $3, 6, 1, 1, 5, 5, 0$."
+    ],
+    "solution": "$x = 2, 3$ cho vế phải $1$ (2 điểm mỗi cái), $x = 6$ cho $0$ (1 điểm $(6, 0)$), các $x$ khác không có điểm. Tổng $2 + 2 + 1 + 1 (O) = 6$."
+  },
+  {
+    "id": "math.ec.finite-fields.double-y",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 + x + 1$ over $\\mathbb{F}_5$, what is the $y$-coordinate of $2P$ for $P = (0, 1)$?",
+    "answer": "2",
+    "modulus": 5,
+    "verify": { "fn": "ecMulY", "args": [1, 5, 2, 0, 1] },
+    "hints": [
+      "Tiếp tuyến: $\\lambda = (3x_1^2 + a)/(2y_1)$ với $a = 1$.",
+      "$\\lambda = 1 \\cdot 2^{-1} = 3$ trong $\\mathbb{F}_5$; $x_3 = 9 \\equiv 4$.",
+      "$y_3 = \\lambda(x_1 - x_3) - y_1 = 3(0 - 4) - 1$."
+    ],
+    "solution": "$y_3 = -13 \\equiv 2 \\pmod 5$. $2P = (4, 2)$."
+  },
+  {
+    "id": "math.ec.finite-fields.on-curve",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Which points lie on $y^2 = x^3 + x + 1$ over $\\mathbb{F}_5$?",
+    "options": ["$(1, 1)$", "$(4, 2)$", "$(2, 2)$", "$(3, 4)$"],
+    "answer": [1, 3],
+    "hints": [
+      "Thay vào: so sánh $y^2 \\bmod 5$ với $x^3 + x + 1 \\bmod 5$.",
+      "$(4, 2)$: $4$ vs $64 + 4 + 1 = 69$.",
+      "$(1, 1)$: $1$ vs $3$."
+    ],
+    "solution": "$(4, 2)$: $4 \\equiv 69$ ✓. $(3, 4)$: $16 \\equiv 1$ và $31 \\equiv 1$ ✓. $(1, 1)$: $1 \\neq 3$. $(2, 2)$: $4 \\neq 1$."
+  },
+  {
+    "id": "math.ec.finite-fields.negate",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On a curve over $\\mathbb{F}_5$, $-(4, 2) = (4, y)$. What is $y$?",
+    "answer": "3",
+    "modulus": 5,
+    "verify": { "fn": "mod", "args": [-2, 5] },
+    "hints": [
+      "$-(x, y) = (x, -y)$.",
+      "$-2$ trong $\\mathbb{F}_5$ là gì?",
+      "$-2 + 5$."
+    ],
+    "solution": "$-2 \\equiv 3 \\pmod 5$, nên $-(4, 2) = (4, 3)$. Trên $\\mathbb{F}_p$, \"lật qua trục $x$\" là $y \\mapsto p - y$."
+  },
+  {
+    "id": "math.ec.finite-fields.order-p",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "On $y^2 = x^3 + x + 1$ over $\\mathbb{F}_5$, what is the order of $P = (0, 1)$?",
+    "answer": "9",
+    "verify": { "fn": "ecOrder", "args": [1, 5, 0, 1] },
+    "hints": [
+      "Order = số $k$ nhỏ nhất với $kP = O$.",
+      "Lagrange: order chia hết $N = 9$, nên là 1, 3 hoặc 9.",
+      "Từ worked example: $3P = (2, 1) \\neq O$."
+    ],
+    "solution": "$3P = (2, 1) \\neq O$ nên order không phải 1 hay 3; vậy là $9$. (Bảng trong worked example cho thấy $9P = O$.)"
+  },
+  {
+    "id": "math.ec.finite-fields.possible-orders",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "A curve has $N = 9$ points. Which numbers can be the order of a point on it?",
+    "options": ["$1$", "$2$", "$3$", "$6$", "$9$"],
+    "answer": [0, 2, 4],
+    "hints": [
+      "Các điểm tạo group hữu hạn cỡ 9.",
+      "Lagrange: order chia hết cỡ của group.",
+      "Ước của 9."
+    ],
+    "solution": "Ước của 9: $1, 3, 9$. Không có điểm order 2 — tức không có điểm nào với $y = 0$ (vì $2P = O \\iff P = -P \\iff y = 0$)."
+  },
+  {
+    "id": "math.ec.finite-fields.hasse-max",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "By Hasse's bound, what is the largest possible number of points (including $O$) of an elliptic curve over $\\mathbb{F}_{101}$?",
+    "answer": "122",
+    "hints": [
+      "$N \\le p + 1 + 2\\sqrt{p}$.",
+      "$\\sqrt{101} \\approx 10.05$.",
+      "$102 + 20.1 = 122.1$, và $N$ là số nguyên."
+    ],
+    "solution": "$N \\le 102 + 2\\sqrt{101} \\approx 122.1$, nên tối đa $122$."
+  },
+  {
+    "id": "math.ec.finite-fields.prime-order",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: if a curve has a prime number $N$ of points, then every point $P \\neq O$ generates the whole group.",
+    "answer": true,
+    "reasons": [
+      "The order of $P$ divides the prime $N$ and is not 1, so it equals $N$.",
+      "Because every finite group is cyclic.",
+      "It is false: points with $y = 0$ always have order 2.",
+      "Because $N$ prime means the curve is over a prime field."
+    ],
+    "reason": 0,
+    "hints": [
+      "Order của $P$ phải chia hết $N$.",
+      "Ước của số nguyên tố chỉ có 1 và $N$.",
+      "Chỉ $O$ có order 1."
+    ],
+    "solution": "**True.** Order của $P$ chia hết $N$ (Lagrange) và khác 1 vì $P \\ne O$, nên bằng $N$. (Điểm $y = 0$ có order 2, nhưng order 2 không chia hết $N$ lẻ nguyên tố — nên curve đó không có điểm như vậy.)"
+  },
+  {
+    "id": "math.ec.finite-fields.minus-p",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Let $P$ be a point of order $n$ on an elliptic curve. Prove that $(n - 1)P = -P$, and check it on the worked example ($n = 9$).",
+    "rubric": [
+      "Writes $(n-1)P + P = nP = O$.",
+      "Uses uniqueness of inverses in a group: the element that adds to $P$ to give $O$ is $-P$.",
+      "Concludes $(n-1)P = -P$.",
+      "Checks: $8P = (0, 4)$ and $-P = -(0, 1) = (0, -1) = (0, 4)$ in $\\mathbb{F}_5$."
+    ],
+    "hints": [
+      "Cộng thêm $P$ vào $(n-1)P$.",
+      "$nP = O$ theo định nghĩa order.",
+      "Lesson groups: inverse là duy nhất."
+    ],
+    "solution": "$(n - 1)P + P = nP = O$. Trong một group, phần tử $X$ thỏa $X + P = O$ là duy nhất và bằng $-P$, nên $(n-1)P = -P$. Với $n = 9$: bảng cho $8P = (0, 4)$, còn $-P = (0, -1) = (0, 4)$ trong $\\mathbb{F}_5$ ✓. ∎"
+  }
+]

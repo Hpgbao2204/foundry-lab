@@ -9,10 +9,10 @@ Last updated: 2026-11-08.
 |---|---|---|
 | M1 | App shell, MDX lessons, glossary hover, IndexedDB, FSRS flashcards | ✅ done |
 | M2 | Exercise engine (all types), hint ladder, generators, problem sets, mixed review | ✅ done (code exercise types are stubs until M6/M7) |
-| M3 | Math content | 🟡 in progress — 15 math lessons (algebra, polynomials, elliptic curves done) |
+| M3 | Math content | 🟡 in progress — 16 math lessons (algebra, polynomials, elliptic curves done; probability started) |
 | M4 | Crypto / ZK track | ⬜ |
 | M5 | Systems Security track + Paper Decoder (offline) | ⬜ |
-| M6 | Rust runner (local server + `cargo test`) + 6 katas | 🟡 4 Rust theory lessons written, runner not started |
+| M6 | Rust runner (local server + `cargo test`) + 6 katas | 🟡 6 Rust theory lessons written (basics chapter complete), runner not started |
 | M7 | Pyodide + ML / DL track | ⬜ |
 | M8 | Quantum + AI Trends | ⬜ |
 | M9 | AI Tutor (optional) | ⬜ |
@@ -36,10 +36,13 @@ Last updated: 2026-11-08.
 | math | elliptic-curves | `math.ec.reals` | 5 / 3 / 1 |
 | math | elliptic-curves | `math.ec.finite-fields` | 6 / 3 / 1 |
 | math | elliptic-curves | `math.ec.scalar-dlog` | 6 / 3 / 1 |
+| math | probability | `math.prob.birthday` | 5 / 3 / 1 |
 | rust | basics | `rust.basics.ownership` | 5 / 3 / 1 |
 | rust | basics | `rust.basics.structs-traits` | 5 / 2 / 1 |
 | rust | basics | `rust.basics.error-handling` | 6 / 3 / 1 |
 | rust | basics | `rust.basics.iterators-closures` | 5 / 3 / 1 |
+| rust | basics | `rust.basics.generics` | 5 / 3 / 1 |
+| rust | basics | `rust.basics.lifetimes` | 5 / 3 / 1 |
 
 Generators (`src/generators/index.ts`): `gcd`, `bezout`, `modInverse`, `negMod`, `mulAddMod`, `linearCongruence`, `fermatPow`, `elementOrder`, `crt2`, `addSubgroup`, `polyRemainder`, `shamir`, `ecAdd`.
 
@@ -51,8 +54,8 @@ Hand-computed numbers of the algebra/polynomial lessons are re-checked in `tests
 
 ## Next up (in order)
 
-1. **Rust basics:** generics with trait bounds → lifetimes.
-2. **Math:** probability (birthday bound!) → linear algebra → statistics for benchmarking; FFT/NTT.
+1. **Math:** probability basics & expectation (optional, birthday lesson already covers union bound + linearity) → linear algebra over 𝔽_p (Gaussian elimination, Vandermonde ↔ interpolation) → statistics for benchmarking; FFT/NTT.
+2. **Rust:** next chapter could be "field & curve arithmetic" katas, but they need the M6 runner (see linker note below).
 3. Then M4 (Crypto/ZK) and M5 (Systems Security).
 
 Known gaps: no Playwright smoke test yet; main JS bundle is ~1.9 MB minified (all MDX is bundled eagerly — code-split per lesson later).

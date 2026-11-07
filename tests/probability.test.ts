@@ -31,3 +31,23 @@ describe('birthday lesson', () => {
     expect(n).toBe(1415);
   });
 });
+
+describe('benchmarking lesson', () => {
+  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const median = (xs: number[]) => {
+    const s = [...xs].sort((a, b) => a - b), m = s.length >> 1;
+    return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
+  };
+  const svar = (xs: number[]) => { const m = mean(xs); return xs.reduce((a, x) => a + (x - m) ** 2, 0) / (xs.length - 1); };
+  it('worked example numbers', () => {
+    expect(mean([10, 12, 11, 13, 54])).toBe(20);
+    expect(median([10, 12, 11, 13, 54])).toBe(12);
+    expect(mean([10, 12, 11, 13])).toBe(11.5);
+    expect(svar([9, 11, 10, 12, 8])).toBe(2.5);
+    expect(Math.sqrt(2.5)).toBeCloseTo(1.58, 2);
+    expect(median([3, 8, 5, 10])).toBe(6.5);
+    expect(1.96 * (5 / Math.sqrt(100))).toBeCloseTo(0.98, 10);
+    expect((5000 / 25) ** 2).toBe(40000);
+    expect((4000 / 20) ** 2).toBe(40000);
+  });
+});

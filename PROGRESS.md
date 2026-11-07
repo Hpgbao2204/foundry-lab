@@ -9,7 +9,7 @@ Last updated: 2026-11-08.
 |---|---|---|
 | M1 | App shell, MDX lessons, glossary hover, IndexedDB, FSRS flashcards | ✅ done |
 | M2 | Exercise engine (all types), hint ladder, generators, problem sets, mixed review | ✅ done (code exercise types are stubs until M6/M7) |
-| M3 | Math content | 🟡 in progress — 18 math lessons (algebra, polynomials incl. NTT, elliptic curves done; probability + linear algebra started) |
+| M3 | Math content | ✅ core done — 19 lessons (logic, number theory, algebra, polynomials + NTT, elliptic curves, birthday bound, linear systems, benchmarking stats). Optional extras listed below |
 | M4 | Crypto / ZK track | ⬜ |
 | M5 | Systems Security track + Paper Decoder (offline) | ⬜ |
 | M6 | Rust runner (local server + `cargo test`) + 6 katas | 🟡 6 Rust theory lessons written (basics chapter complete), runner not started |
@@ -39,6 +39,7 @@ Last updated: 2026-11-08.
 | math | elliptic-curves | `math.ec.scalar-dlog` | 6 / 3 / 1 |
 | math | probability | `math.prob.birthday` | 5 / 3 / 1 |
 | math | linear-algebra | `math.linalg.systems-fp` | 5 / 3 / 1 |
+| math | statistics | `math.stats.benchmarking` | 5 / 3 / 1 |
 | rust | basics | `rust.basics.ownership` | 5 / 3 / 1 |
 | rust | basics | `rust.basics.structs-traits` | 5 / 2 / 1 |
 | rust | basics | `rust.basics.error-handling` | 6 / 3 / 1 |
@@ -57,7 +58,8 @@ Display math must be written as `$$` on its own line, then the formula, then `$$
 
 ## Next up (in order)
 
-1. **Math:** statistics for benchmarking (mean/median/variance, confidence intervals, why you repeat timing runs) → optionally probability basics/expectation and vector spaces/rank. Then M3 can be called done.
+1. **M4 Crypto/ZK** (SPEC §8.2): commitments (Pedersen) → Schnorr protocol (completeness, special soundness, simulator) → provable security games (IND-CPA, EUF-CMA, negligible) → Fiat–Shamir (+ Frozen Heart bug) → arithmetization (R1CS) → sumcheck → KZG. Reuse `src/lib/ec.ts` and the Z_p subgroup tricks from the math track.
+   Optional M3 extras: conditional probability/expectation/negligible functions, rank/eigen/SVD, calculus for ML.
 2. **Rust:** next chapter could be "field & curve arithmetic" katas, but they need the M6 runner (see linker note below).
 3. Then M4 (Crypto/ZK) and M5 (Systems Security).
 

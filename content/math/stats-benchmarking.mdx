@@ -1,0 +1,79 @@
+---
+id: math.stats.benchmarking
+track: math
+chapter: statistics
+title: "Statistics for benchmarking — why one timing run tells you nothing"
+minutes: 10
+prerequisites: [math.prob.birthday]
+researchBridge: "Mọi bài báo hệ thống/crypto đều có bảng 'nhanh hơn X%' — và reviewer sẽ hỏi: bao nhiêu lần chạy, median hay mean, khoảng tin cậy? Cùng toán đó cũng là vũ khí: timing attack từ xa (Brumley & Boneh 2003 với OpenSSL RSA) đo hàng nghìn lần để 'lọc' nhiễu mạng và lộ ra chênh lệch thời gian nhỏ phụ thuộc khóa bí mật."
+flashcards:
+  - front: "Mean vs median — which is robust to outliers?"
+    back: "The median: one huge value (GC pause, context switch) moves the mean a lot but barely moves the median."
+  - front: "Sample variance formula?"
+    back: "s² = Σ (xᵢ − x̄)² / (n − 1)."
+  - front: "Standard error of the mean?"
+    back: "SE = s / √n — it shrinks like 1/√n as you repeat measurements."
+  - front: "Rough 95% confidence interval for a mean?"
+    back: "x̄ ± 1.96 · SE (≈ ± 2 SE)."
+  - front: "How many samples to make SE ≤ d when the noise SD is σ?"
+    back: "n ≥ (σ/d)² — halving d needs 4× more samples."
+---
+
+<Why>
+
+**Puzzle.** Bạn viết hàm nhân trong $\mathbb{F}_p$ phiên bản mới và đo: 10 ms. Bản cũ: 12 ms. Nhanh hơn 17%? Chạy lại bản mới: 13 ms. Lần nữa: 54 ms (!). Vậy bản mới nhanh hay chậm?
+
+Máy tính là một môi trường **ồn ào**: cache, CPU đổi xung nhịp, hệ điều hành chen tiến trình khác, garbage collector. Một con số đo được là tín hiệu thật cộng nhiễu. Lesson này cho bạn bộ công cụ tối thiểu để tách tín hiệu khỏi nhiễu — và cho thấy vì sao kẻ tấn công dùng **cùng** bộ công cụ đó để đọc trộm khóa bí mật qua thời gian chạy.
+
+</Why>
+
+<Intuition>
+
+- **Mean** (trung bình) cộng hết rồi chia — một lần đo 54 ms do GC kéo cả trung bình lên.
+- **Median** (trung vị) là số đứng giữa sau khi sắp xếp — không quan tâm số lớn nhất lớn cỡ nào. Với benchmark, median thường là con số trung thực hơn.
+- **Độ phân tán** (standard deviation) cho biết các lần đo "rung" bao nhiêu quanh trung bình.
+
+Điều quan trọng nhất: trung bình của $n$ lần đo **ít rung hơn** từng lần đo, theo tỉ lệ $1/\sqrt{n}$. Đo 100 lần thì nhiễu của trung bình giảm 10 lần; đo 10000 lần thì giảm 100 lần. Nhiễu không biến mất — nó chỉ bị **trung bình hóa** đi. Đó là lý do benchmark tốt luôn lặp nhiều lần, và cũng là lý do "nhiễu mạng" không bảo vệ được một hàm có thời gian chạy phụ thuộc bí mật.
+
+</Intuition>
+
+<Definition title="Sample statistics">
+
+For measurements $x_1, \dots, x_n$: the **mean** $\bar{x} = \frac{1}{n}\sum x_i$; the **median** is the middle value after sorting (average of the two middle values if $n$ is even); the **sample variance** $s^2 = \frac{1}{n-1}\sum (x_i - \bar{x})^2$ and **standard deviation** $s = \sqrt{s^2}$.
+The **standard error** of the mean is $\mathrm{SE} = s / \sqrt{n}$, and $\bar{x} \pm 1.96\,\mathrm{SE}$ is an approximate 95% <Term en="confidence interval">confidence interval</Term> for the true mean.
+
+</Definition>
+
+<Example title="five timing runs">
+
+**Step 1 — mean vs median.** Đo được (ms): $10, 12, 11, 13, 54$.
+Mean $= \frac{100}{5} = 20$. Sắp xếp: $10, 11, 12, 13, 54$ — median $= 12$. Bỏ lần 54 đi thì mean còn $11.5$: một outlier đã đẩy mean lên gần gấp đôi, còn median gần như không đổi.
+
+**Step 2 — spread.** Một bộ đo khác: $9, 11, 10, 12, 8$. Mean $= 10$. Độ lệch: $-1, 1, 0, 2, -2$; bình phương: $1, 1, 0, 4, 4$, tổng $10$. Sample variance $s^2 = \frac{10}{5 - 1} = 2.5$, nên $s \approx 1.58$ ms.
+
+**Step 3 — how sure is the mean?** Giả sử đo $n = 100$ lần, được $\bar{x} = 10.2$ ms và $s = 5$ ms. Thì $\mathrm{SE} = \frac{5}{\sqrt{100}} = 0.5$ ms, và khoảng tin cậy 95% là $10.2 \pm 0.98$, tức khoảng $[9.2, 11.2]$ ms. Nếu bản cũ có khoảng $[11.8, 12.6]$ — hai khoảng không chồng nhau — ta có bằng chứng tốt là bản mới nhanh hơn thật.
+
+**Step 4 — the attacker's view.** Hàm so sánh mật khẩu chạy lâu hơn **50 ns** khi ký tự đầu đúng; nhiễu mạng có độ lệch $\sigma = 5000$ ns. Muốn $\mathrm{SE} \le 25$ ns (nửa chênh lệch), cần $\frac{5000}{\sqrt n} \le 25$, tức $\sqrt n \ge 200$, $n \ge 40000$ lần đo. Bốn vạn request — một script làm trong vài phút.
+
+</Example>
+
+**Aha:** quy luật $1/\sqrt{n}$ là cùng một kiểu "căn bậc hai" như birthday bound: nhiễu ngẫu nhiên cộng dồn chậm (như $\sqrt n$), còn tín hiệu cộng dồn nhanh (như $n$). Muốn chống timing attack, đừng trông vào nhiễu — hãy viết code **constant-time** (thời gian chạy không phụ thuộc bí mật), như Montgomery ladder ở lesson scalar multiplication.
+
+<Pitfalls>
+
+- **Đo một lần.** Một con số không có độ phân tán đi kèm là vô nghĩa.
+- **Báo mean khi có outlier.** GC pause, page fault làm mean lệch; báo median (kèm phân vị, ví dụ p95) hoặc loại warm-up có lý do.
+- **Không warm-up.** Lần chạy đầu thường chậm (cache lạnh, JIT, page fault). Bỏ vài lần đầu, hoặc dùng công cụ như `criterion` (Rust) tự làm việc này.
+- **Chia $n$ thay vì $n - 1$ cho sample variance.** Chia $n$ đánh giá thấp độ phân tán (vì $\bar{x}$ được tính từ chính dữ liệu); với $n$ nhỏ, khác biệt đáng kể.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Mean nhạy với outlier; median bền vững. Benchmark nên báo median (và độ phân tán).
+- $s^2 = \frac{1}{n-1}\sum(x_i - \bar x)^2$; $\mathrm{SE} = s/\sqrt n$; khoảng tin cậy 95% $\approx \bar x \pm 1.96\,\mathrm{SE}$.
+- Cần $n \ge (\sigma/d)^2$ lần đo để thấy chênh lệch cỡ $d$ — nhiễu chỉ làm chậm, không ngăn được timing attack.
+
+</Summary>

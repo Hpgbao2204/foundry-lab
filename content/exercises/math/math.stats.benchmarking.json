@@ -1,0 +1,132 @@
+[
+  {
+    "id": "math.stats.benchmarking.mean",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Timing runs (ms): $10, 12, 11, 13, 54$. What is the mean?",
+    "answer": "20",
+    "hints": [
+      "Mean = tổng chia số lần đo.",
+      "Tổng: $10 + 12 + 11 + 13 + 54$.",
+      "$100 / 5$."
+    ],
+    "solution": "$\\frac{100}{5} = 20$ ms — bị lần đo 54 ms kéo lên rất nhiều."
+  },
+  {
+    "id": "math.stats.benchmarking.median",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Same runs: $10, 12, 11, 13, 54$. What is the median?",
+    "answer": "12",
+    "hints": [
+      "Sắp xếp trước.",
+      "$10, 11, 12, 13, 54$.",
+      "Số đứng giữa (vị trí thứ 3 trong 5)."
+    ],
+    "solution": "Sau khi sắp xếp: $10, 11, 12, 13, 54$; median là $12$ — outlier 54 không ảnh hưởng."
+  },
+  {
+    "id": "math.stats.benchmarking.variance",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Runs: $9, 11, 10, 12, 8$. What is the sample variance $s^2$ (divide by $n - 1$)? (Fraction or decimal.)",
+    "answer": "5/2",
+    "hints": [
+      "Tính mean trước: $50 / 5 = 10$.",
+      "Bình phương độ lệch: $1, 1, 0, 4, 4$.",
+      "Tổng chia cho $n - 1 = 4$."
+    ],
+    "solution": "Mean 10; tổng bình phương độ lệch $= 10$; $s^2 = \\frac{10}{4} = \\frac{5}{2} = 2.5$."
+  },
+  {
+    "id": "math.stats.benchmarking.se",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "You measured $n = 36$ runs with sample standard deviation $s = 6$ ms. What is the standard error of the mean (ms)?",
+    "answer": "1",
+    "hints": [
+      "$\\mathrm{SE} = s / \\sqrt{n}$.",
+      "$\\sqrt{36} = 6$.",
+      "$6 / 6$."
+    ],
+    "solution": "$\\mathrm{SE} = \\frac{6}{\\sqrt{36}} = 1$ ms. Khoảng tin cậy 95% khoảng $\\bar x \\pm 2$ ms."
+  },
+  {
+    "id": "math.stats.benchmarking.median-even",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is the median of $3, 8, 5, 10$?",
+    "answer": "13/2",
+    "hints": [
+      "Sắp xếp: $3, 5, 8, 10$.",
+      "Số phần tử chẵn: lấy trung bình hai số ở giữa.",
+      "$(5 + 8) / 2$."
+    ],
+    "solution": "Hai số giữa là 5 và 8, median $= \\frac{13}{2} = 6.5$."
+  },
+  {
+    "id": "math.stats.benchmarking.attack-samples",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "A secret-dependent timing difference is $d = 20$ ns; network noise has $\\sigma = 4000$ ns. How many measurements $n$ make $\\mathrm{SE} = \\sigma / \\sqrt n$ equal to $d$?",
+    "answer": "40000",
+    "hints": [
+      "Giải $\\sigma / \\sqrt{n} = d$.",
+      "$\\sqrt{n} = \\sigma / d = 200$.",
+      "$n = 200^2$."
+    ],
+    "solution": "$\\sqrt n = 4000 / 20 = 200$, nên $n = 40000$. Nhiễu gấp 200 lần tín hiệu vẫn bị vượt qua bằng 40 nghìn lần đo."
+  },
+  {
+    "id": "math.stats.benchmarking.one-run",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: to decide which of two implementations is faster, running each once and comparing the two times is enough if the machine is otherwise idle.",
+    "answer": false,
+    "reasons": [
+      "Single runs include noise (caches, frequency scaling, scheduling); without repeated runs you cannot tell signal from noise.",
+      "It is true: an idle machine has no noise.",
+      "It is false because you must always run exactly 10 times.",
+      "It is true if you use the mean."
+    ],
+    "reason": 0,
+    "hints": [
+      "Kể vài nguồn nhiễu không biến mất khi máy \"rảnh\".",
+      "Cache lạnh ở lần chạy đầu, CPU boost, ngắt của hệ điều hành…",
+      "Không có độ phân tán thì không biết chênh lệch có ý nghĩa không."
+    ],
+    "solution": "**False.** Máy \"rảnh\" vẫn có nhiễu: cache/TLB lạnh, CPU đổi xung nhịp, ngắt, page fault. Cần nhiều lần chạy (có warm-up) và báo median + độ phân tán hoặc khoảng tin cậy."
+  },
+  {
+    "id": "math.stats.benchmarking.robust",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "A benchmark has occasional huge outliers from garbage-collection pauses. Which summary of a run's typical time is most robust?",
+    "options": ["Median", "Mean", "Maximum", "Sum of all runs"],
+    "answer": 0,
+    "hints": [
+      "Thống kê nào không thay đổi nhiều khi số lớn nhất tăng gấp 10?",
+      "Mean và sum tăng theo outlier; maximum *là* outlier.",
+      "Số đứng giữa chỉ phụ thuộc vào thứ tự."
+    ],
+    "solution": "Median. (Nếu chính các pause là điều bạn quan tâm — ví dụ độ trễ tệ nhất — thì báo thêm phân vị cao như p99.)"
+  },
+  {
+    "id": "math.stats.benchmarking.se-proof",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Let $X_1, \\dots, X_n$ be independent with the same variance $\\sigma^2$. Prove that the mean $\\bar X = \\frac{1}{n}\\sum X_i$ has variance $\\sigma^2 / n$, so its standard deviation is $\\sigma / \\sqrt{n}$.",
+    "rubric": [
+      "Uses $\\mathrm{Var}(aY) = a^2\\,\\mathrm{Var}(Y)$ with $a = 1/n$.",
+      "Uses that for independent variables the variance of a sum is the sum of variances.",
+      "Computes $\\mathrm{Var}(\\sum X_i) = n\\sigma^2$ and then $\\mathrm{Var}(\\bar X) = n\\sigma^2 / n^2 = \\sigma^2 / n$.",
+      "Takes the square root to get $\\sigma / \\sqrt n$."
+    ],
+    "hints": [
+      "Hai tính chất: hằng số đi ra ngoài variance thế nào? Variance của tổng các biến độc lập?",
+      "$\\mathrm{Var}(\\frac{1}{n} S) = \\frac{1}{n^2}\\mathrm{Var}(S)$.",
+      "$\\mathrm{Var}(S) = \\mathrm{Var}(X_1) + \\dots + \\mathrm{Var}(X_n)$."
+    ],
+    "solution": "Đặt $S = \\sum X_i$. Vì độc lập, $\\mathrm{Var}(S) = \\sum \\mathrm{Var}(X_i) = n\\sigma^2$. Khi đó $\\mathrm{Var}(\\bar X) = \\mathrm{Var}(S/n) = \\frac{1}{n^2} \\cdot n\\sigma^2 = \\frac{\\sigma^2}{n}$, nên độ lệch chuẩn là $\\frac{\\sigma}{\\sqrt n}$. ∎ Đây chính là quy luật $1/\\sqrt n$ của standard error."
+  }
+]

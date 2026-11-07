@@ -68,5 +68,8 @@
   ],
   "math.poly.ntt": [
     "math.poly.lagrange-interpolation"
+  ],
+  "math.stats.benchmarking": [
+    "math.prob.birthday"
   ]
 }

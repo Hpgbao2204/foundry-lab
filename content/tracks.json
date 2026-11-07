@@ -63,6 +63,13 @@
         "lessons": [
           "math.linalg.systems-fp"
         ]
+      },
+      {
+        "id": "statistics",
+        "title": "Statistics",
+        "lessons": [
+          "math.stats.benchmarking"
+        ]
       }
     ]
   },

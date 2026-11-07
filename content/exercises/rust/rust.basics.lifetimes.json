@@ -1,0 +1,151 @@
+[
+  {
+    "id": "rust.basics.lifetimes.promise",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "What does the signature `fn longest<'a>(x: &'a str, y: &'a str) -> &'a str` promise?",
+    "options": [
+      "The returned reference may be used only while both `x` and `y` are still valid",
+      "`x` and `y` will live for the whole program",
+      "The function copies the longer string into a new allocation",
+      "`x` and `y` must have the same length"
+    ],
+    "answer": 0,
+    "hints": [
+      "Chú thích lifetime mô tả quan hệ giữa các reference, không thay đổi thời gian sống.",
+      "Cả ba vị trí dùng cùng một `'a`.",
+      "Kết quả có thể là `x` hoặc `y` — compiler phải giả sử điều xấu nhất."
+    ],
+    "solution": "Output chỉ hợp lệ trong phần giao của thời gian sống của `x` và `y`. Không có gì được chép, và không ai sống lâu hơn nhờ chú thích."
+  },
+  {
+    "id": "rust.basics.lifetimes.elision",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Does `fn first_word(s: &str) -> &str` need an explicit lifetime annotation?",
+    "options": [
+      "No — with exactly one input reference, the output gets its lifetime (elision)",
+      "Yes — every function returning a reference needs `'a`",
+      "Yes — it must be `&'static str`",
+      "No — because `&str` is always `'static`"
+    ],
+    "answer": 0,
+    "hints": [
+      "Nhớ các quy tắc elision.",
+      "Có bao nhiêu input reference?",
+      "Chỉ có một nguồn mà output có thể mượn từ đó."
+    ],
+    "solution": "Không cần. Chỉ có một input reference nên compiler tự gán lifetime của nó cho output: tương đương `fn first_word<'a>(s: &'a str) -> &'a str`."
+  },
+  {
+    "id": "rust.basics.lifetimes.longest-len",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "What is `longest(\"forge\", \"lab\").len()`?",
+    "answer": "5",
+    "hints": [
+      "`longest` trả về chuỗi dài hơn (nếu bằng thì trả `x`).",
+      "`\"forge\"` dài 5, `\"lab\"` dài 3.",
+      "Lấy `.len()` của kết quả."
+    ],
+    "solution": "Trả về `\"forge\"`, độ dài 5."
+  },
+  {
+    "id": "rust.basics.lifetimes.packet-len",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "With the lesson's `parse`, what is `parse(&[9, 8, 7, 6, 5, 4, 3]).unwrap().payload.len()`?",
+    "answer": "3",
+    "hints": [
+      "`split_at(4)` tách slice thành hai phần ở vị trí 4.",
+      "Header là 4 byte đầu.",
+      "Slice có 7 byte."
+    ],
+    "solution": "7 byte, header lấy 4, payload còn $7 - 4 = 3$ byte: `[5, 4, 3]` — không byte nào bị chép."
+  },
+  {
+    "id": "rust.basics.lifetimes.short-buffer",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "What does `parse(&[1, 2])` return?",
+    "options": ["`None`", "A `Packet` with an empty payload", "It panics with index out of bounds", "A `Packet` whose header has 2 bytes"],
+    "answer": 0,
+    "hints": [
+      "Dòng đầu của `parse` kiểm tra gì?",
+      "`buf.len() < 4`?",
+      "Nhánh đó trả gì?"
+    ],
+    "solution": "`None`: buffer ngắn hơn 4 byte bị từ chối trước khi `split_at` có cơ hội panic. Parser an toàn không bao giờ tin độ dài input."
+  },
+  {
+    "id": "rust.basics.lifetimes.change-lifetime",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: adding `'a` annotations can make a value live longer so that a reference to it stays valid.",
+    "answer": false,
+    "reasons": [
+      "Annotations only describe relationships between borrows; the compiler checks them but never extends a value's life.",
+      "It is true: `'a` moves the value to the heap.",
+      "It is true only for `'static`.",
+      "It is false because Rust has a garbage collector."
+    ],
+    "reason": 0,
+    "hints": [
+      "Ai quyết định khi nào một giá trị bị drop?",
+      "Ownership và scope quyết định; lifetime chỉ là \"hợp đồng\" trong chữ ký.",
+      "Nếu hợp đồng sai so với thực tế, chuyện gì xảy ra?"
+    ],
+    "solution": "**False.** Giá trị bị drop khi owner ra khỏi scope. Chú thích lifetime chỉ cho compiler biết reference nào liên quan tới cái nào; nếu không khớp thực tế, code không compile. (Rust không có garbage collector.)"
+  },
+  {
+    "id": "rust.basics.lifetimes.return-local",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "`fn f() -> &str { let s = String::from(\"hi\"); &s }` does not compile. What is the right fix?",
+    "options": [
+      "Return the `String` itself: `fn f() -> String { String::from(\"hi\") }`",
+      "Add a lifetime: `fn f<'a>() -> &'a str { ... &s }`",
+      "Use `unsafe` to return the pointer",
+      "Call `s.clone()` and return `&s.clone()`"
+    ],
+    "answer": 0,
+    "hints": [
+      "`s` bị drop ở cuối hàm. Reference tới nó sẽ trỏ vào đâu?",
+      "Có chú thích nào làm `s` sống tiếp không?",
+      "Thay vì cho mượn, hãy *chuyển* ownership cho người gọi."
+    ],
+    "solution": "Trả về `String` (chuyển ownership). Thêm `'a` không cứu được vì `s` vẫn chết ở cuối hàm; `&s.clone()` cũng là reference tới một giá trị tạm sắp chết; `unsafe` chỉ biến lỗi compile thành use-after-free thật."
+  },
+  {
+    "id": "rust.basics.lifetimes.method-elision",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "For the method `fn display(&self, other: &str) -> &str`, which lifetime does the returned reference get by elision?",
+    "options": ["The lifetime of `&self`", "The lifetime of `other`", "`'static`", "It is ambiguous, so it does not compile"],
+    "answer": 0,
+    "hints": [
+      "Có hai input reference, nhưng một cái là `&self`.",
+      "Quy tắc elision thứ ba nói gì về method?",
+      "Method thường trả về dữ liệu mượn từ chính object."
+    ],
+    "solution": "Lifetime của `&self`. Nếu bạn thực sự muốn trả về thứ mượn từ `other`, phải chú thích tường minh."
+  },
+  {
+    "id": "rust.basics.lifetimes.uaf",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Explain how Rust's borrow checker and lifetimes prevent the C bug `char *greet(void) { char buf[16] = \"hello\"; return buf; }`, and why the same protection matters for a network packet parser.",
+    "rubric": [
+      "Identifies the C bug: returning a pointer to a stack variable that is freed on return (dangling pointer / use-after-free).",
+      "Explains that in Rust the returned reference must have a lifetime tied to an input or `'static`; a local cannot satisfy it, so it is a compile error (E0106/E0515).",
+      "Explains that a borrowing struct like `Packet<'a>` cannot outlive the buffer, so freed or reused buffers cannot be read through it.",
+      "Connects to security: the check is at compile time, costs nothing at runtime, and removes a whole class of exploitable bugs."
+    ],
+    "hints": [
+      "Trong C, `buf` sống tới đâu? Con trỏ trả về trỏ vào đâu sau khi hàm kết thúc?",
+      "Trong Rust, output reference phải mượn từ đâu? Biến cục bộ có thỏa không?",
+      "Với parser: chuyện gì xảy ra nếu buffer mạng được tái sử dụng cho gói tin tiếp theo khi ai đó còn giữ `Packet`?"
+    ],
+    "solution": "Trong C, `buf` nằm trên stack và bị giải phóng khi `greet` trả về; con trỏ trả ra là dangling, đọc/ghi qua nó là use-after-free — có thể bị khai thác. Trong Rust, reference trả về phải có lifetime gắn với một input hoặc `'static`; biến cục bộ không thỏa, nên compiler báo lỗi (E0106/E0515) thay vì sinh code nguy hiểm. Với parser, `Packet<'a>` mượn từ buffer nên không thể sống lâu hơn nó: compiler cấm giải phóng hoặc ghi đè buffer (cần `&mut`) khi còn `Packet` đang dùng. Tất cả được kiểm tra lúc compile, không tốn chi phí runtime, và loại bỏ cả một lớp lỗ hổng."
+  }
+]

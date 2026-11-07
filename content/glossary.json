@@ -253,5 +253,10 @@
     "en": "trait bound",
     "vi": "ràng buộc trait",
     "explain": "Điều kiện T: Trait trên tham số generic — nói T phải hỗ trợ những phép nào; thân hàm chỉ được dùng đúng những phép đó."
+  },
+  {
+    "en": "lifetime",
+    "vi": "lifetime (thời gian sống)",
+    "explain": "Khoảng code mà một reference còn hợp lệ. Chú thích 'a liên kết lifetime của input và output để compiler kiểm tra không có dangling reference."
   }
 ]

@@ -1,0 +1,121 @@
+---
+id: rust.basics.lifetimes
+track: rust
+chapter: basics
+title: "Lifetimes — how Rust kills use-after-free at compile time"
+minutes: 10
+prerequisites: [rust.basics.generics]
+researchBridge: "Use-after-free và dangling pointer nằm trong nhóm lỗ hổng bộ nhớ phổ biến nhất ở C/C++ (Microsoft và Google từng báo cáo khoảng 70% lỗ hổng nghiêm trọng của họ là lỗi an toàn bộ nhớ). Lifetime là cơ chế giúp Rust loại bỏ cả lớp lỗi này lúc compile — và cho phép parser 'zero-copy' (đọc gói tin mạng mà không chép dữ liệu) an toàn."
+flashcards:
+  - front: "What is a lifetime in Rust?"
+    back: "The region of code during which a reference is valid. Annotations like 'a name lifetimes so the compiler can relate them."
+  - front: "What does fn longest<'a>(x: &'a str, y: &'a str) -> &'a str promise?"
+    back: "The returned reference is valid only while both x and y are valid."
+  - front: "Do lifetime annotations change how long values live?"
+    back: "No. They only describe relationships between references; the compiler checks them."
+  - front: "Lifetime elision: when can you omit annotations?"
+    back: "If there is exactly one input reference, or a &self/&mut self method — the output borrows from it."
+  - front: "What does 'static mean?"
+    back: "The reference is valid for the whole program, e.g. string literals."
+---
+
+<Why>
+
+**Puzzle.** Đoạn C này có gì sai?
+
+```c
+char *greet(void) {
+    char buf[16] = "hello";
+    return buf;          // trả về địa chỉ của biến cục bộ
+}
+```
+
+`buf` nằm trên stack và **biến mất** khi hàm trả về. Con trỏ trả ra trỏ vào vùng nhớ đã chết — một *dangling pointer*. Chương trình có thể chạy đúng hôm nay, in rác ngày mai, và bị khai thác để chạy code tùy ý ngày kia. Compiler C thường chỉ cảnh báo, hoặc im lặng hoàn toàn với những biến thể phức tạp hơn.
+
+Rust từ chối compile cả lớp lỗi này. Công cụ của nó là **lifetime** — và lesson này cho thấy lifetime không phải phép thuật, chỉ là một câu hỏi: *"tham chiếu này được dùng tới bao giờ, và thứ nó trỏ tới sống tới bao giờ?"*
+
+</Why>
+
+<Intuition>
+
+Hãy coi một reference như **vé mượn sách thư viện**. Vé chỉ có giá trị khi cuốn sách còn trong thư viện. Nếu thư viện thanh lý cuốn sách (giá trị bị drop), mọi vé mượn nó phải hết hạn **trước** đó.
+
+Một <Term en="lifetime">lifetime</Term> là khoảng thời gian vé còn hiệu lực. Phần lớn thời gian compiler tự suy ra. Nhưng khi một hàm nhận **hai** vé và trả về **một** vé, compiler không biết vé trả về gắn với cuốn sách nào:
+
+```rust
+fn longest(x: &str, y: &str) -> &str { ... }   // error[E0106]: missing lifetime specifier
+```
+
+Ta trả lời bằng một chú thích: `'a` — "vé trả về chỉ hiệu lực khi **cả hai** vé đầu vào còn hiệu lực". Chú thích không làm sách sống lâu hơn; nó chỉ cho compiler đủ thông tin để **kiểm tra** từng chỗ gọi hàm.
+
+</Intuition>
+
+<Definition title="Lifetime parameters">
+
+A lifetime parameter `'a` names how long a reference is valid. In `fn f<'a>(x: &'a T) -> &'a U`, the output may be used only while the input borrow is alive.
+**Elision rules** let you omit annotations: each input reference gets its own lifetime; if there is exactly one input lifetime, it is given to all outputs; in methods with `&self` or `&mut self`, the output gets the lifetime of `self`.
+`'static` is the lifetime of the whole program (e.g. string literals).
+
+</Definition>
+
+<Example title="longest, a dangling borrow, and a zero-copy parser">
+
+**Step 1 — annotate.**
+
+```rust
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() >= y.len() { x } else { y }
+}
+```
+
+`longest("forge", "lab")` trả về `"forge"` (độ dài 5).
+
+**Step 2 — the compiler catches the dangling reference.**
+
+```rust
+let result;
+{
+    let s2 = String::from("xyz");
+    result = longest("hello", &s2);
+}                       // s2 is dropped here
+println!("{result}");   // error[E0597]: `s2` does not live long enough
+```
+
+Thật ra lần chạy này `result` sẽ là `"hello"` — an toàn. Nhưng compiler chỉ biết chữ ký: kết quả **có thể** trỏ vào `s2`. Nó từ chối vì *không chứng minh được* là an toàn. Đó là cách làm thận trọng mà bảo mật cần.
+
+**Step 3 — structs that borrow: parse without copying.**
+
+```rust
+struct Packet<'a> { header: &'a [u8], payload: &'a [u8] }
+
+fn parse(buf: &[u8]) -> Option<Packet<'_>> {
+    if buf.len() < 4 { return None; }
+    let (header, payload) = buf.split_at(4);
+    Some(Packet { header, payload })
+}
+```
+
+`Packet` không chép byte nào — nó chỉ giữ hai "cửa sổ" nhìn vào `buf`. Với `buf = [1, 2, 3, 4, 5, 6]`, header dài 4, payload dài 2. Lifetime `'a` đảm bảo không ai giữ `Packet` lâu hơn `buf` — điều mà parser C viết tay thường làm sai. (Để ý kiểm tra `buf.len() < 4` trả `None` thay vì đọc quá biên — kết hợp với lesson error handling.)
+
+</Example>
+
+**Aha:** ownership (lesson 1) trả lời "ai **dọn** giá trị"; borrowing trả lời "ai **được nhìn**"; lifetime trả lời "nhìn **tới bao giờ**". Ba câu hỏi đó cùng nhau loại bỏ use-after-free, double free và data race — mà không cần garbage collector.
+
+<Pitfalls>
+
+- **Nghĩ rằng `'a` làm biến sống lâu hơn.** Không. Lifetime chỉ *mô tả*; nếu mô tả mâu thuẫn với thực tế, code không compile.
+- **Trả về reference tới biến cục bộ.** `fn f() -> &str { let s = String::from("hi"); &s }` không thể sửa bằng chú thích. Trả về `String` (chuyển ownership), hoặc `&'static str` nếu là literal.
+- **Rải `'static` để "cho qua".** `T: 'static` hay `&'static` thường buộc bạn rò rỉ bộ nhớ hoặc chép dữ liệu; hãy để reference mượn từ đúng nguồn của nó.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Lifetime = khoảng code mà một reference còn hợp lệ; `'a` đặt tên để liên kết input và output.
+- Chú thích không thay đổi thời gian sống — chỉ cho compiler thông tin để kiểm tra.
+- Elision: một input reference, hoặc method có `&self`, thì không cần viết.
+- Struct mượn dữ liệu (`Packet<'a>`) cho phép parse zero-copy mà vẫn an toàn.
+
+</Summary>

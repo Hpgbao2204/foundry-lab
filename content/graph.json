@@ -56,5 +56,8 @@
   ],
   "rust.basics.generics": [
     "rust.basics.iterators-closures"
+  ],
+  "rust.basics.lifetimes": [
+    "rust.basics.generics"
   ]
 }

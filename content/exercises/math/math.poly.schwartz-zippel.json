@@ -1,0 +1,140 @@
+[
+  {
+    "id": "math.poly.schwartz-zippel.bound-basic",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "$f$ is a nonzero polynomial of degree 10 over $\\mathbb{F}_{101}$, and $r$ is uniform in $\\mathbb{F}_{101}$. What upper bound does Schwartz–Zippel give for $\\Pr[f(r) = 0]$? (Answer as a fraction.)",
+    "answer": "10/101",
+    "hints": [
+      "Cận là $d / |S|$.",
+      "$d = 10$, $|S| = |\\mathbb{F}_{101}| = 101$.",
+      "Viết dạng $a/b$."
+    ],
+    "solution": "$\\frac{d}{|S|} = \\frac{10}{101}$ — vì $f$ có tối đa 10 nghiệm trong 101 giá trị."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.count-agree",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Over $\\mathbb{F}_{11}$, $A(x) = 2x^2 + 5x + 1$ and $B(x) = x^2 + x + 2$. For how many $r \\in \\mathbb{F}_{11}$ is $A(r) = B(r)$?",
+    "answer": "2",
+    "verify": { "fn": "polyRootCount", "args": [11, 1, 4, 10] },
+    "hints": [
+      "$A(r) = B(r) \\iff (A - B)(r) = 0$.",
+      "$A - B = x^2 + 4x - 1 \\equiv x^2 + 4x + 10$. Đếm nghiệm.",
+      "Thử phân tích thành $(x - a)(x - b)$ với $a + b \\equiv -4 \\equiv 7$, $ab \\equiv 10$."
+    ],
+    "solution": "$x^2 + 4x + 10 \\equiv (x - 2)(x - 5) \\pmod{11}$, nên đúng **2** giá trị: $r = 2$ và $r = 5$."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.eval-a",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Alice picks $r = 7$ and sends $A(7) \\bmod 11$ for $A(x) = 2x^2 + 5x + 1$. What number does she send?",
+    "answer": "2",
+    "modulus": 11,
+    "verify": { "fn": "polyEval", "args": [11, 7, 2, 5, 1] },
+    "hints": [
+      "Rút gọn mod 11 sau mỗi bước để số nhỏ.",
+      "Horner: $(2 \\cdot 7 + 5) \\cdot 7 + 1$.",
+      "$2 \\cdot 7 + 5 = 19 \\equiv 8$."
+    ],
+    "solution": "Horner: $2 \\cdot 7 + 5 = 19 \\equiv 8$, rồi $8 \\cdot 7 + 1 = 57 = 5 \\cdot 11 + 2$. Vậy Alice gửi $2$. Check trực tiếp: $2 \\cdot 49 + 35 + 1 = 134 = 12 \\cdot 11 + 2$ ✓."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.repeat",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "One random-point test fails with probability at most $\\frac{1}{10}$. You repeat it 3 times with fresh independent $r$. What is the bound on failing all 3 times?",
+    "answer": "1/1000",
+    "hints": [
+      "Các lần thử độc lập: nhân xác suất.",
+      "$\\left(\\frac{1}{10}\\right)^3$.",
+      "$10^3 = 1000$."
+    ],
+    "solution": "$\\left(\\frac{1}{10}\\right)^3 = \\frac{1}{1000}$."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.xy-zeros",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "How many pairs $(x, y) \\in \\mathbb{F}_5 \\times \\mathbb{F}_5$ satisfy $xy - 1 = 0$?",
+    "answer": "4",
+    "hints": [
+      "$xy = 1$ nghĩa là $y = x^{-1}$.",
+      "Với $x = 0$ có $y$ nào không? Với mỗi $x \\ne 0$ có bao nhiêu $y$?",
+      "Có 4 giá trị $x \\neq 0$."
+    ],
+    "solution": "$x = 0$ không có $y$; mỗi $x \\in \\{1, 2, 3, 4\\}$ có đúng một $y = x^{-1}$. Vậy **4** cặp trong 25, tức xác suất $\\frac{4}{25} \\le \\frac{d}{|S|} = \\frac{2}{5}$ — đúng như Schwartz–Zippel (tổng bậc $d = 2$)."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.equal-means-equal",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: if $A(r) = B(r)$ for one random $r$, then $A = B$ for certain.",
+    "answer": false,
+    "reasons": [
+      "$r$ might be one of the at most $d$ roots of $A - B$; the test only makes equality very likely.",
+      "It is true because a random $r$ is never a root.",
+      "It is false because $A(r) = B(r)$ is impossible when $A = B$.",
+      "It is true when the field is large."
+    ],
+    "reason": 0,
+    "hints": [
+      "Nhớ lại worked example: $r = 2$ cho $A(2) = B(2)$ nhưng $A \\neq B$.",
+      "Kết luận nào là chắc chắn: \"khác nhau\" hay \"bằng nhau\"?",
+      "Field lớn làm xác suất sai nhỏ, nhưng không bằng 0."
+    ],
+    "solution": "**False.** $r$ có thể trúng một nghiệm của $A - B$ (như $r = 2$ trong worked example). Ta chỉ có \"bằng nhau với xác suất $\\ge 1 - d/|S|$\". Ngược lại, $A(r) \\neq B(r)$ thì chắc chắn $A \\neq B$."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.small-field",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Why is a random-point test over $\\mathbb{F}_7$ useless for polynomials of degree 7 or more?",
+    "options": [
+      "$x^7 - x$ is nonzero but equals 0 at every point of $\\mathbb{F}_7$, so it can never be detected.",
+      "Polynomials of degree $\\ge 7$ cannot be evaluated in $\\mathbb{F}_7$.",
+      "Because 7 is prime.",
+      "It is not useless; the error is always at most $1/7$."
+    ],
+    "answer": 0,
+    "hints": [
+      "Cận $d/|S|$ bằng bao nhiêu khi $d = 7$, $|S| = 7$?",
+      "Có đa thức khác 0 nào bằng 0 tại mọi điểm của $\\mathbb{F}_7$ không? Nhớ Fermat.",
+      "Lesson division & roots: $x^p - x$."
+    ],
+    "solution": "Khi $d \\ge |S|$, cận $\\ge 1$. Cụ thể $x^7 - x \\neq 0$ nhưng bằng 0 tại mọi $r \\in \\mathbb{F}_7$ (Fermat): test luôn nói \"bằng nhau\". Cần $|S| \\gg d$."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.big-bound",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "A polynomial identity has degree $1000$, and $r$ is drawn from a set $S$ with $|S| = 10^9$. What is the Schwartz–Zippel bound on the error? (Fraction.)",
+    "answer": "1/1000000",
+    "hints": [
+      "$d / |S| = 1000 / 10^9$.",
+      "$10^9 / 10^3 = 10^6$.",
+      "Viết dạng $1/\\dots$"
+    ],
+    "solution": "$\\frac{10^3}{10^9} = \\frac{1}{10^6} = \\frac{1}{1000000}$ — một phần triệu, chỉ với một phép thử."
+  },
+  {
+    "id": "math.poly.schwartz-zippel.univariate-proof",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove the one-variable Schwartz–Zippel lemma: if $f \\neq 0$ has degree $d$ and $r$ is uniform in a finite $S \\subseteq F$, then $\\Pr[f(r) = 0] \\le d / |S|$.",
+    "rubric": [
+      "Uses that a nonzero degree-$d$ polynomial over a field has at most $d$ roots in $F$.",
+      "Concludes at most $d$ elements of $S$ are roots.",
+      "Writes the probability as (number of roots in $S$) / $|S|$ because $r$ is uniform.",
+      "Concludes the bound $d / |S|$."
+    ],
+    "hints": [
+      "Xác suất với phân phối đều = (số trường hợp xấu) / (tổng số trường hợp).",
+      "\"Trường hợp xấu\" là $r$ là nghiệm của $f$. Có tối đa bao nhiêu nghiệm?",
+      "Dùng định lý của lesson division & roots."
+    ],
+    "solution": "Vì $f \\neq 0$ bậc $d$ trên field, $f$ có tối đa $d$ nghiệm trong $F$, nên tối đa $d$ nghiệm trong $S$. $r$ đều trên $S$, nên $\\Pr[f(r) = 0] = \\frac{|\\{s \\in S : f(s) = 0\\}|}{|S|} \\le \\frac{d}{|S|}$. ∎"
+  }
+]

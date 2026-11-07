@@ -39,5 +39,8 @@
   ],
   "math.poly.lagrange-interpolation": [
     "math.poly.division-roots"
+  ],
+  "math.poly.schwartz-zippel": [
+    "math.poly.lagrange-interpolation"
   ]
 }

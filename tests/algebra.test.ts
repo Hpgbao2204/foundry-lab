@@ -99,3 +99,22 @@ describe('polynomial lessons', () => {
     expect([1, 2, 3].map((x) => (5 + 2 * x + x * x) % 13)).toEqual([8, 0, 7]);
   });
 });
+
+describe('Schwartz–Zippel lesson', () => {
+  const A = [2, 5, 1], B = [1, 1, 2];
+  it('A and B over F_11 agree exactly at r = 2 and r = 5', () => {
+    const agree = Array.from({ length: 11 }, (_, r) => r).filter((r) => polyEvalMod(A, r, 11) === polyEvalMod(B, r, 11));
+    expect(agree).toEqual([2, 5]);
+    expect(polyEvalMod(A, 2, 11)).toBe(8);
+    expect(polyEvalMod(A, 3, 11)).toBe(1);
+    expect(polyEvalMod(B, 3, 11)).toBe(3);
+    expect(polyEvalMod(A, 7, 11)).toBe(2);
+  });
+
+  it('xy − 1 has 4 zeros in F_5²; 2^30 / 2^61 ≈ 4.7e-10', () => {
+    let z = 0;
+    for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) if ((x * y) % 5 === 1) z++;
+    expect(z).toBe(4);
+    expect(2 ** 30 / 2 ** 61).toBeCloseTo(4.66e-10, 11);
+  });
+});

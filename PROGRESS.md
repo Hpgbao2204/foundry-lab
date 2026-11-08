@@ -63,7 +63,7 @@ Display math must be written as `$$` on its own line, then the formula, then `$$
 1. **M4 Crypto/ZK** (SPEC §8.2): ~~Pedersen~~ ✅ → ~~Schnorr~~ ✅ → provable security games (IND-CPA, EUF-CMA, negligible) → Fiat–Shamir (+ Frozen Heart bug) → arithmetization (R1CS) → sumcheck → KZG. Reuse `src/lib/ec.ts` and the toy group p = 23, q = 11, g = 2, h = 3 (numbers re-checked in `tests/crypto.test.ts`; verify fns `pedersen`, `dlogMod`, `schnorrResponse`). Lesson ids in this track use the prefix `zk.`.
    Optional M3 extras: conditional probability/expectation/negligible functions, rank/eigen/SVD, calculus for ML.
 2. **Rust:** next chapter could be "field & curve arithmetic" katas, but they need the M6 runner (see linker note below).
-3. Then M4 (Crypto/ZK) and M5 (Systems Security).
+3. Then M5 (Systems Security + Paper Decoder).
 
 Known gaps: no Playwright smoke test yet; main JS bundle is ~1.9 MB minified (all MDX is bundled eagerly — code-split per lesson later).
 Rust snippets can be type-checked locally with `rustc --edition 2021 --emit=metadata file.rs`, but this machine has **no MSVC linker** (`link.exe`), so binaries cannot be built/run — the M6 runner needs Visual Studio Build Tools (or the GNU toolchain) installed first.

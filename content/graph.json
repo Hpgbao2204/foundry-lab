@@ -71,5 +71,12 @@
   ],
   "math.stats.benchmarking": [
     "math.prob.birthday"
+  ],
+  "zk.commit.pedersen": [
+    "math.algebra.subgroups-cosets",
+    "math.nt.fermat"
+  ],
+  "zk.sigma.schnorr": [
+    "zk.commit.pedersen"
   ]
 }

@@ -149,6 +149,19 @@ export const VERIFY: Record<string, (...args: number[]) => bigint | number | nul
   },
   /** p^k */
   pow: (p, k) => p ** k,
+  /** Pedersen commitment g^m · h^r mod p */
+  pedersen: (p, g, h, m, r) => mod(modPow(B(g), B(m), B(p)) * modPow(B(h), B(r), B(p)), B(p)),
+  /** smallest x ≥ 0 with g^x ≡ h (mod p), or null */
+  dlogMod: (g, h, p) => {
+    let x = 1 % p;
+    for (let k = 0; k < p; k++) {
+      if (x === h % p) return k;
+      x = (x * g) % p;
+    }
+    return null;
+  },
+  /** Schnorr response s = k + c·x mod q */
+  schnorrResponse: (k, c, x, q) => mod(B(k) + B(c) * B(x), B(q)),
   /** det [[a, b], [c, d]] mod p */
   det2Mod: (a, b, c, d, p) => mod(B(a * d - b * c), B(p)),
   /** solve a x + b y = e, c x + d y = f over F_p (det ≠ 0); which = 0 → x, 1 → y */

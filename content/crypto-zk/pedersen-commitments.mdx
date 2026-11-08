@@ -1,0 +1,84 @@
+---
+id: zk.commit.pedersen
+track: crypto-zk
+chapter: commitments
+title: "Commitments — a sealed envelope made of math (Pedersen)"
+minutes: 10
+prerequisites: [math.algebra.subgroups-cosets, math.nt.fermat]
+researchBridge: "Commitment là viên gạch của gần như mọi giao thức ZK: Bulletproofs và Monero/Zcash giấu số tiền giao dịch bằng Pedersen commitment (nhờ tính đồng cấu: tổng commitment đầu vào = tổng commitment đầu ra). Polynomial commitment (KZG, FRI) là phiên bản 'commit cả một đa thức'. Đấu giá kín và bỏ phiếu điện tử cũng dùng cùng ý tưởng."
+flashcards:
+  - front: "Two security properties of a commitment scheme?"
+    back: "Hiding: the commitment reveals nothing about m. Binding: the committer cannot open it to a different m."
+  - front: "Pedersen commitment formula?"
+    back: "C = g^m · h^r in a group of prime order q, with random r and nobody knowing log_g h."
+  - front: "Which property is perfect and which computational in Pedersen?"
+    back: "Perfectly hiding (every m fits with some r); computationally binding (breaking it means computing log_g h)."
+  - front: "Homomorphic property of Pedersen?"
+    back: "C(m₁, r₁) · C(m₂, r₂) = C(m₁ + m₂, r₁ + r₂)."
+  - front: "Why must nobody know x = log_g h?"
+    back: "With x, g^m h^r = g^{m + xr}, so the committer can reopen C to any m' by solving m' + x r' ≡ m + x r (mod q)."
+---
+
+<Why>
+
+**Puzzle.** Alice và Bob chơi oẳn tù tì qua tin nhắn. Ai gửi trước sẽ thua: người kia chỉ việc đọc rồi chọn nước thắng. Làm sao để Alice "chốt" lựa chọn của mình **trước**, nhưng Bob chưa được **thấy**, và sau đó Alice không thể **đổi ý**?
+
+Ngoài đời, Alice viết lựa chọn vào giấy, bỏ vào phong bì dán kín, đưa Bob. Bob giữ phong bì (Alice không đổi được) nhưng không nhìn xuyên được (Bob không biết). Lesson này xây một "phong bì" như vậy chỉ bằng phép lũy thừa modulo — và nó có thêm một siêu năng lực mà phong bì giấy không có: **cộng các phong bì mà không mở chúng**.
+
+</Why>
+
+<Intuition>
+
+Một <Term en="commitment scheme">commitment</Term> có hai pha:
+
+- **Commit:** Alice gửi $C = \text{Commit}(m, r)$, trong đó $m$ là thông điệp và $r$ là số ngẫu nhiên ("độ mờ" của phong bì).
+- **Open:** sau đó Alice tiết lộ $(m, r)$; Bob tính lại và so với $C$.
+
+Hai yêu cầu kéo ngược nhau:
+
+- **Hiding** — nhìn $C$ không biết gì về $m$. Cần $r$ ngẫu nhiên: nếu chỉ có 3 lựa chọn kéo/búa/bao mà không có $r$, Bob thử cả 3 là xong.
+- **Binding** — Alice không tìm được $(m', r') \neq (m, r)$ với cùng $C$.
+
+Ý tưởng Pedersen: trong một group có order nguyên tố $q$, lấy hai generator $g, h$ và đặt $C = g^m h^r$. Phần $h^r$ với $r$ ngẫu nhiên "phủ" lên $g^m$ như một lớp sơn đều màu — mọi $m$ đều trông như nhau.
+
+</Intuition>
+
+<Definition title="Pedersen commitment">
+
+Let $G$ be a group of prime order $q$ with generators $g, h$ such that **nobody knows** $\log_g h$. To commit to $m \in \mathbb{Z}_q$, pick uniform $r \in \mathbb{Z}_q$ and send $C = g^m h^r$. To open, reveal $(m, r)$.
+It is **perfectly hiding** and **binding** as long as computing $\log_g h$ is hard.
+
+</Definition>
+
+<Example title="a toy Pedersen in the subgroup of order 11 inside ℤ₂₃*">
+
+$p = 23$, và $\mathbb{Z}_{23}^*$ có 22 phần tử, nên có subgroup order $q = 11$ (lesson subgroups). Cả $g = 2$ và $h = 3$ đều có order 11: $2^{11} = 2048 = 89 \cdot 23 + 1$ và $3^{11} = 177147 = 7702 \cdot 23 + 1$.
+
+**Step 1 — commit to $m = 5$ with $r = 7$.** $2^5 = 32 \equiv 9$; $3^7 = 2187 = 95 \cdot 23 + 2 \equiv 2$. Vậy $C = 9 \cdot 2 = 18$.
+
+**Step 2 — add envelopes without opening.** Commitment thứ hai: $m = 2, r = 3$: $C' = 4 \cdot 27 \equiv 4 \cdot 4 = 16$. Tích $C \cdot C' = 288 \equiv 12$. Và đúng là $\text{Commit}(5 + 2, 7 + 3) = 2^7 \cdot 3^{10} \equiv 13 \cdot 8 = 104 \equiv 12$ ✓. Ai đó có thể kiểm tra "tổng đầu vào = tổng đầu ra" mà không thấy số nào.
+
+**Step 3 — why $\log_g h$ must stay secret.** Lũy thừa của 2 mod 23: $2, 4, 8, 16, 9, 18, 13, 3$ — vậy $3 = 2^8$, tức $x = \log_2 3 = 8$. Kẻ biết $x$ viết $C = 2^{m + 8r}$, nên chỉ cần $m' + 8r' \equiv 5 + 8 \cdot 7 = 61 \equiv 6 \pmod{11}$. Chọn $m' = 1$: $8r' \equiv 5$, $r' = 5 \cdot 8^{-1} = 5 \cdot 7 = 35 \equiv 2$. Kiểm tra: $2^1 \cdot 3^2 = 18$ ✓ — **cùng phong bì, mở ra thành 1 thay vì 5**. Binding sụp đổ.
+
+</Example>
+
+**Aha:** cùng một phép tính ở Step 3 cũng chứng minh **hiding hoàn hảo**: với *mọi* $m'$ đều có đúng một $r'$ cho cùng $C$, nên $C$ không mang chút thông tin nào về $m$ — kể cả với kẻ có máy tính vô hạn. Hiding là "miễn phí" từ toán; binding thì dựa vào độ khó của discrete log (lesson scalar multiplication). Trên thực tế, $h$ được sinh bằng cách **hash ra một điểm** ("nothing up my sleeve") để chắc chắn không ai biết $\log_g h$.
+
+<Pitfalls>
+
+- **Quên $r$ hoặc dùng lại $r$.** $C = g^m$ không hiding: Bob thử mọi $m$ khả dĩ. Dùng cùng $r$ cho hai commitment thì $C / C' = g^{m - m'}$ lộ hiệu.
+- **Tự chọn $h = g^x$.** Người chọn tham số mà biết $x$ có thể mở commitment thành bất cứ gì. Tham số phải sinh minh bạch.
+- **Nghĩ hiding và binding đều có thể hoàn hảo.** Không thể cùng lúc: nếu mọi $m'$ đều khớp với $C$ (hiding hoàn hảo), thì một kẻ vô hạn sức tính luôn tìm được cách mở khác.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Commitment = phong bì số: hiding (không lộ $m$) + binding (không đổi được $m$).
+- Pedersen: $C = g^m h^r$ trong group order nguyên tố; perfectly hiding, binding dựa trên discrete log.
+- Đồng cấu: $C(m_1, r_1) \cdot C(m_2, r_2) = C(m_1 + m_2, r_1 + r_2)$.
+- Ai biết $\log_g h$ có thể mở lại tùy ý — $h$ phải được sinh minh bạch.
+
+</Summary>

@@ -1,0 +1,145 @@
+[
+  {
+    "id": "zk.sigma.schnorr.public-key",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Toy group: $p = 23$, $g = 2$ (order $q = 11$). The secret is $x = 3$. What is the public key $y = g^x \\bmod 23$?",
+    "answer": "8",
+    "modulus": 23,
+    "verify": { "fn": "modPow", "args": [2, 3, 23] },
+    "hints": [
+      "$y = 2^3$.",
+      "Không cần rút gọn — đã nhỏ hơn 23.",
+      "$2 \\cdot 2 \\cdot 2$."
+    ],
+    "solution": "$y = 2^3 = 8$."
+  },
+  {
+    "id": "zk.sigma.schnorr.commit",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Same group. The prover picks nonce $k = 7$. What commitment $t = g^k \\bmod 23$ does she send?",
+    "answer": "13",
+    "modulus": 23,
+    "verify": { "fn": "modPow", "args": [2, 7, 23] },
+    "hints": [
+      "$t = 2^7 = 128$.",
+      "$128 = 5 \\cdot 23 + ?$",
+      "$5 \\cdot 23 = 115$."
+    ],
+    "solution": "$2^7 = 128 = 115 + 13$, nên $t = 13$."
+  },
+  {
+    "id": "zk.sigma.schnorr.response",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "With $x = 3$, $k = 7$, challenge $c = 4$ and $q = 11$, compute the response $s = k + c x \\bmod q$.",
+    "answer": "8",
+    "modulus": 11,
+    "verify": { "fn": "schnorrResponse", "args": [7, 4, 3, 11] },
+    "hints": [
+      "$s = 7 + 4 \\cdot 3$.",
+      "$= 19$.",
+      "Rút gọn mod $q = 11$ (không phải mod 23)."
+    ],
+    "solution": "$7 + 12 = 19 \\equiv 8 \\pmod{11}$."
+  },
+  {
+    "id": "zk.sigma.schnorr.verify-lhs",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "The verifier checks $g^s = t \\cdot y^c$. With $s = 8$, compute the left side $2^8 \\bmod 23$.",
+    "answer": "3",
+    "modulus": 23,
+    "verify": { "fn": "modPow", "args": [2, 8, 23] },
+    "hints": [
+      "$2^8 = 256$.",
+      "$11 \\cdot 23 = 253$.",
+      "$256 - 253$."
+    ],
+    "solution": "$256 \\equiv 3$. Vế phải: $t \\cdot y^c = 13 \\cdot 8^4$; $8^2 = 64 \\equiv 18$, $8^4 \\equiv 18^2 = 324 \\equiv 2$, nên $13 \\cdot 2 = 26 \\equiv 3$ ✓ — chấp nhận."
+  },
+  {
+    "id": "zk.sigma.schnorr.order",
+    "level": "A",
+    "type": "step-fill",
+    "prompt": "Put the Schnorr messages in their roles. Fill in who sends each one.",
+    "template": [
+      "Message 1: $t = g^k$ is sent by the {{prover}}.",
+      "Message 2: the random challenge $c$ is sent by the {{verifier}}.",
+      "Message 3: $s = k + cx$ is sent by the {{prover}}."
+    ],
+    "hints": [
+      "Ai biết $k$ và $x$?",
+      "Challenge phải bất ngờ với prover.",
+      "Prover nói trước và nói sau; verifier hỏi ở giữa."
+    ],
+    "solution": "Prover gửi $t$, verifier gửi $c$, prover gửi $s$. Nếu prover tự chọn $c$, giao thức mất soundness."
+  },
+  {
+    "id": "zk.sigma.schnorr.extract",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "A careless prover reused the same $t$ and answered two challenges in the order-11 group: $(c, s) = (2, 5)$ and $(c', s') = (5, 1)$. Recover the secret $x = (s - s')(c - c')^{-1} \\bmod 11$.",
+    "answer": "6",
+    "modulus": 11,
+    "hints": [
+      "$s - s' = 4$, $c - c' = -3 \\equiv 8 \\pmod{11}$.",
+      "$8^{-1} \\bmod 11$: $8 \\cdot 7 = 56 = 55 + 1$.",
+      "$4 \\cdot 7 = 28$."
+    ],
+    "solution": "$x = 4 \\cdot 8^{-1} = 4 \\cdot 7 = 28 \\equiv 6$. Kiểm tra: $2^6 = 64 \\equiv 18 = y$ ✓."
+  },
+  {
+    "id": "zk.sigma.schnorr.simulate",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "Simulator for $y = 18$ (in $\\mathbb{Z}_{23}^*$, $g = 2$): choose $c = 1$, $s = 3$ and set $t = g^s \\cdot y^{-c} \\bmod 23$. What is $t$?",
+    "answer": "3",
+    "modulus": 23,
+    "hints": [
+      "$g^s = 8$. Cần $18^{-1} \\bmod 23$.",
+      "$18 \\cdot 9 = 162 = 7 \\cdot 23 + 1$.",
+      "$t = 8 \\cdot 9 = 72$, rồi mod 23."
+    ],
+    "solution": "$18^{-1} = 9$, $t = 72 \\equiv 3$. Kiểm tra: $t \\cdot y^c = 3 \\cdot 18 = 54 \\equiv 8 = 2^3$ ✓ — transcript hợp lệ mà không cần biết $x$."
+  },
+  {
+    "id": "zk.sigma.schnorr.prover-picks-c",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: Schnorr stays sound if the **prover** is allowed to choose the challenge $c$.",
+    "answer": false,
+    "reasons": [
+      "A cheater can then run the simulator: pick $c, s$ first and set $t = g^s y^{-c}$, convincing the verifier without knowing $x$.",
+      "It stays sound because the discrete log is hard.",
+      "It stays sound as long as $c$ is large.",
+      "It is false because $s$ would become 0."
+    ],
+    "reason": 0,
+    "hints": [
+      "Simulator làm được gì nếu được chọn $c$ trước khi gửi $t$?",
+      "Kẻ gian có thể làm đúng như simulator.",
+      "An toàn nằm ở thứ tự: $t$ phải được cố định trước khi biết $c$."
+    ],
+    "solution": "**False.** Nếu tự chọn $c$, kẻ gian chọn $c, s$ trước rồi tính $t = g^s y^{-c}$ — vượt qua kiểm tra mà không biết $x$. Đó là lý do Fiat–Shamir phải hash **cả** $t$ (và $y$, thông điệp) để tạo $c$."
+  },
+  {
+    "id": "zk.sigma.schnorr.soundness-proof",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Prove special soundness: if $(t, c, s)$ and $(t, c', s')$ are both accepting for $y$ with $c \\neq c' \\pmod q$, then $x = (s - s')(c - c')^{-1} \\bmod q$ satisfies $g^x = y$.",
+    "rubric": [
+      "Writes both verification equations $g^s = t y^c$ and $g^{s'} = t y^{c'}$.",
+      "Divides them to eliminate $t$: $g^{s - s'} = y^{c - c'}$.",
+      "Uses that $c - c'$ is invertible mod the prime $q$ and raises both sides to $(c - c')^{-1}$.",
+      "Concludes $y = g^{(s - s')(c - c')^{-1}}$, using that exponents are taken mod $q$ because $g$ has order $q$."
+    ],
+    "hints": [
+      "Viết hai phương trình kiểm tra với cùng $t$.",
+      "Chia vế theo vế để $t$ biến mất.",
+      "$q$ nguyên tố nên $c - c' \\not\\equiv 0$ có nghịch đảo mod $q$."
+    ],
+    "solution": "Từ $g^s = t y^c$ và $g^{s'} = t y^{c'}$, chia vế theo vế: $g^{s - s'} = y^{c - c'}$. Vì $q$ nguyên tố và $c \\not\\equiv c'$, tồn tại $e = (c - c')^{-1} \\bmod q$. Nâng hai vế lên lũy thừa $e$ (số mũ tính mod $q$ vì mọi phần tử có order chia hết $q$): $y = y^{(c - c')e} = g^{(s - s')e}$. Vậy $x = (s - s')e$ là discrete log của $y$. ∎"
+  }
+]

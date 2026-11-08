@@ -283,5 +283,15 @@
     "en": "confidence interval",
     "vi": "khoảng tin cậy",
     "explain": "Khoảng quanh giá trị đo được, ví dụ x̄ ± 1.96·SE, chứa giá trị thật với xác suất khoảng 95% (theo nghĩa lặp lại thí nghiệm)."
+  },
+  {
+    "en": "commitment scheme",
+    "vi": "lược đồ cam kết",
+    "explain": "'Phong bì số': Commit(m, r) giấu m (hiding) và không cho người commit đổi m khi mở (binding)."
+  },
+  {
+    "en": "Fiat–Shamir",
+    "vi": "biến đổi Fiat–Shamir",
+    "explain": "Thay challenge ngẫu nhiên của verifier bằng hash của transcript, biến giao thức tương tác thành chứng minh/chữ ký không tương tác. Phải hash đủ mọi input công khai."
   }
 ]

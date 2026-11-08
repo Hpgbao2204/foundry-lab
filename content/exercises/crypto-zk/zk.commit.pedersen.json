@@ -1,0 +1,146 @@
+[
+  {
+    "id": "zk.commit.pedersen.commit-2-3",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Toy Pedersen: $p = 23$, $g = 2$, $h = 3$. Compute the commitment $C = g^m h^r \\bmod 23$ for $m = 2$, $r = 3$.",
+    "answer": "16",
+    "modulus": 23,
+    "verify": { "fn": "pedersen", "args": [23, 2, 3, 2, 3] },
+    "hints": [
+      "Tính $2^2$ và $3^3$ riêng, rồi nhân.",
+      "$3^3 = 27 \\equiv 4 \\pmod{23}$.",
+      "$4 \\cdot 4$."
+    ],
+    "solution": "$2^2 = 4$, $3^3 = 27 \\equiv 4$, nên $C = 16$."
+  },
+  {
+    "id": "zk.commit.pedersen.commit-4-1",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Same parameters ($p = 23$, $g = 2$, $h = 3$). Compute $C$ for $m = 4$, $r = 1$.",
+    "answer": "2",
+    "modulus": 23,
+    "verify": { "fn": "pedersen", "args": [23, 2, 3, 4, 1] },
+    "hints": [
+      "$C = 2^4 \\cdot 3^1$.",
+      "$16 \\cdot 3 = 48$.",
+      "$48 - 2 \\cdot 23$."
+    ],
+    "solution": "$16 \\cdot 3 = 48 \\equiv 2 \\pmod{23}$."
+  },
+  {
+    "id": "zk.commit.pedersen.homomorphic",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "$C_1 = 18$ commits to $(m, r) = (5, 7)$ and $C_2 = 16$ commits to $(2, 3)$ (with $p = 23$, $g = 2$, $h = 3$). Compute $C_1 \\cdot C_2 \\bmod 23$.",
+    "answer": "12",
+    "modulus": 23,
+    "verify": { "fn": "pedersen", "args": [23, 2, 3, 7, 10] },
+    "hints": [
+      "Cứ nhân hai số rồi lấy mod.",
+      "$18 \\cdot 16 = 288$.",
+      "$288 = 12 \\cdot 23 + 12$."
+    ],
+    "solution": "$288 \\equiv 12$. Đó chính là commitment của $(5 + 2, 7 + 3) = (7, 10)$: $2^7 \\cdot 3^{10} \\equiv 13 \\cdot 8 \\equiv 12$ ✓."
+  },
+  {
+    "id": "zk.commit.pedersen.dlog",
+    "level": "A",
+    "type": "numeric",
+    "prompt": "Find $x$ with $2^x \\equiv 3 \\pmod{23}$ (the secret that would break binding).",
+    "answer": "8",
+    "verify": { "fn": "dlogMod", "args": [2, 3, 23] },
+    "hints": [
+      "Group nhỏ — liệt kê lũy thừa của 2.",
+      "Nhân 2 liên tiếp, mod 23: $2, 4, 8, 16, 32 \\equiv 9, \\dots$",
+      "$9 \\to 18 \\to 36 \\equiv 13 \\to 26 \\equiv 3$."
+    ],
+    "solution": "$2, 4, 8, 16, 9, 18, 13, 3$: $2^8 \\equiv 3$, nên $x = 8$. Với group 256-bit thì việc liệt kê này là bất khả."
+  },
+  {
+    "id": "zk.commit.pedersen.properties",
+    "level": "A",
+    "type": "multiple-choice",
+    "prompt": "Match the property: \"after committing, Alice cannot open $C$ to a different message\". Which property is this?",
+    "options": ["Binding", "Hiding", "Completeness", "Homomorphism"],
+    "answer": 0,
+    "hints": [
+      "Hai tính chất cốt lõi: một bảo vệ Bob, một bảo vệ Alice.",
+      "Tính chất nào ngăn **người commit** gian lận?",
+      "Hiding bảo vệ bí mật của Alice khỏi Bob."
+    ],
+    "solution": "Binding — \"trói\" Alice vào thông điệp đã chọn. Hiding là chiều ngược lại: Bob không biết $m$."
+  },
+  {
+    "id": "zk.commit.pedersen.equivocate",
+    "level": "B",
+    "type": "numeric",
+    "prompt": "You know $x = \\log_2 3 = 8$ in the order-11 subgroup mod 23. You committed $C = 18$ to $(m, r) = (5, 7)$. Find $r'$ so that $(m', r') = (3, r')$ opens the same $C$.",
+    "answer": "10",
+    "modulus": 11,
+    "hints": [
+      "$C = 2^{m + 8r}$, nên cần $3 + 8r' \\equiv 5 + 8 \\cdot 7 \\pmod{11}$ (số mũ sống mod $q = 11$).",
+      "$5 + 56 = 61 \\equiv 6$, nên $8r' \\equiv 3 \\pmod{11}$.",
+      "$8^{-1} \\equiv 7 \\pmod{11}$."
+    ],
+    "solution": "$8r' \\equiv 6 - 3 = 3$, nên $r' \\equiv 3 \\cdot 7 = 21 \\equiv 10 \\pmod{11}$. Check: $2^3 \\cdot 3^{10} \\equiv 8 \\cdot 8 = 64 \\equiv 18 \\pmod{23}$ ✓ — cùng phong bì, giờ mở thành 3."
+  },
+  {
+    "id": "zk.commit.pedersen.perfect-hiding",
+    "level": "B",
+    "type": "true-false-why",
+    "prompt": "True or false: an attacker with unlimited computing power who sees a Pedersen commitment $C$ can learn something about $m$.",
+    "answer": false,
+    "reasons": [
+      "For every $m'$ there is exactly one $r'$ with $g^{m'} h^{r'} = C$, and $r$ is uniform, so all messages are equally likely.",
+      "It is true: with unlimited power you can compute $\\log_g h$ and then $m$.",
+      "It is false only if $m$ is small.",
+      "It is true because $C$ is computed deterministically from $m$."
+    ],
+    "reason": 0,
+    "hints": [
+      "Kể cả khi biết $\\log_g h = x$, ta có $C = g^{m + xr}$. Biết $m + xr$ có giúp biết $m$ không?",
+      "Với mỗi $m'$, có bao nhiêu $r'$ thỏa?",
+      "$r$ được chọn đều ngẫu nhiên."
+    ],
+    "solution": "**False.** Kể cả biết $x$, ta chỉ biết $m + xr \\bmod q$; với mỗi $m'$ có đúng một $r'$ khớp, và $r$ đều, nên mọi $m'$ đồng khả năng. Đó là perfectly hiding."
+  },
+  {
+    "id": "zk.commit.pedersen.reuse-r",
+    "level": "B",
+    "type": "multiple-choice",
+    "prompt": "Alice commits to two bids $m_1, m_2$ using the **same** $r$: $C_1 = g^{m_1}h^r$, $C_2 = g^{m_2}h^r$. What leaks?",
+    "options": [
+      "$C_1 / C_2 = g^{m_1 - m_2}$, so the difference of the bids can be found by trying small values",
+      "Nothing — Pedersen is perfectly hiding",
+      "Both bids are revealed directly",
+      "The value $r$ is revealed"
+    ],
+    "answer": 0,
+    "hints": [
+      "Chia hai commitment cho nhau. $h^r$ đi đâu?",
+      "Còn lại $g^{m_1 - m_2}$, không có lớp phủ ngẫu nhiên nào.",
+      "Nếu hiệu nhỏ (giá thầu), thử từng giá trị là ra."
+    ],
+    "solution": "$C_1 / C_2 = g^{m_1 - m_2}$ — lớp phủ $h^r$ triệt tiêu, và với hiệu nhỏ thì thử là ra. Perfect hiding chỉ đúng khi mỗi commitment có $r$ **mới, ngẫu nhiên**."
+  },
+  {
+    "id": "zk.commit.pedersen.hiding-proof",
+    "level": "C",
+    "type": "proof-write",
+    "prompt": "Let $G$ have prime order $q$ and $h \\neq 1$. Prove: for every commitment $C = g^m h^r$ and every $m' \\in \\mathbb{Z}_q$ there is exactly one $r' \\in \\mathbb{Z}_q$ with $g^{m'} h^{r'} = C$.",
+    "rubric": [
+      "Notes $h$ generates $G$ because its order divides the prime $q$ and is not 1 (Lagrange).",
+      "Writes $g = h^y$ for some $y$, so the condition becomes $h^{y m' + r'} = h^{y m + r}$.",
+      "Concludes $r' \\equiv y(m - m') + r \\pmod q$ exists.",
+      "Argues uniqueness: two solutions would give $h^{r'_1 - r'_2} = 1$, forcing $r'_1 \\equiv r'_2 \\pmod q$."
+    ],
+    "hints": [
+      "Lesson subgroups: trong group order nguyên tố, mọi phần tử $\\ne 1$ là generator.",
+      "Viết $g$ dưới dạng lũy thừa của $h$.",
+      "So sánh số mũ mod $q$."
+    ],
+    "solution": "Order của $h$ chia hết $q$ nguyên tố và khác 1, nên $h$ là generator; viết $g = h^y$. Điều kiện $g^{m'} h^{r'} = g^m h^r$ thành $h^{ym' + r'} = h^{ym + r}$, tức $r' \\equiv r + y(m - m') \\pmod q$ — tồn tại. Nếu hai $r'_1, r'_2$ cùng thỏa thì $h^{r'_1 - r'_2} = 1$, và vì $h$ có order $q$ nên $r'_1 \\equiv r'_2$. ∎"
+  }
+]

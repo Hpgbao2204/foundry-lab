@@ -1,0 +1,93 @@
+---
+id: zk.sigma.schnorr
+track: crypto-zk
+chapter: interactive-proofs
+title: "Schnorr's protocol — prove you know a secret without revealing it"
+minutes: 10
+prerequisites: [zk.commit.pedersen]
+researchBridge: "Schnorr là 'hello world' của zero-knowledge, và nó chạy thật ngoài đời: chữ ký Schnorr (BIP-340) dùng trong Bitcoin Taproot, EdDSA/Ed25519 (SSH, Signal) có cùng cấu trúc. Lỗi tái dùng nonce k — đúng phép toán trong 'special soundness' — đã làm lộ khóa ký firmware của Sony PS3 (2010) và nhiều ví Bitcoin."
+flashcards:
+  - front: "Three messages of Schnorr's protocol?"
+    back: "Commit t = g^k; challenge c (random from the verifier); response s = k + c·x mod q."
+  - front: "Schnorr verification equation?"
+    back: "g^s = t · y^c, where y = g^x is the public key."
+  - front: "Special soundness of Schnorr?"
+    back: "Two accepting transcripts (t, c, s), (t, c', s') with c ≠ c' give x = (s − s')/(c − c') mod q."
+  - front: "How does the Schnorr simulator work?"
+    back: "Pick c and s first, then set t = g^s · y^{−c}. The transcript is accepting and has the same distribution — without knowing x."
+  - front: "Why is reusing the nonce k fatal?"
+    back: "Two responses with the same k and different challenges let anyone solve for x (special soundness used as an attack)."
+---
+
+<Why>
+
+**Puzzle.** Bạn muốn chứng minh với một server rằng bạn **biết** mật khẩu, nhưng không muốn gửi mật khẩu — kể cả dạng hash, vì server có thể bị hack, hoặc chính server là kẻ gian. Nghe như vô lý: làm sao thuyết phục ai đó rằng bạn biết một bí mật mà không tiết lộ chút gì về nó?
+
+Claus Schnorr (1989) đưa ra một giao thức chỉ ba tin nhắn, dùng đúng group và phép lũy thừa của lesson trước. Nó có ba tính chất mà mọi zero-knowledge proof đều cần: người trung thực luôn thuyết phục được (completeness), kẻ không biết bí mật gần như chắc chắn bị lộ (soundness), và người kiểm tra không học được gì (zero-knowledge).
+
+</Why>
+
+<Intuition>
+
+Bí mật là $x$; công khai là $y = g^x$ (discrete log khó, nên $y$ không lộ $x$).
+
+1. **Commit.** Prover chọn ngẫu nhiên $k$, gửi $t = g^k$ — "tôi khóa một con số bí mật thứ hai".
+2. **Challenge.** Verifier gửi một số ngẫu nhiên $c$ — "trả lời câu hỏi bất ngờ này".
+3. **Response.** Prover gửi $s = k + c \cdot x \bmod q$. Verifier kiểm tra $g^s = t \cdot y^c$.
+
+Vì sao an toàn? $s$ trộn $x$ với $k$ ngẫu nhiên, nên một mình $s$ trông như số ngẫu nhiên — giống $r$ phủ lên $m$ trong Pedersen. Còn kẻ không biết $x$: sau khi đã gửi $t$, hắn chỉ trả lời được **một** challenge $c$. Nếu trả lời được hai challenge khác nhau cho cùng $t$, thì từ hai câu trả lời ta **tính ra được $x$** — nghĩa là hắn thực ra đã biết $x$.
+
+</Intuition>
+
+<Definition title="Schnorr identification (a Σ-protocol)">
+
+Group $G$ of prime order $q$, generator $g$, public $y = g^x$, prover knows $x$.
+Prover sends $t = g^k$ for uniform $k \in \mathbb{Z}_q$; verifier sends uniform $c$; prover sends $s = k + cx \bmod q$; verifier accepts iff $g^s = t \cdot y^c$.
+- **Completeness:** $g^{k + cx} = g^k (g^x)^c$.
+- **Special soundness:** from accepting $(t, c, s)$ and $(t, c', s')$ with $c \neq c'$ one computes $x = (s - s')(c - c')^{-1} \bmod q$.
+- **Honest-verifier zero-knowledge:** choosing $c, s$ uniformly and setting $t = g^s y^{-c}$ produces transcripts with the same distribution, without $x$.
+
+</Definition>
+
+<Example title="Schnorr in the order-11 subgroup of ℤ₂₃*">
+
+Như lesson trước: $p = 23$, $q = 11$, $g = 2$. Bí mật $x = 6$, công khai $y = 2^6 = 64 \equiv 18$.
+
+**Step 1 — commit.** Prover chọn $k = 4$: $t = 2^4 = 16$.
+
+**Step 2 — challenge.** Verifier gửi $c = 2$.
+
+**Step 3 — response.** $s = 4 + 2 \cdot 6 = 16 \equiv 5 \pmod{11}$. (Số mũ sống mod $q = 11$, không phải mod 23!)
+
+**Step 4 — verify.** $g^s = 2^5 = 32 \equiv 9$. $\;t \cdot y^c = 16 \cdot 18^2$; $18^2 = 324 \equiv 2$, nên $16 \cdot 2 = 32 \equiv 9$ ✓.
+
+**Step 5 — what if $k$ is reused?** Cùng $t = 16$, lần khác verifier gửi $c' = 5$: $s' = 4 + 30 = 34 \equiv 1$. Ai thấy cả hai lần tính được
+$$
+x = \frac{s - s'}{c - c'} = \frac{5 - 1}{2 - 5} = \frac{4}{-3} \equiv 4 \cdot 8^{-1} = 4 \cdot 7 = 28 \equiv 6 \pmod{11}.
+$$
+Bí mật lộ hoàn toàn. Đây vừa là **chứng minh soundness** vừa là **lỗi PS3**.
+
+**Step 6 — the simulator.** Không biết $x$, chọn trước $c = 1$, $s = 3$, rồi đặt $t = g^s y^{-c} = 8 \cdot 18^{-1}$. Vì $18 \cdot 9 = 162 = 7 \cdot 23 + 1$, ta có $18^{-1} = 9$ và $t = 72 \equiv 3$. Kiểm tra: $2^3 = 8$ và $t \cdot y = 3 \cdot 18 = 54 \equiv 8$ ✓. Một transcript hợp lệ, tạo ra mà không cần bí mật.
+
+</Example>
+
+**Aha:** simulator cho thấy transcript **không chứa thông tin** về $x$ — vì ai cũng tự tạo được nó. Nhưng simulator gian lận được nhờ chọn $c$ **trước** $t$. Prover thật thì phải gửi $t$ trước, rồi mới nhận $c$. Toàn bộ an toàn nằm ở **thứ tự** tin nhắn. Thay verifier bằng $c = H(t, \text{message})$ (Fiat–Shamir) là ra chữ ký Schnorr — và nếu hash thiếu input (ví dụ quên $y$ hay $t$), thứ tự đó bị phá: đó là lỗi Frozen Heart.
+
+<Pitfalls>
+
+- **Tính $s$ mod $p$ thay vì mod $q$.** Số mũ sống trong $\mathbb{Z}_q$ (order của group), giống "rút gọn $k$ theo order" ở lesson scalar multiplication.
+- **Tái dùng hoặc sinh $k$ yếu.** Cùng $k$ + hai challenge = lộ $x$. Kể cả $k$ chỉ lệch vài bit khỏi ngẫu nhiên đều đã có tấn công (lattice). Chuẩn hiện đại sinh $k$ tất định từ hash của khóa và thông điệp (RFC 6979, EdDSA).
+- **Để prover chọn challenge.** Nếu $c$ đoán trước được, kẻ gian dùng chính mẹo simulator để "chứng minh" mà không biết $x$.
+
+</Pitfalls>
+
+<Exercises />
+
+<Summary>
+
+- Schnorr: $t = g^k$, challenge $c$, $s = k + cx \bmod q$; chấp nhận nếu $g^s = t \cdot y^c$.
+- Completeness từ đại số; special soundness: hai challenge cho cùng $t$ ⇒ tính ra $x$.
+- Zero-knowledge: simulator chọn $c, s$ trước rồi đặt $t = g^s y^{-c}$ — an toàn nằm ở thứ tự tin nhắn.
+- Tái dùng nonce $k$ làm lộ khóa — lỗi thật đã xảy ra.
+
+</Summary>
